@@ -3,10 +3,8 @@ package search
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
 import components.primaryButton
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.RootStore
-import dev.fritz2.core.placeholder
-import dev.fritz2.core.storeOf
+import dev.fritz2.core.*
+import dev.fritz2.headless.components.InputField
 import dev.fritz2.headless.components.inputField
 import examples.quotesearch.MovieQuotesStore
 import handlerScope
@@ -15,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import org.w3c.dom.HTMLDivElement
 
 val searchModule = module {
     singleOf(::ActiveSearchPlugin)
@@ -50,33 +49,34 @@ fun RenderContext.searchScreen() {
 
     val textStore = storeOf("")
 
-    div("flex items-center align-middle") {
-        inputField("flex flex-col border md-6") {
+    div("flex flex-row items-center space-x-1") {
+        textField(
+            placeHolder = "Type something to search for ..",
+            inputLabelText = "q"
+        ) {
             value(textStore)
-            inputLabel {
-                +"q"
-            }
-            inputTextfield("bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
-                placeholder("Type something to search")
-            }
-            changes.map { mapOf(
-                "q" to textStore.current,
-                "size" to "5"
-            ) } handledBy activeSearchPlugin.search
+            changes.map {
+                mapOf(
+                    "q" to textStore.current,
+                    "size" to "5"
+                )
+            } handledBy activeSearchPlugin.search
         }
         primaryButton {
             +"Search!"
 
-            clicks.map { mapOf(
-                "q" to textStore.current,
-                "size" to "5"
-            ) } handledBy activeSearchPlugin.search
+            clicks.map {
+                mapOf(
+                    "q" to textStore.current,
+                    "size" to "5"
+                )
+            } handledBy activeSearchPlugin.search
         }
     }
     searchResultsStore.data.render { rs ->
         when(rs) {
             null -> {
-                p { +"Execute a search"}
+                p { +"-"}
             }
             else -> {
                 if(rs.isFailure) {
@@ -95,10 +95,29 @@ fun RenderContext.searchScreen() {
             }
         }
     }
-//    movieQuotesStore.data.render { content ->
-//        pre {
-//            +content.let { DEFAULT_PRETTY_JSON.encodeToString(it) }
-//        }
-//    }
-
 }
+
+
+fun RenderContext.textField(
+    placeHolder: String? = null,
+    inputLabelText: String? = null,
+    id: String? = null,
+    scope: (ScopeContext.() -> Unit) = {},
+    initialize: InputField<HTMLDivElement>.() -> Unit
+) {
+    inputField("flex flex-row border p-2 items-center", id=id, scope=scope) {
+        inputLabelText?.let { l ->
+            inputLabel("italic mr-5") {
+                +l
+            }
+        }
+        inputTextfield("bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
+            placeHolder?.let { pl ->
+                placeholder(pl)
+            }
+        }
+
+        initialize(this)
+    }
+}
+
