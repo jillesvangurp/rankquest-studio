@@ -1,11 +1,8 @@
 package search
 
-import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
-import components.busy
 import components.primaryButton
-import components.row
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.placeholder
@@ -14,13 +11,10 @@ import dev.fritz2.headless.components.inputField
 import examples.quotesearch.MovieQuotesStore
 import handlerScope
 import koin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import kotlin.time.Duration.Companion.seconds
 
 val searchModule = module {
     singleOf(::ActiveSearchPlugin)
@@ -46,6 +40,7 @@ class ActiveSearchPlugin: RootStore<SearchPlugin?>(null) {
         }
         plugin
     }
+
 }
 
 fun RenderContext.searchScreen() {
@@ -55,15 +50,19 @@ fun RenderContext.searchScreen() {
 
     val textStore = storeOf("")
 
-    div("flex items-center") {
+    div("flex items-center align-middle") {
         inputField("flex flex-col border md-6") {
             value(textStore)
             inputLabel {
-                +"Search"
+                +"q"
             }
-            inputTextfield("mb-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
+            inputTextfield("bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
                 placeholder("Type something to search")
             }
+            changes.map { mapOf(
+                "q" to textStore.current,
+                "size" to "5"
+            ) } handledBy activeSearchPlugin.search
         }
         primaryButton {
             +"Search!"

@@ -4,16 +4,15 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
 import dev.fritz2.core.RootStore
-import dev.fritz2.core.storeOf
 import dev.fritz2.remote.http
 import koin
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.*
+import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -60,15 +59,22 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
         ): Result<SearchResults> {
             val text = searchContext["q"] ?: ""
             val hits = documentIndex.search {
-                query = BoolQuery(
-                    should = listOf(
-                        MatchQuery("quote", text),
-                        MatchQuery("movie", text)
+                query = if(text.isNotBlank()) {
+                    BoolQuery(
+                        should = listOf(
+                            MatchQuery("quote", text, prefixMatch = true),
+                            MatchQuery("movie", text, prefixMatch = true, boost = 0.25),
+
+                            )
                     )
-                )
+                } else {
+                    MatchAll()
+                }
+            }.let {
+                it.subList(0, min(numberOfItemsToFetch, it.size))
             }
             return SearchResults(hits.size.toLong(), 0.milliseconds, hits.map { (id, score) ->
-                SearchResults.SearchResult(id, labels[id])
+                SearchResults.SearchResult(id, labels[id] + " ($score)")
             }).let { Result.success(it) }
         }
     }

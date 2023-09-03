@@ -13,8 +13,8 @@ val navigationModule = module {
     ) }
 }
 enum class Page(val title: String) {
-    Search("Front Page"),
-    Conf("Configure")
+    Search("Search Tool"),
+    Conf("Plugin Configuration")
     ;
     companion object {
         fun resolve(value: String?, defaultPage: Page = Search): Page {

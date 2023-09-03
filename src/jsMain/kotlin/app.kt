@@ -1,9 +1,6 @@
-import components.busyPopup
 import components.primaryButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
-import dev.fritz2.headless.foundation.portalRoot
-import dev.fritz2.headless.foundation.setInitialFocus
 import dev.fritz2.routing.MapRouter
 import examples.quotesearch.MovieQuotesStore
 import kotlinx.coroutines.flow.map
