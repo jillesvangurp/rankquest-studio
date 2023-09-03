@@ -1,0 +1,32 @@
+.gradle
+bin
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+# Cruft
+*.hprof
+.DS_Store
+.vscode
+epub
+book.epub
+
+# deploy secrets and local configuration
+secring.gpg
+local.properties
+localRepo
