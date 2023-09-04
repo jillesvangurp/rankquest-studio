@@ -4,7 +4,7 @@ import components.primaryButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.routing.MapRouter
-import examples.quotesearch.moviequotesSearchPluginConfig
+import examples.quotesearch.movieQuotesSearchPluginConfig
 import kotlinx.coroutines.flow.map
 import search.ActiveSearchPlugin
 import search.searchScreen
@@ -51,7 +51,7 @@ private fun RenderContext.mainView() {
 
                         primaryButton {
                             +"Use Movie Quotes"
-                            clicks.map { moviequotesSearchPluginConfig } handledBy activeSearchPlugin.loadPlugin
+                            clicks.map { movieQuotesSearchPluginConfig } handledBy activeSearchPlugin.update
                         }
                     }
                 }

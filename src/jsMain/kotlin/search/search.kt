@@ -1,13 +1,12 @@
 package search
 
-import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
 import components.*
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
 import examples.quotesearch.MovieQuotesStore
-import examples.quotesearch.moviequotesSearchPluginConfig
+import examples.quotesearch.movieQuotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
 import handlerScope
 import koin
@@ -25,7 +24,7 @@ val searchModule = module {
 
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
-class ActiveSearchPlugin : RootStore<Pair<SearchPluginConfiguration, SearchPlugin>?>(null) {
+class ActiveSearchPlugin : RootStore<SearchPluginConfiguration?>(null) {
     val searchResultsStore by koin.inject<SearchResultsStore>()
 
     val search = handle<Map<String, String>> { p, query ->
@@ -36,7 +35,6 @@ class ActiveSearchPlugin : RootStore<Pair<SearchPluginConfiguration, SearchPlugi
                 handlerScope.launch {
                     console.log("SEARCH $query")
                     val result = searchPlugin.fetch(query, query["size"]?.toInt() ?: 10)
-                    console.log("success: ${result.isFailure}")
                     searchResultsStore.update(result)
                 }
             } else {
@@ -46,15 +44,13 @@ class ActiveSearchPlugin : RootStore<Pair<SearchPluginConfiguration, SearchPlugi
         p
     }
 
-    val loadPlugin = handle<SearchPluginConfiguration> { existing, c ->
-        when (c.pluginName) {
-            moviequotesSearchPluginConfig.pluginName -> {
-                val movieQuotesStore by koin.inject<MovieQuotesStore>()
-                movieQuotesStore.current.searchPlugin()
-            }
-
-            else -> error("unknown plugin")
+    val searchPlugin get() = when (current?.pluginName) {
+        movieQuotesSearchPluginConfig.pluginName -> {
+            val movieQuotesStore by koin.inject<MovieQuotesStore>()
+            movieQuotesStore.current.searchPlugin()
         }
+
+        else -> error("unknown plugin")
     }
 }
 
@@ -62,11 +58,10 @@ fun RenderContext.searchScreen() {
     val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
 
 
-    activeSearchPlugin.data.render { configPair ->
-        if (configPair == null) {
+    activeSearchPlugin.data.render { config ->
+        if (config == null) {
             para { +"Configure a search plugin first" }
         } else {
-            val (config, plugin) = configPair
             val stores = config.fieldConfig.associate {
                 it.name to when(it) {
                     is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
@@ -136,7 +131,6 @@ fun RenderContext.searchResults() {
             }
         }
     }
-
 }
 
 

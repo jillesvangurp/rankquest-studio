@@ -23,7 +23,7 @@ val quoteSearchModule = module {
     singleOf(::MovieQuotesStore)
 }
 
-val moviequotesSearchPluginConfig = SearchPluginConfiguration(
+val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
     pluginName = "Movie Quote Search",
     fieldConfig = listOf(
         SearchContextField.StringField("q"),
@@ -43,7 +43,7 @@ data class MovieQuote(
     val year: Int
 )
 
-fun List<MovieQuote>.searchPlugin(): Pair<SearchPluginConfiguration,SearchPlugin> {
+fun List<MovieQuote>.searchPlugin(): SearchPlugin {
     val documentIndex = DocumentIndex(
         mutableMapOf(
             "quote" to TextFieldIndex(),
@@ -89,8 +89,6 @@ fun List<MovieQuote>.searchPlugin(): Pair<SearchPluginConfiguration,SearchPlugin
                 SearchResults.SearchResult(id, labels[id] + " ($score)")
             }).let { Result.success(it) }
         }
-    }.let { plugin ->
-        moviequotesSearchPluginConfig to plugin
     }
 }
 
@@ -107,7 +105,7 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
         }.also {
             console.log("update plugin")
             activeSearchPlugin.update(
-                it.searchPlugin()
+                movieQuotesSearchPluginConfig
             )
         }
     }
