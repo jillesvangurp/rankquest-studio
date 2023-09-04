@@ -1,5 +1,6 @@
+import components.activeNavButton
 import components.secondaryButton
-import components.tertiaryButton
+import components.navButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.routing.MapRouter
 import dev.fritz2.routing.routerOf
@@ -30,9 +31,9 @@ val Page.route get() = mapOf("page" to name.lowercase())
 fun RenderContext.menu() {
     val router by koin.inject<MapRouter>()
     router.select(key = "page").render { (selected, _) ->
-        div("flex flex-col") {
+        div("flex flex-col items-center") {
             Page.entries.filter { it.showInMenu }.forEach { page ->
-                navButton(page, page.name.lowercase() == selected)
+                menuButton(page, page.name.lowercase() == selected)
             }
         }
     }
@@ -40,16 +41,16 @@ fun RenderContext.menu() {
 
 
 
-private fun RenderContext.navButton(page: Page, active: Boolean = false) {
+private fun RenderContext.menuButton(page: Page, active: Boolean = false) {
     val router by koin.inject<MapRouter>()
 
     if(active) {
-        secondaryButton {
+        activeNavButton {
             +(page.title )
             clicks.map { page.route } handledBy router.navTo
         }
     } else {
-        tertiaryButton {
+        navButton {
             +(page.title )
             clicks.map { page.route } handledBy router.navTo
         }
