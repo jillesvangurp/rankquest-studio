@@ -2,11 +2,15 @@ package search
 
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
+import components.header1
+import components.para
 import components.primaryButton
+import components.textField
 import dev.fritz2.core.*
 import dev.fritz2.headless.components.InputField
 import dev.fritz2.headless.components.inputField
 import examples.quotesearch.MovieQuotesStore
+import examples.quotesearch.moviequotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
 import handlerScope
 import koin
@@ -48,7 +52,7 @@ class ActiveSearchPlugin : RootStore<Pair<SearchPluginConfiguration, SearchPlugi
 
     val loadPlugin = handle<SearchPluginConfiguration> { existing, c ->
         when (c.pluginName) {
-            "movies_search" -> {
+            moviequotesSearchPluginConfig.pluginName -> {
                 val movieQuotesStore by koin.inject<MovieQuotesStore>()
                 movieQuotesStore.current.searchPlugin()
             }
@@ -66,7 +70,7 @@ fun RenderContext.searchScreen() {
 
     activeSearchPlugin.data.render { configPair ->
         if (configPair == null) {
-            p { +"Configure a search plugin first" }
+            para { +"Configure a search plugin first" }
         } else {
             val (config, plugin) = configPair
             val stores = config.fieldConfig.associate {
@@ -76,7 +80,8 @@ fun RenderContext.searchScreen() {
                     is SearchContextField.StringField -> storeOf("")
                 }
             }
-            div("flex flex-col items-left space-y-1") {
+            div("flex flex-col items-left space-y-1 w-fit") {
+                header1 { +config.pluginName }
                 for (field in config.fieldConfig) {
                     val fieldStore = stores[field.name]!!
                     when (field) {
@@ -104,16 +109,17 @@ fun RenderContext.searchScreen() {
             searchResultsStore.data.render { rs ->
                 when (rs) {
                     null -> {
-                        p { +"-" }
+                        para { +"-" }
                     }
 
                     else -> {
                         if (rs.isFailure) {
-                            p { +"Oopsie ${rs.exceptionOrNull()}" }
+                            para { +"Oopsie ${rs.exceptionOrNull()}" }
                         } else {
                             val results = rs.getOrThrow()
-                            p { "Found ${results.total} results in ${results.responseTime}" }
-                            ul {
+                            p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+
+                            ul("list-disc") {
                                 results.searchResultList.forEach { result ->
                                     li {
                                         +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
@@ -129,26 +135,5 @@ fun RenderContext.searchScreen() {
 }
 
 
-fun RenderContext.textField(
-    placeHolder: String? = null,
-    inputLabelText: String? = null,
-    id: String? = null,
-    scope: (ScopeContext.() -> Unit) = {},
-    initialize: InputField<HTMLDivElement>.() -> Unit
-) {
-    inputField("flex flex-row border p-2 items-center", id = id, scope = scope) {
-        initialize(this)
-        inputLabelText?.let { l ->
-            inputLabel("italic mr-5") {
-                +l
-            }
-        }
-        inputTextfield("bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
-            placeHolder?.let { pl ->
-                placeholder(pl)
-            }
-        }
 
-    }
-}
 

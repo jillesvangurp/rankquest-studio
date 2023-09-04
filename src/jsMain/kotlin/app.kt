@@ -1,8 +1,9 @@
+import components.header1
+import components.para
 import components.primaryButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.routing.MapRouter
-import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.moviequotesSearchPluginConfig
 import kotlinx.coroutines.flow.map
 import search.ActiveSearchPlugin
@@ -29,12 +30,11 @@ suspend fun main() {
 
 
 private fun RenderContext.statusBar() {
-    p { +"Rankquest Studio" }
+    para { +"Rankquest Studio" }
 }
 
 private fun RenderContext.mainView() {
     val router by koin.inject<MapRouter>()
-    val movieQuotesStore by koin.inject<MovieQuotesStore>()
     val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
 
 
@@ -47,7 +47,7 @@ private fun RenderContext.mainView() {
 
                 Page.Conf -> {
                     div {
-                        h1 { +"Configure" }
+                        header1 { +"Configure" }
 
                         primaryButton {
                             +"Use Movie Quotes"

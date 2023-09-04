@@ -24,9 +24,9 @@ val quoteSearchModule = module {
 }
 
 val moviequotesSearchPluginConfig = SearchPluginConfiguration(
-    pluginName = "movies_search",
+    pluginName = "Movie Quote Search",
     fieldConfig = listOf(
-        SearchContextField.StringField("q","Enter your query"),
+        SearchContextField.StringField("q"),
         SearchContextField.IntField("size", 5)
     ),
     pluginSettings = JsonObject(mapOf())

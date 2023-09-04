@@ -1,9 +1,9 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package searchpluginconfig
 
-import com.jilesvangurp.rankquest.core.SearchPlugin
-import examples.quotesearch.MovieQuotesStore
-import examples.quotesearch.searchPlugin
-import koin
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -19,15 +19,24 @@ sealed interface SearchContextField {
 
     @Serializable
     @SerialName("str")
-    data class StringField(override val name: String, val placeHolder: String):SearchContextField
+    data class StringField(
+        override val name: String,
+        @EncodeDefault val placeHolder: String = "enter a query"
+    ):SearchContextField
 
     @Serializable
     @SerialName("int")
-    data class IntField(override val name: String, val defaultValue: Int=0):SearchContextField
+    data class IntField(
+        override val name: String,
+        val defaultValue: Int = 0
+    ):SearchContextField
 
     @Serializable
     @SerialName("bool")
-    data class BoolField(override val name: String, val defaultValue: Boolean = false):SearchContextField
+    data class BoolField(
+        override val name: String,
+        val defaultValue: Boolean = false
+    ):SearchContextField
 }
 
 @Serializable

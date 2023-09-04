@@ -10,7 +10,7 @@ fun RenderContext.primaryButton(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "text-white bg-primary-700 hover:bg-blue-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-primary-800 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800",
+    baseClass = "w-fit text-white bg-primary-700 hover:bg-blue-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-primary-800 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800",
     id=id,
     scope = scope,
     content = content
