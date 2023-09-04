@@ -1,20 +1,16 @@
 package components
 
-import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
 import dev.fritz2.core.transition
 import dev.fritz2.headless.components.modal
-import dev.fritz2.headless.foundation.focusIn
 import handlerScope
 import koin
-import kotlinx.browser.document
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import kotlin.time.Duration.Companion.milliseconds
 
 val busyPopupModule = module {
     singleOf(::BusyStore)
@@ -33,6 +29,7 @@ suspend fun <R> busy(
 }
 
 fun busyPopup() {
+    // FIXME this doesn't work; figure out an alternative
     val busyStore by koin.inject<BusyStore>()
     modal {
         openState(busyStore)

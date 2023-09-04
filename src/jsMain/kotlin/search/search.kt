@@ -121,7 +121,7 @@ fun RenderContext.searchScreen() {
 
                             ul("list-disc") {
                                 results.searchResultList.forEach { result ->
-                                    li {
+                                    li("ml-5") {
                                         +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
                                     }
                                 }
