@@ -2,13 +2,10 @@ package search
 
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
-import components.header1
-import components.para
-import components.primaryButton
-import components.textField
-import dev.fritz2.core.*
-import dev.fritz2.headless.components.InputField
-import dev.fritz2.headless.components.inputField
+import components.*
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.RootStore
+import dev.fritz2.core.storeOf
 import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.moviequotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
@@ -18,7 +15,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import org.w3c.dom.HTMLDivElement
 import searchpluginconfig.SearchContextField
 import searchpluginconfig.SearchPluginConfiguration
 
@@ -60,12 +56,10 @@ class ActiveSearchPlugin : RootStore<Pair<SearchPluginConfiguration, SearchPlugi
             else -> error("unknown plugin")
         }
     }
-
 }
 
 fun RenderContext.searchScreen() {
     val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
-    val searchResultsStore by koin.inject<SearchResultsStore>()
 
 
     activeSearchPlugin.data.render { configPair ->
@@ -98,33 +92,43 @@ fun RenderContext.searchScreen() {
                         }
                     }
                 }
-                primaryButton {
-                    +"Search!"
+                div("flex flex-row") {
+                    secondaryButton {
+                        +"Add Testcase"
+                    }
+                    primaryButton {
+                        +"Search!"
 
-                    clicks.map {
-                        stores.map { (f,s) -> f to s.current}.toMap()
-                    } handledBy activeSearchPlugin.search
+                        clicks.map {
+                            stores.map { (f, s) -> f to s.current }.toMap()
+                        } handledBy activeSearchPlugin.search
+                    }
                 }
             }
-            searchResultsStore.data.render { rs ->
-                when (rs) {
-                    null -> {
-                        para { +"-" }
-                    }
+            searchResults()
+        }
+    }
+}
 
-                    else -> {
-                        if (rs.isFailure) {
-                            para { +"Oopsie ${rs.exceptionOrNull()}" }
-                        } else {
-                            val results = rs.getOrThrow()
-                            p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+fun RenderContext.searchResults() {
+    val searchResultsStore by koin.inject<SearchResultsStore>()
+    searchResultsStore.data.render { rs ->
+        when (rs) {
+            null -> {
+                para { +"-" }
+            }
 
-                            ul("list-disc") {
-                                results.searchResultList.forEach { result ->
-                                    li("ml-5") {
-                                        +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
-                                    }
-                                }
+            else -> {
+                if (rs.isFailure) {
+                    para { +"Oopsie ${rs.exceptionOrNull()}" }
+                } else {
+                    val results = rs.getOrThrow()
+                    p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+
+                    ul("list-disc") {
+                        results.searchResultList.forEach { result ->
+                            li("ml-5") {
+                                +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
                             }
                         }
                     }
@@ -132,8 +136,8 @@ fun RenderContext.searchScreen() {
             }
         }
     }
-}
 
+}
 
 
 
