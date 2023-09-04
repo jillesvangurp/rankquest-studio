@@ -3,7 +3,9 @@ import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.routing.MapRouter
 import examples.quotesearch.MovieQuotesStore
+import examples.quotesearch.moviequotesSearchPluginConfig
 import kotlinx.coroutines.flow.map
+import search.ActiveSearchPlugin
 import search.searchScreen
 
 suspend fun main() {
@@ -33,6 +35,8 @@ private fun RenderContext.statusBar() {
 private fun RenderContext.mainView() {
     val router by koin.inject<MapRouter>()
     val movieQuotesStore by koin.inject<MovieQuotesStore>()
+    val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
+
 
     div {
         router.select(key = "page").render { (selected, _) ->
@@ -47,8 +51,15 @@ private fun RenderContext.mainView() {
 
                         primaryButton {
                             +"Use Movie Quotes"
-                            clicks.map { "moviequotes.json" } handledBy movieQuotesStore.load
+                            clicks.map { moviequotesSearchPluginConfig } handledBy activeSearchPlugin.loadPlugin
                         }
+                    }
+                }
+                Page.Root -> {
+                    if(activeSearchPlugin.current == null) {
+                        router.navTo(Page.Conf.route)
+                    } else {
+                        router.navTo(Page.Search.route)
                     }
                 }
             }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
+import ratedsearches.ratedSearchesModule
 import search.searchModule
 
 val koin get() = GlobalContext.get()
@@ -16,7 +17,8 @@ suspend fun koinInit() {
             busyPopupModule,
             quoteSearchModule,
             searchModule,
-            navigationModule
+            ratedSearchesModule,
+            navigationModule,
         )
     }
 }

@@ -1,4 +1,3 @@
-import components.primaryButton
 import components.secondaryButton
 import components.tertiaryButton
 import dev.fritz2.core.RenderContext
@@ -12,12 +11,13 @@ val navigationModule = module {
         mapOf("page" to "main")
     ) }
 }
-enum class Page(val title: String) {
+enum class Page(val title: String, val showInMenu: Boolean = true) {
     Search("Search Tool"),
-    Conf("Plugin Configuration")
+    Conf("Plugin Configuration"),
+    Root("Not Found)",false)
     ;
     companion object {
-        fun resolve(value: String?, defaultPage: Page = Search): Page {
+        fun resolve(value: String?, defaultPage: Page = Root): Page {
             return value.takeIf { !it.isNullOrBlank() }.let {
                 Page.entries.firstOrNull { it.name.equals(value,true) }
             } ?: defaultPage
@@ -31,7 +31,7 @@ fun RenderContext.menu() {
     val router by koin.inject<MapRouter>()
     router.select(key = "page").render { (selected, _) ->
         div("flex flex-col") {
-            Page.entries.forEach { page ->
+            Page.entries.filter { it.showInMenu }.forEach { page ->
                 navButton(page, page.name.lowercase() == selected)
             }
         }

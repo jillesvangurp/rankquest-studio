@@ -9,9 +9,12 @@ import koin
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.*
+import searchpluginconfig.SearchContextField
+import searchpluginconfig.SearchPluginConfiguration
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -19,6 +22,15 @@ import kotlin.time.Duration.Companion.milliseconds
 val quoteSearchModule = module {
     singleOf(::MovieQuotesStore)
 }
+
+val moviequotesSearchPluginConfig = SearchPluginConfiguration(
+    pluginName = "movies_search",
+    fieldConfig = listOf(
+        SearchContextField.StringField("q","Enter your query"),
+        SearchContextField.IntField("size", 5)
+    ),
+    pluginSettings = JsonObject(mapOf())
+)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -31,14 +43,14 @@ data class MovieQuote(
     val year: Int
 )
 
-fun List<MovieQuote>.searchPlugin(): SearchPlugin {
+fun List<MovieQuote>.searchPlugin(): Pair<SearchPluginConfiguration,SearchPlugin> {
     val documentIndex = DocumentIndex(
         mutableMapOf(
             "quote" to TextFieldIndex(),
             "movie" to TextFieldIndex()
         )
     )
-    val labels = mutableMapOf<String,String>()
+    val labels = mutableMapOf<String, String>()
     this.indices.forEach {
         val q = this[it]
         labels[q.id] = "${q.movie}, ${q.year}: ${q.quote}"
@@ -59,7 +71,7 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
         ): Result<SearchResults> {
             val text = searchContext["q"] ?: ""
             val hits = documentIndex.search {
-                query = if(text.isNotBlank()) {
+                query = if (text.isNotBlank()) {
                     BoolQuery(
                         should = listOf(
                             MatchQuery("quote", text, prefixMatch = true),
@@ -77,22 +89,26 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
                 SearchResults.SearchResult(id, labels[id] + " ($score)")
             }).let { Result.success(it) }
         }
+    }.let { plugin ->
+        moviequotesSearchPluginConfig to plugin
     }
 }
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
-//    val searchPluginStore = storeOf(listOf<MovieQuote>().searchPlugin())
-    val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
+    //    val searchPluginStore = storeOf(listOf<MovieQuote>().searchPlugin())
+    private val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
 
     val load = handle<String> { _, path ->
         http(path).get().body().let<String, List<MovieQuote>> { body ->
             DEFAULT_JSON.decodeFromString(body)
         }.let { quotes ->
             // set the id property
-            quotes.indices.map { i-> quotes[i].copy(id="$i") }
+            quotes.indices.map { i -> quotes[i].copy(id = "$i") }
         }.also {
             console.log("update plugin")
-            activeSearchPlugin.update(it.searchPlugin())
+            activeSearchPlugin.update(
+                it.searchPlugin()
+            )
         }
     }
 
