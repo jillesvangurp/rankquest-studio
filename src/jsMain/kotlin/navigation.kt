@@ -15,6 +15,8 @@ val navigationModule = module {
 enum class Page(val title: String, val showInMenu: Boolean = true) {
     Search("Search Tool"),
     Conf("Plugin Configuration"),
+    RatedSearches("Rated Searches"),
+    Metrics("Rated Searches"),
     Root("Not Found)",false)
     ;
     companion object {

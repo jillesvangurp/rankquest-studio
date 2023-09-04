@@ -14,7 +14,7 @@ val handlerScope = CoroutineScope(CoroutineName("handler"))
 suspend fun koinInit() {
     startKoin {
         modules(
-            busyPopupModule,
+//            busyPopupModule,
             quoteSearchModule,
             searchModule,
             ratedSearchesModule,

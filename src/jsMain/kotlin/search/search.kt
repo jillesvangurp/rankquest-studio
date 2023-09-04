@@ -26,7 +26,13 @@ val searchModule = module {
 
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
-class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfiguration?>(null,"active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable) {
+class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfiguration?>(
+    null,
+    "active-search-plugin-configuration",
+    SearchPluginConfiguration.serializer().nullable
+) {
+    // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
+    private val movieQuotesStore = koin.get<MovieQuotesStore>()
     private val searchResultsStore by koin.inject<SearchResultsStore>()
 
     val search = handle<Map<String, String>> { config, query ->
@@ -35,7 +41,7 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
             if (selectedPlugin != null) {
                 handlerScope.launch {
                     console.log("SEARCH $query")
-                    val result = searchPlugin.fetch(query, query["size"]?.toInt() ?: 10)
+                    val result = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
                     searchResultsStore.update(result)
                 }
             } else {
@@ -45,27 +51,28 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
         config
     }
 
-    val searchPlugin: SearchPlugin
+    val searchPlugin: SearchPlugin?
         get() = when (current?.pluginName) {
-        movieQuotesSearchPluginConfig.pluginName -> {
-            val movieQuotesStore by koin.inject<MovieQuotesStore>()
-            movieQuotesStore.current.searchPlugin()
-        }
+            movieQuotesSearchPluginConfig.pluginName -> {
+                movieQuotesStore.current.searchPlugin()
+            }
 
-        else -> error("unknown plugin")
-    }
+            else -> {
+                console.log("unknown plugin ${current?.pluginName}")
+                null
+            }
+        }
 }
 
 fun RenderContext.searchScreen() {
     val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
-
-
+    console.log(activeSearchPluginConfiguration.searchPlugin?.let { it::class.simpleName })
     activeSearchPluginConfiguration.data.render { config ->
         if (config == null) {
             para { +"Configure a search plugin first" }
         } else {
             val stores = config.fieldConfig.associate {
-                it.name to when(it) {
+                it.name to when (it) {
                     is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
                     is SearchContextField.IntField -> storeOf("${it.defaultValue}")
                     is SearchContextField.StringField -> storeOf("")
@@ -76,14 +83,14 @@ fun RenderContext.searchScreen() {
                 for (field in config.fieldConfig) {
                     val fieldStore = stores[field.name]!!
                     when (field) {
-                       else -> {
+                        else -> {
                             textField(
                                 placeHolder = "Type something to search for ..",
                                 inputLabelText = field.name
                             ) {
                                 value(fieldStore)
                                 changes.map {
-                                    stores.map { (f,s) -> f to s.current}.toMap()
+                                    stores.map { (f, s) -> f to s.current }.toMap()
                                 } handledBy activeSearchPluginConfiguration.search
                             }
                         }

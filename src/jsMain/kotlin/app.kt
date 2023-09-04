@@ -2,6 +2,8 @@ import components.para
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.routing.MapRouter
+import metrics.metrics
+import ratedsearches.ratedSearches
 import search.ActiveSearchPluginConfiguration
 import search.searchScreen
 import searchpluginconfig.pluginConfiguration
@@ -44,6 +46,8 @@ private fun RenderContext.mainView() {
                 Page.Conf -> {
                     pluginConfiguration()
                 }
+                Page.RatedSearches -> ratedSearches()
+                Page.Metrics -> metrics()
                 Page.Root -> {
                     if(activeSearchPluginConfiguration.current == null) {
                         router.navTo(Page.Conf.route)
@@ -51,6 +55,7 @@ private fun RenderContext.mainView() {
                         router.navTo(Page.Search.route)
                     }
                 }
+
             }
         }
     }
