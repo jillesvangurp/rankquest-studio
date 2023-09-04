@@ -1,23 +1,20 @@
-import components.header1
 import components.para
-import components.primaryButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.routing.MapRouter
-import examples.quotesearch.movieQuotesSearchPluginConfig
-import kotlinx.coroutines.flow.map
-import search.ActiveSearchPlugin
+import search.ActiveSearchPluginConfiguration
 import search.searchScreen
+import searchpluginconfig.pluginConfiguration
 
 suspend fun main() {
     koinInit()
     render("#target") { // using id selector here, leave blank to use document.body by default
         div("h-screen flex flex-col overflow-hidden") {
-            div("bg-gray-100 p-1.5") {
+            div("bg-blueBright-50 p-1.5") {
                 statusBar()
             }
             div("flex flex-row grow h-full w-full") {
-                div("bg-gray-100 shrink-0 w-2/12") {
+                div("bg-blueBright-50 shrink-0 w-2/12") {
                     menu()
                 }
                 div("bg-white overflow-auto grow-0 h-full w-full") {
@@ -35,7 +32,7 @@ private fun RenderContext.statusBar() {
 
 private fun RenderContext.mainView() {
     val router by koin.inject<MapRouter>()
-    val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
+    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
 
 
     div {
@@ -44,19 +41,11 @@ private fun RenderContext.mainView() {
                 Page.Search -> div {
                     searchScreen()
                 }
-
                 Page.Conf -> {
-                    div {
-                        header1 { +"Configure" }
-
-                        primaryButton {
-                            +"Use Movie Quotes"
-                            clicks.map { movieQuotesSearchPluginConfig } handledBy activeSearchPlugin.update
-                        }
-                    }
+                    pluginConfiguration()
                 }
                 Page.Root -> {
-                    if(activeSearchPlugin.current == null) {
+                    if(activeSearchPluginConfiguration.current == null) {
                         router.navTo(Page.Conf.route)
                     } else {
                         router.navTo(Page.Search.route)

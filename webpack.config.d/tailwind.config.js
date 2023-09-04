@@ -11,7 +11,7 @@ const tailwind = {
         extend: {
             colors: {
                 // hsl(210,60,80)
-                'button': {
+                'blueBright': {
                   '50': '#f2f6fc',
                   '100': '#e1ebf8',
                   '200': '#cbdcf2',
@@ -25,7 +25,7 @@ const tailwind = {
                   '950': '#222b49',
                 },
                 // hsl(210,30,80)
-                'buttonSecondary': {
+                'blueMuted': {
                    '50': '#f5f7f9',
                    '100': '#e7ecf2',
                    '200': '#d5dee8',
@@ -39,7 +39,7 @@ const tailwind = {
                    '950': '#2c313f',
                 },
                 // hsl(210,15,80)
-                'buttonNav': {
+                'blueGrayMuted': {
                     '50': '#f6f7f8',
                     '100': '#eaecef',
                     '200': '#d9dee4',
@@ -53,7 +53,7 @@ const tailwind = {
                     '950': '#31333a',
                 },
                 // hsl(210,15,30)
-                'buttonNavAct': {
+                'blueGray': {
                     '50': '#f4f6f7',
                     '100': '#e2e7eb',
                     '200': '#c9d2d8',

@@ -21,7 +21,7 @@ fun RenderContext.textField(
                 +l
             }
         }
-        inputTextfield("w-80 basis-160 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5") {
+        inputTextfield("w-80 basis-160 bg-blueBright-100 border border-blueBright-300 text-blueBright-900 text-sm rounded-lg focus:ring-blueBright-500 focus:border-blueBright-500 p-2.5") {
             placeHolder?.let { pl ->
                 placeholder(pl)
             }

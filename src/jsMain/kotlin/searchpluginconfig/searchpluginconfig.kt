@@ -2,12 +2,19 @@
 
 package searchpluginconfig
 
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import com.jillesvangurp.ktsearch.DEFAULT_PRETTY_JSON
+import components.header1
+import components.para
+import components.primaryButton
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.disabled
+import examples.quotesearch.movieQuotesSearchPluginConfig
+import koin
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonObject
 import org.koin.dsl.module
+import search.ActiveSearchPluginConfiguration
 
 val searchPluginConfigModule = module {
 
@@ -41,3 +48,25 @@ sealed interface SearchContextField {
 
 @Serializable
 data class SearchPluginConfiguration(val pluginName: String, val fieldConfig: List<SearchContextField>, val pluginSettings: JsonObject)
+
+fun RenderContext.pluginConfiguration() {
+    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
+    div {
+        header1 { +"Configure" }
+
+        activeSearchPluginConfiguration.data.render { pc ->
+            if(pc != null) {
+                para { +"Current configuration: ${pc.pluginName}" }
+                pre {
+                    +DEFAULT_PRETTY_JSON.encodeToString(pc)
+                }
+            }
+
+            primaryButton {
+                +"Use Movie Quotes"
+                this.disabled(pc?.pluginName == movieQuotesSearchPluginConfig.pluginName)
+                clicks.map { movieQuotesSearchPluginConfig } handledBy activeSearchPluginConfiguration.update
+            }
+        }
+    }
+}

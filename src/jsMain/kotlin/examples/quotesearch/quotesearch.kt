@@ -94,7 +94,7 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
     //    val searchPluginStore = storeOf(listOf<MovieQuote>().searchPlugin())
-    private val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
+    private val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
 
     val load = handle<String> { _, path ->
         http(path).get().body().let<String, List<MovieQuote>> { body ->
@@ -104,7 +104,7 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
             quotes.indices.map { i -> quotes[i].copy(id = "$i") }
         }.also {
             console.log("update plugin")
-            activeSearchPlugin.update(
+            activeSearchPluginConfiguration.update(
                 movieQuotesSearchPluginConfig
             )
         }

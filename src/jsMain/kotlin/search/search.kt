@@ -1,5 +1,6 @@
 package search
 
+import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
 import components.*
 import dev.fritz2.core.RenderContext
@@ -12,24 +13,24 @@ import handlerScope
 import koin
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.nullable
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import searchpluginconfig.SearchContextField
 import searchpluginconfig.SearchPluginConfiguration
 
 val searchModule = module {
-    singleOf(::ActiveSearchPlugin)
+    singleOf(::ActiveSearchPluginConfiguration)
     singleOf(::SearchResultsStore)
 }
 
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
-class ActiveSearchPlugin : RootStore<SearchPluginConfiguration?>(null) {
-    val searchResultsStore by koin.inject<SearchResultsStore>()
+class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfiguration?>(null,"active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable) {
+    private val searchResultsStore by koin.inject<SearchResultsStore>()
 
-    val search = handle<Map<String, String>> { p, query ->
-        if (p != null) {
-            val (config, searchPlugin) = p
+    val search = handle<Map<String, String>> { config, query ->
+        if (config != null) {
             val selectedPlugin = current
             if (selectedPlugin != null) {
                 handlerScope.launch {
@@ -41,10 +42,11 @@ class ActiveSearchPlugin : RootStore<SearchPluginConfiguration?>(null) {
                 searchResultsStore.update(Result.failure(IllegalArgumentException("no plugin selected")))
             }
         }
-        p
+        config
     }
 
-    val searchPlugin get() = when (current?.pluginName) {
+    val searchPlugin: SearchPlugin
+        get() = when (current?.pluginName) {
         movieQuotesSearchPluginConfig.pluginName -> {
             val movieQuotesStore by koin.inject<MovieQuotesStore>()
             movieQuotesStore.current.searchPlugin()
@@ -55,10 +57,10 @@ class ActiveSearchPlugin : RootStore<SearchPluginConfiguration?>(null) {
 }
 
 fun RenderContext.searchScreen() {
-    val activeSearchPlugin by koin.inject<ActiveSearchPlugin>()
+    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
 
 
-    activeSearchPlugin.data.render { config ->
+    activeSearchPluginConfiguration.data.render { config ->
         if (config == null) {
             para { +"Configure a search plugin first" }
         } else {
@@ -82,7 +84,7 @@ fun RenderContext.searchScreen() {
                                 value(fieldStore)
                                 changes.map {
                                     stores.map { (f,s) -> f to s.current}.toMap()
-                                } handledBy activeSearchPlugin.search
+                                } handledBy activeSearchPluginConfiguration.search
                             }
                         }
                     }
@@ -96,7 +98,7 @@ fun RenderContext.searchScreen() {
 
                         clicks.map {
                             stores.map { (f, s) -> f to s.current }.toMap()
-                        } handledBy activeSearchPlugin.search
+                        } handledBy activeSearchPluginConfiguration.search
                     }
                 }
             }
