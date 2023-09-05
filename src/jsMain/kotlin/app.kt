@@ -1,8 +1,10 @@
+import components.busyPopup
 import components.para
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.render
-import dev.fritz2.core.src
+import dev.fritz2.core.*
+import dev.fritz2.headless.components.modal
+import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
+import kotlinx.coroutines.flow.map
 import metrics.metrics
 import ratedsearches.ratedSearches
 import search.ActiveSearchPluginConfiguration
@@ -35,7 +37,7 @@ private fun RenderContext.rankQuestStudio() {
 private fun RenderContext.mainView() {
     val router by koin.inject<MapRouter>()
     val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
-
+    busyPopup()
     div {
         router.select(key = "page").render { (selected, _) ->
 //            console.log("selected $selected")
@@ -59,6 +61,7 @@ private fun RenderContext.mainView() {
             }
         }
     }
+    portalRoot()
 }
 
 

@@ -11,6 +11,7 @@ import examples.quotesearch.movieQuotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
 import handlerScope
 import koin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -23,6 +24,7 @@ import ratedsearches.RatedSearchesStore
 import searchpluginconfig.SearchContextField
 import searchpluginconfig.SearchPluginConfiguration
 import utils.md5Hash
+import kotlin.time.Duration.Companion.seconds
 
 val searchModule = module {
     singleOf(::ActiveSearchPluginConfiguration)
@@ -139,6 +141,16 @@ fun RenderContext.searchScreen() {
                                     )
                                 } handledBy ratedSearchesStore.addOrReplace
                             }
+                        }
+                    }
+
+                    secondaryButton {
+                        +"Test"
+                        clicks handledBy {
+                            busy({
+                                delay(3.seconds)
+                                Result.success(true)
+                            })
                         }
                     }
 

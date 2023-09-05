@@ -34,7 +34,7 @@ fun busyPopup() {
     modal {
         openState(busyStore)
         modalPanel {
-            modalOverlay {
+            modalOverlay("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
                 // some nice fade in/out effect for the overlay
                 transition(
                     enter = "ease-out duration-300",
@@ -45,10 +45,10 @@ fun busyPopup() {
                     leaveEnd = "opacity-0"
                 )
             }
-            modalTitle {
+            modalTitle("absolute top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50") {
                 busyStore.messageStore.data.renderText(this)
             }
-            div {
+            div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50") {
                 transition(
                     enter = "transition duration-100 ease-out",
                     enterStart = "opacity-0 scale-95",
@@ -58,14 +58,12 @@ fun busyPopup() {
                     leaveEnd = "opacity-0 scale-95"
                 )
                 // FIXME nice spinner thingy goes here
-                para {+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"}
-                div("inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
+                div("inline-block h-20 w-20 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
                     span("!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]") {
                         +"..."
                     }
                 }
             }
-
         }
     }
 }
