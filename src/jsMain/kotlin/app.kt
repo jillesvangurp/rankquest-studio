@@ -19,11 +19,6 @@ suspend fun main() {
             div("bg-white overflow-auto grow-0 h-full w-full") {
                 mainView()
             }
-//            div("flex flex-row grow h-full w-full") {
-//                div("bg-blueBright-50 shrink-0 w-2/12") {
-//                    menu()
-//                }
-//            }
         }
     }
 }
@@ -37,9 +32,9 @@ private fun RenderContext.mainView() {
     val router by koin.inject<MapRouter>()
     val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
 
-
     div {
         router.select(key = "page").render { (selected, _) ->
+            console.log("selected $selected")
             when (Page.resolve(selected)) {
                 Page.Search -> div {
                     searchScreen()

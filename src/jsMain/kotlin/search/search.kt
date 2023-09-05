@@ -113,8 +113,6 @@ fun RenderContext.searchScreen() {
                 div("flex flex-row") {
                     searchResultsStore.data.render {searchResults->
                         ratedSearchesStore.data.render { ratedSearches ->
-
-
                             val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
                             val alreadyAdded = ratedSearches.firstOrNull {it.id == rsId } != null
                             secondaryButton {

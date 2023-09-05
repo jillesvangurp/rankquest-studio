@@ -14,9 +14,9 @@ val navigationModule = module {
 }
 enum class Page(val title: String, val showInMenu: Boolean = true) {
     Search("Search Tool"),
-    Conf("Plugin Configuration"),
     RatedSearches("Rated Searches"),
     Metrics("Metrics"),
+    Conf("Plugin Configuration"),
     Root("Not Found)",false)
     ;
     companion object {
@@ -27,6 +27,7 @@ enum class Page(val title: String, val showInMenu: Boolean = true) {
         }
     }
 }
+val Page.route get() = mapOf("page" to name.lowercase())
 
 fun RenderContext.pageLink(page: Page) {
     val router by koin.inject<MapRouter>()
@@ -37,7 +38,6 @@ fun RenderContext.pageLink(page: Page) {
     }
 }
 
-val Page.route get() = mapOf("page" to name.lowercase())
 
 fun RenderContext.menu() {
     val router by koin.inject<MapRouter>()
