@@ -1,6 +1,7 @@
 import components.para
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
+import dev.fritz2.core.src
 import dev.fritz2.routing.MapRouter
 import metrics.metrics
 import ratedsearches.ratedSearches
@@ -25,6 +26,9 @@ suspend fun main() {
 
 
 private fun RenderContext.rankQuestStudio() {
+    img("w-8 h-8") {
+        src("rankquest_logo.png")
+    }
     h1("text-blueBright-700 font-bold m-0") { +"Rankquest Studio" }
 }
 
