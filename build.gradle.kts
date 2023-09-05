@@ -40,6 +40,7 @@ kotlin {
                 implementation("com.jillesvangurp:search-client:_")
                 implementation("com.jillesvangurp:rankquest-core:_")
                 implementation("com.github.jillesvangurp:querylight:_")
+                implementation("com.soywiz.korlibs.krypto:krypto:_")
                 implementation(KotlinX.serialization.json)
                 implementation(Koin.core)
             }

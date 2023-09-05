@@ -16,7 +16,7 @@ enum class Page(val title: String, val showInMenu: Boolean = true) {
     Search("Search Tool"),
     Conf("Plugin Configuration"),
     RatedSearches("Rated Searches"),
-    Metrics("Rated Searches"),
+    Metrics("Metrics"),
     Root("Not Found)",false)
     ;
     companion object {
@@ -28,15 +28,22 @@ enum class Page(val title: String, val showInMenu: Boolean = true) {
     }
 }
 
+fun RenderContext.pageLink(page: Page) {
+    val router by koin.inject<MapRouter>()
+
+    a {
+        +page.title
+        clicks.map { page.route } handledBy router.navTo
+    }
+}
+
 val Page.route get() = mapOf("page" to name.lowercase())
 
 fun RenderContext.menu() {
     val router by koin.inject<MapRouter>()
     router.select(key = "page").render { (selected, _) ->
-        div("flex flex-col items-center") {
-            Page.entries.filter { it.showInMenu }.forEach { page ->
-                menuButton(page, page.name.lowercase() == selected)
-            }
+        Page.entries.filter { it.showInMenu }.forEach { page ->
+            menuButton(page, page.name.lowercase() == selected)
         }
     }
 }

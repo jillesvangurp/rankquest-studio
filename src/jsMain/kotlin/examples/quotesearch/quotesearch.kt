@@ -44,7 +44,6 @@ data class MovieQuote(
 )
 
 fun List<MovieQuote>.searchPlugin(): SearchPlugin {
-    console.log("Building quotes index")
     val documentIndex = DocumentIndex(
         mutableMapOf(
             "quote" to TextFieldIndex(),
@@ -65,7 +64,6 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
         )
     }
 
-    console.log("Creating quotes searchPlugin")
     return object : SearchPlugin {
         override suspend fun fetch(
             searchContext: Map<String, String>,
@@ -107,7 +105,6 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
         }
     }
     init {
-        console.log("loading")
         load("moviequotes.json")
         console.log("done loading")
     }

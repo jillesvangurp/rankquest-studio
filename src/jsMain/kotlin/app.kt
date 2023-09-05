@@ -12,24 +12,25 @@ suspend fun main() {
     koinInit()
     render("#target") { // using id selector here, leave blank to use document.body by default
         div("h-screen flex flex-col overflow-hidden") {
-            div("bg-blueBright-50 p-1.5") {
-                statusBar()
+            div("bg-blueBright-50 p-1.5 flex flex-row gap-x-3 w-full align-middle") {
+                rankQuestStudio()
+                menu()
             }
-            div("flex flex-row grow h-full w-full") {
-                div("bg-blueBright-50 shrink-0 w-2/12") {
-                    menu()
-                }
-                div("bg-white overflow-auto grow-0 h-full w-full") {
-                    mainView()
-                }
+            div("bg-white overflow-auto grow-0 h-full w-full") {
+                mainView()
             }
+//            div("flex flex-row grow h-full w-full") {
+//                div("bg-blueBright-50 shrink-0 w-2/12") {
+//                    menu()
+//                }
+//            }
         }
     }
 }
 
 
-private fun RenderContext.statusBar() {
-    para { +"Rankquest Studio" }
+private fun RenderContext.rankQuestStudio() {
+    h1("text-blueBright-700 font-bold m-0") { +"Rankquest Studio" }
 }
 
 private fun RenderContext.mainView() {

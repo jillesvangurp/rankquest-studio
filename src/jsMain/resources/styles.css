@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind utilities;
 @tailwind components;
+
+@layer base {
+  h1 {
+    @apply text-3xl mb-6;
+  }
+  h2 {
+    @apply text-xl mb-4;
+  }
+  h3 {
+    @apply text-lg mb-2;
+  }
+  a {
+    @apply text-blueBright-600 hover:text-blueBright-400 underline cursor-pointer;
+  }
+}

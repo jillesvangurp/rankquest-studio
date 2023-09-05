@@ -3,9 +3,9 @@
 package searchpluginconfig
 
 import com.jillesvangurp.ktsearch.DEFAULT_PRETTY_JSON
-import components.header1
 import components.para
 import components.primaryButton
+import dev.fritz2.core.HtmlTag
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.disabled
 import examples.quotesearch.movieQuotesSearchPluginConfig
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonObject
 import org.koin.dsl.module
+import org.w3c.dom.HTMLHeadingElement
 import search.ActiveSearchPluginConfiguration
 
 val searchPluginConfigModule = module {
@@ -52,7 +53,10 @@ data class SearchPluginConfiguration(val pluginName: String, val fieldConfig: Li
 fun RenderContext.pluginConfiguration() {
     val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
     div {
-        header1 { +"Configure" }
+        h1(
+        content = fun HtmlTag<HTMLHeadingElement>.() {
+ +"Configure"
+})
 
         activeSearchPluginConfiguration.data.render { pc ->
             if(pc != null) {

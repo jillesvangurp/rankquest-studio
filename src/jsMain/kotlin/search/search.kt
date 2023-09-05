@@ -1,11 +1,11 @@
 package search
 
+import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchPlugin
+import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.SearchResults
 import components.*
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.RootStore
-import dev.fritz2.core.storeOf
+import dev.fritz2.core.*
 import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
@@ -13,11 +13,16 @@ import handlerScope
 import koin
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.nullable
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import org.w3c.dom.HTMLHeadingElement
+import pageLink
+import ratedsearches.RatedSearchesStore
 import searchpluginconfig.SearchContextField
 import searchpluginconfig.SearchPluginConfiguration
+import utils.md5Hash
 
 val searchModule = module {
     singleOf(::ActiveSearchPluginConfiguration)
@@ -66,10 +71,16 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
 
 fun RenderContext.searchScreen() {
     val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
-    console.log(activeSearchPluginConfiguration.searchPlugin?.let { it::class.simpleName })
+    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+    val searchResultsStore by koin.inject<SearchResultsStore>()
+
+
     activeSearchPluginConfiguration.data.render { config ->
         if (config == null) {
-            para { +"Configure a search plugin first" }
+            para {
+                +"Configure a search plugin first. "
+                pageLink(Page.Conf)
+            }
         } else {
             val stores = config.fieldConfig.associate {
                 it.name to when (it) {
@@ -79,7 +90,10 @@ fun RenderContext.searchScreen() {
                 }
             }
             div("flex flex-col items-left space-y-1 w-fit") {
-                header1 { +config.pluginName }
+                h1(
+                    content = fun HtmlTag<HTMLHeadingElement>.() {
+                        +config.pluginName
+                    })
                 for (field in config.fieldConfig) {
                     val fieldStore = stores[field.name]!!
                     when (field) {
@@ -97,9 +111,39 @@ fun RenderContext.searchScreen() {
                     }
                 }
                 div("flex flex-row") {
-                    secondaryButton {
-                        +"Add Testcase"
+                    searchResultsStore.data.render {searchResults->
+                        ratedSearchesStore.data.render { ratedSearches ->
+
+
+                            val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
+                            val alreadyAdded = ratedSearches.firstOrNull {it.id == rsId } != null
+                            secondaryButton {
+                                +if(alreadyAdded) "Already a Testcase" else "Add Testcase"
+                                disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
+                                clicks.map {
+                                    val ratings = searchResultsStore.current?.let {
+                                        it.getOrNull()?.let { searchResults ->
+                                            var rate = searchResults.searchResultList.size
+                                            searchResults.searchResultList.map {
+                                                SearchResultRating(
+                                                    it.id,
+                                                    label = it.label,
+                                                    rating = rate--
+                                                )
+                                            }
+                                        }
+                                    } ?: listOf()
+                                    RatedSearch(
+                                        // FIXME nicer id?
+                                        id = rsId,
+                                        searchContext = stores.map { (f, s) -> f to s.current }.toMap(),
+                                        ratings = ratings
+                                    )
+                                } handledBy ratedSearchesStore.addOrReplace
+                            }
+                        }
                     }
+
                     primaryButton {
                         +"Search!"
 
