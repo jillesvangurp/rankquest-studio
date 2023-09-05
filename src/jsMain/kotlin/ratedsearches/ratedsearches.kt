@@ -3,9 +3,9 @@ package ratedsearches
 import com.jilesvangurp.rankquest.core.RatedSearch
 import components.LocalStoringStore
 import components.SvgIconSource
-import components.icon
+import components.confirm
+import components.iconButton
 import dev.fritz2.core.RenderContext
-import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
 import koin
 import kotlinx.coroutines.flow.map
@@ -31,11 +31,19 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
         } else {
             ratedSearches.map { it }
         }
-
     }
 
     val deleteById = handle<String> { current, id ->
-        (current.orEmpty()).filter { it.id != id }
+        confirm(
+            question = "Are you sure you want to delete $id?",
+            description = "Deleting a rated search cannot be undone.",
+            yes = "Delete it",
+            no = "Cancel"
+        ) {
+            val updated = (current.orEmpty()).filter { it.id != id }
+            update(updated)
+        }
+        current
     }
 }
 
@@ -56,25 +64,31 @@ fun RenderContext.ratedSearches() {
     }
 }
 
-
 fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
+    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+
     val showStore = storeOf(false)
-    div("flex flex-col mx-10") {
+    div("flex flex-col mx-10 hover:bg-blueBright-50") {
         div("flex flex-row") {
-            div {
+            showStore.data.render { show ->
+                if (show) {
+                    iconButton(SvgIconSource.Expand, "Expand rated search") {
+                        clicks.map { !show } handledBy showStore.update
+                    }
+                } else {
+                    iconButton(SvgIconSource.Collapse, title = "Collapse rated search") {
+                        clicks.map { !show } handledBy showStore.update
+                    }
+                }
+            }
+            div("mx-3 grow") {
                 +"${
                     ratedSearch.searchContext.map { (k, v) -> "$k: $v" }.joinToString(", ")
                 } rated results: ${ratedSearch.ratings.size} "
             }
-            showStore.data.render { show ->
-                if (show) {
-                    icon(SvgIconSource.Expand)
-                } else {
-                    icon(SvgIconSource.Collapse)
-                }
-                clicks.map { !show } handledBy showStore.update
+            iconButton(SvgIconSource.Delete, "Delete rated search") {
+                clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
             }
-
         }
         showStore.data.render { show ->
             if (show) {

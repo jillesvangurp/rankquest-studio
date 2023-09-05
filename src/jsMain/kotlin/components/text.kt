@@ -14,3 +14,13 @@ fun RenderContext.para(
     id=id,
     scope = scope,
     content = content)
+
+fun RenderContext.paraCentered(
+    id: String? = null,
+    scope: (ScopeContext.() -> Unit) = {},
+    content: HtmlTag<HTMLHeadingElement>.() -> Unit
+) = h2(
+    "mb-2 text-sm text-center",
+    id=id,
+    scope = scope,
+    content = content)

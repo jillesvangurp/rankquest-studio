@@ -131,7 +131,7 @@ fun RenderContext.searchScreen() {
                     searchResultsStore.data.render { searchResults ->
                         ratedSearchesStore.data.render { ratedSearches ->
                             val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
-                            val alreadyAdded = ratedSearches?.firstOrNull { it.id == rsId } != null
+                            val alreadyAdded = ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
                             secondaryButton {
                                 +if (alreadyAdded) "Already a Testcase" else "Add Testcase"
                                 disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
