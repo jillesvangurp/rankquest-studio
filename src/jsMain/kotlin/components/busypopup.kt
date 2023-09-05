@@ -11,6 +11,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 val busyPopupModule = module {
     singleOf(::BusyStore)
@@ -19,13 +21,13 @@ val busyPopupModule = module {
 suspend fun <R> busy(
     supplier: suspend () -> Result<R>,
     successMessage: String = "Done!",
-    waitMessage: String = "Please wait ...",
-    confirmationMessage: String? = null, // enables a confirmation
+    initialTitle: String = "Working",
+    initialMessage: String = "Please wait ...",
     errorResult: suspend (Result<R>) -> Unit = {},
     processResult: suspend (R) -> Unit = { }
 ) {
     val busyStore by koin.inject<BusyStore>()
-    busyStore.withBusyState(supplier, successMessage, waitMessage, errorResult, processResult)
+    busyStore.withBusyState(supplier, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
 fun busyPopup() {
@@ -33,7 +35,7 @@ fun busyPopup() {
     val busyStore by koin.inject<BusyStore>()
     modal {
         openState(busyStore)
-        modalPanel {
+        modalPanel() {
             modalOverlay("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
                 // some nice fade in/out effect for the overlay
                 transition(
@@ -45,10 +47,12 @@ fun busyPopup() {
                     leaveEnd = "opacity-0"
                 )
             }
-            modalTitle("absolute top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50") {
-                busyStore.messageStore.data.renderText(this)
+            modalTitle("absolute top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white w-96 p-5") {
+                div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2") {
+                    busyStore.titleStore.data.renderText(this)
+                }
             }
-            div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50") {
+            div("absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white h-96 w-96 p-5") {
                 transition(
                     enter = "transition duration-100 ease-out",
                     enterStart = "opacity-0 scale-95",
@@ -58,9 +62,16 @@ fun busyPopup() {
                     leaveEnd = "opacity-0 scale-95"
                 )
                 // FIXME nice spinner thingy goes here
-                div("inline-block h-20 w-20 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
-                    span("!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]") {
-                        +"..."
+                div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ") {
+                    div("flex flex-col items-center") {
+                        para {
+                            busyStore.messageStore.data.renderText(this)
+                        }
+                        div("inline-block h-20 w-20 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
+                            span("!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]") {
+                                +"..."
+                            }
+                        }
                     }
                 }
             }
@@ -69,34 +80,36 @@ fun busyPopup() {
 }
 
 class BusyStore : RootStore<Boolean>(false) {
+    val titleStore = storeOf("")
     val messageStore = storeOf("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun <T> withBusyState(
         supplier: suspend () -> Result<T>,
         successMessage: String = "Done!",
-        waitMessage: String = "Please wait ...",
+        initialTitle: String = "Working",
+        initialMessage: String = "Please wait ...",
         errorResult: suspend (Result<T>) -> Unit = {},
         processResult: suspend (T) -> Unit = {}
     ) {
-        messageStore.update(waitMessage)
+        titleStore.update(initialTitle)
+        messageStore.update(initialMessage)
         update(true)
-        console.log("SHOW")
         handlerScope.launch {
             val result = supplier.invoke()
             result.fold({
                 processResult.invoke(it)
-                messageStore.update(successMessage)
-                delay(1000)
+                titleStore.update(successMessage)
+                delay(30.milliseconds)
                 update(false) // not busy anymore & close
             }, {
-                messageStore.update(it.message ?: "Failed with ${it::class.simpleName}")
+                titleStore.update(it.message ?: "An Error Occurred")
+                messageStore.update("Error: ${it::class.simpleName}")
                 errorResult.invoke(result)
                 console.warn("Failed with ${it::class.simpleName}: ${it.message}")
-                delay(1500)
+                delay(2.seconds)
                 update(false) // not busy anymore & close
             })
-            console.log("HIDE")
         }
     }
 }

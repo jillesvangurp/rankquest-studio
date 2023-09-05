@@ -10,7 +10,7 @@ fun RenderContext.para(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLHeadingElement>.() -> Unit
 ) = h2(
-    "mb-2",
+    "mb-2 text-sm",
     id=id,
     scope = scope,
     content = content)

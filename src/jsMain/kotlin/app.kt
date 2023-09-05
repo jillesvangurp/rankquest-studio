@@ -1,10 +1,9 @@
 import components.busyPopup
-import components.para
-import dev.fritz2.core.*
-import dev.fritz2.headless.components.modal
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.render
+import dev.fritz2.core.src
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
-import kotlinx.coroutines.flow.map
 import metrics.metrics
 import ratedsearches.ratedSearches
 import search.ActiveSearchPluginConfiguration
@@ -15,11 +14,15 @@ suspend fun main() {
     koinInit()
     render("#target") { // using id selector here, leave blank to use document.body by default
         div("h-screen flex flex-col overflow-hidden") {
-            div("bg-blueBright-50 p-1.5 flex flex-row gap-x-3 w-full align-middle") {
-                rankQuestStudio()
-                menu()
+            div("bg-blueBright-50 p-1.5 flex flex-col md:flex-row w-full align-middle justify-between") {
+                div("flex flex-row gap-x-3") {
+                    rankQuestStudio()
+                }
+                div("flex flex-col md:flex-row gap-x-3 overflow-auto") {
+                    menu()
+                }
             }
-            div("bg-white overflow-auto grow-0 h-full w-full") {
+            div("bg-white scroll-smooth overflow-auto grow-0 h-full w-full") {
                 mainView()
             }
         }

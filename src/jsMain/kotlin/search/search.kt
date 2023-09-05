@@ -1,5 +1,6 @@
 package search
 
+import Page
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResultRating
@@ -11,10 +12,10 @@ import examples.quotesearch.movieQuotesSearchPluginConfig
 import examples.quotesearch.searchPlugin
 import handlerScope
 import koin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.nullable
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -24,7 +25,7 @@ import ratedsearches.RatedSearchesStore
 import searchpluginconfig.SearchContextField
 import searchpluginconfig.SearchPluginConfiguration
 import utils.md5Hash
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 
 val searchModule = module {
     singleOf(::ActiveSearchPluginConfiguration)
@@ -43,18 +44,30 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
     private val searchResultsStore by koin.inject<SearchResultsStore>()
 
     val search = handle<Map<String, String>> { config, query ->
-        if (config != null) {
-            val selectedPlugin = current
-            if (selectedPlugin != null) {
-                handlerScope.launch {
-                    console.log("SEARCH $query")
-                    val result = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
-                    searchResultsStore.update(result)
+        busy({
+            var outcome: Result<SearchResults>? = null
+            coroutineScope {
+                launch {
+                    if (config != null) {
+                        val selectedPlugin = current
+                        if (selectedPlugin != null) {
+                            handlerScope.launch {
+                                console.log("SEARCH $query")
+                                outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
+                            }
+                        } else {
+                            outcome = Result.failure(IllegalArgumentException("no plugin selected"))
+                        }
+                    }
                 }
-            } else {
-                searchResultsStore.update(Result.failure(IllegalArgumentException("no plugin selected")))
-            }
-        }
+                // whichever takes longer; make sure the spinner doesn't flash in and out
+                launch {
+                    delay(200.milliseconds)
+                }
+            }.join()
+            searchResultsStore.update(outcome)
+            Result.success(true)
+        }, initialTitle = "Searching", initialMessage = "Query for $query")
         config
     }
 
@@ -91,34 +104,36 @@ fun RenderContext.searchScreen() {
                     is SearchContextField.StringField -> storeOf("")
                 }
             }
-            div("flex flex-col items-left space-y-1 w-fit") {
+            div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
                 h1(
                     content = fun HtmlTag<HTMLHeadingElement>.() {
                         +config.pluginName
                     })
-                for (field in config.fieldConfig) {
-                    val fieldStore = stores[field.name]!!
-                    when (field) {
-                        else -> {
-                            textField(
-                                placeHolder = "Type something to search for ..",
-                                inputLabelText = field.name
-                            ) {
-                                value(fieldStore)
-                                changes.map {
-                                    stores.map { (f, s) -> f to s.current }.toMap()
-                                } handledBy activeSearchPluginConfiguration.search
+                div("") {
+                    for (field in config.fieldConfig) {
+                        val fieldStore = stores[field.name]!!
+                        when (field) {
+                            else -> {
+                                textField(
+                                    placeHolder = "Type something to search for ..",
+                                    inputLabelText = field.name
+                                ) {
+                                    value(fieldStore)
+                                    changes.map {
+                                        stores.map { (f, s) -> f to s.current }.toMap()
+                                    } handledBy activeSearchPluginConfiguration.search
+                                }
                             }
                         }
                     }
                 }
                 div("flex flex-row") {
-                    searchResultsStore.data.render {searchResults->
+                    searchResultsStore.data.render { searchResults ->
                         ratedSearchesStore.data.render { ratedSearches ->
                             val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
-                            val alreadyAdded = ratedSearches.firstOrNull {it.id == rsId } != null
+                            val alreadyAdded = ratedSearches?.firstOrNull { it.id == rsId } != null
                             secondaryButton {
-                                +if(alreadyAdded) "Already a Testcase" else "Add Testcase"
+                                +if (alreadyAdded) "Already a Testcase" else "Add Testcase"
                                 disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
                                 clicks.map {
                                     val ratings = searchResultsStore.current?.let {
@@ -144,16 +159,6 @@ fun RenderContext.searchScreen() {
                         }
                     }
 
-                    secondaryButton {
-                        +"Test"
-                        clicks handledBy {
-                            busy({
-                                delay(3.seconds)
-                                Result.success(true)
-                            })
-                        }
-                    }
-
                     primaryButton {
                         +"Search!"
 
@@ -161,9 +166,10 @@ fun RenderContext.searchScreen() {
                             stores.map { (f, s) -> f to s.current }.toMap()
                         } handledBy activeSearchPluginConfiguration.search
                     }
+
                 }
+                searchResults()
             }
-            searchResults()
         }
     }
 }
@@ -171,22 +177,24 @@ fun RenderContext.searchScreen() {
 fun RenderContext.searchResults() {
     val searchResultsStore by koin.inject<SearchResultsStore>()
     searchResultsStore.data.render { rs ->
-        when (rs) {
-            null -> {
-                para { +"-" }
-            }
+        div("mt-10") {
+            when (rs) {
+                null -> {
+                    para { +"-" }
+                }
 
-            else -> {
-                if (rs.isFailure) {
-                    para { +"Oopsie ${rs.exceptionOrNull()}" }
-                } else {
-                    val results = rs.getOrThrow()
-                    p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+                else -> {
+                    if (rs.isFailure) {
+                        para { +"Oopsie ${rs.exceptionOrNull()}" }
+                    } else {
+                        val results = rs.getOrThrow()
+                        p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
 
-                    ul("list-disc") {
-                        results.searchResultList.forEach { result ->
-                            li("ml-5") {
-                                +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
+                        ul("list-disc") {
+                            results.searchResultList.forEach { result ->
+                                li("ml-5") {
+                                    +"${result.id}${result.label?.let { l -> ": $l" } ?: ""}"
+                                }
                             }
                         }
                     }
