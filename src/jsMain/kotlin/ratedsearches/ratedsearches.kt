@@ -1,11 +1,10 @@
 package ratedsearches
 
 import com.jilesvangurp.rankquest.core.RatedSearch
-import components.LocalStoringStore
-import components.SvgIconSource
-import components.confirm
-import components.iconButton
+import com.jilesvangurp.rankquest.core.SearchResultRating
+import components.*
 import dev.fritz2.core.RenderContext
+import dev.fritz2.core.Store
 import dev.fritz2.core.storeOf
 import koin
 import kotlinx.coroutines.flow.map
@@ -29,7 +28,36 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
         if (ratedSearches.firstOrNull() { it.id == rs.id } == null) {
             ratedSearches + rs
         } else {
-            ratedSearches.map { it }
+            ratedSearches.map {
+                if (it.id == rs.id) {
+                    rs
+                } else {
+                    it
+                }
+            }
+        }
+    }
+
+    val updateSearchResultRating = handle<Pair<String, SearchResultRating>> { current, (id, srr) ->
+        val modifiedRating = current?.firstOrNull { it.id == id }?.let { rs ->
+            rs.copy(ratings = rs.ratings.map {
+                if (it.documentId == srr.documentId) {
+                    srr
+                } else {
+                    it
+                }
+            })
+        }
+        if (modifiedRating != null) {
+            current.map {
+                if (it.id == modifiedRating.id) {
+                    modifiedRating
+                } else {
+                    it
+                }
+            }
+        } else {
+            current
         }
     }
 
@@ -69,14 +97,14 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
 
     val showStore = storeOf(false)
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
-        div("flex flex-row") {
+        div("flex flex-row items-center") {
             showStore.data.render { show ->
                 if (show) {
-                    iconButton(SvgIconSource.Expand, "Expand rated search") {
+                    iconButton(SvgIconSource.Minus, title = "Collapse rated search") {
                         clicks.map { !show } handledBy showStore.update
                     }
                 } else {
-                    iconButton(SvgIconSource.Collapse, title = "Collapse rated search") {
+                    iconButton(SvgIconSource.Plus, "Expand rated search") {
                         clicks.map { !show } handledBy showStore.update
                     }
                 }
@@ -94,7 +122,7 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
             if (show) {
                 div("") {
                     p { +"RsId: ${ratedSearch.id}" }
-                    div("flex flex-row w-full gap-3") {
+                    div("flex flex-row w-full gap-3 items-center") {
                         div("w-1/12 bg-blueMuted-200") {
                             +"Document Id"
                         }
@@ -105,17 +133,48 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
                         div("w-7/12 bg-blueMuted-200") { +"Label" }
                         div("w-3/12 bg-blueMuted-200") { +"Comment" }
                     }
-                    ratedSearch.ratings.sortedByDescending { it.rating }.forEach {
+                    ratedSearch.ratings.sortedByDescending { it.rating }.forEach { searchResultRating ->
                         div("flex flex-row w-full gap-3 border-t border-blueMuted-200") {
                             div("w-1/12 bg-blueBright-50") {
-                                +it.documentId
+                                +searchResultRating.documentId
                             }
                             div("w-1/12 bg-blueBright-50 hover:bg-blueBright-200") {
-                                +it.rating.toString()
+                                val editingStore = storeOf(false)
+                                editingStore.data.render { editing ->
+                                    if (editing) {
+                                        modalFieldEditor(
+                                            editingStore,
+                                            ratedSearch.id,
+                                            storeOf(searchResultRating.rating.toString())
+
+                                        ) { s -> searchResultRating.copy(rating = s.toInt()) }
+                                    } else {
+                                        div {
+                                            +searchResultRating.rating.toString()
+                                            clicks.map { !editingStore.current } handledBy editingStore.update
+                                        }
+                                    }
+                                }
                             }
 
-                            div("w-7/12") { +(it.label ?: "-") }
-                            div("w-3/12 bg-blueBright-50 hover:bg-blueBright-200") { +(it.comment ?: "-") }
+                            div("w-7/12") { +(searchResultRating.label ?: "-") }
+                            div("w-3/12 bg-blueBright-50 hover:bg-blueBright-200") {
+                                val commentEditingStore = storeOf(false)
+                                commentEditingStore.data.render { editing ->
+                                    if (editing) {
+                                        modalFieldEditor(
+                                            commentEditingStore,
+                                            ratedSearch.id,
+                                            storeOf(searchResultRating.comment?:""),
+                                        ) { s -> searchResultRating.copy(comment = s.takeIf { it.isNotBlank() }) }
+                                    } else {
+                                        div {
+                                            +(searchResultRating.comment ?: "-")
+                                            clicks.map { !commentEditingStore.current } handledBy commentEditingStore.update
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -123,4 +182,33 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
         }
     }
 
+}
+
+private fun RenderContext.modalFieldEditor(
+    editingStore: Store<Boolean>,
+    ratedSearchId: String,
+    fieldStore: Store<String>,
+    transform: (String) -> SearchResultRating
+) {
+    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
+        div("absolute top-48 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white h-48 w-96 p-5 flex flex-col justify-between") {
+            textField {
+                value(fieldStore)
+            }
+            div("flex flex=row") {
+                secondaryButton {
+                    +"Cancel"
+                    clicks.map { false } handledBy editingStore.update
+                }
+                primaryButton {
+                    +"OK"
+                    clicks.map {
+                        ratedSearchId to transform(fieldStore.current)
+                    } handledBy ratedSearchesStore.updateSearchResultRating
+                    clicks.map { false } handledBy editingStore.update
+                }
+            }
+        }
+    }
 }
