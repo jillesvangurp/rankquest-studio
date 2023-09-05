@@ -34,7 +34,7 @@ private fun RenderContext.mainView() {
 
     div {
         router.select(key = "page").render { (selected, _) ->
-            console.log("selected $selected")
+//            console.log("selected $selected")
             when (Page.resolve(selected)) {
                 Page.Search -> div {
                     searchScreen()
