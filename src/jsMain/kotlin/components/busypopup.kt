@@ -26,13 +26,13 @@ suspend fun <R> busy(
     errorResult: suspend (Result<R>) -> Unit = {},
     processResult: suspend (R) -> Unit = { }
 ) {
-    val busyStore by koin.inject<BusyStore>()
+    val busyStore = koin.get<BusyStore>()
     busyStore.withBusyState(supplier, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
 fun busyPopup() {
     // FIXME this doesn't work; figure out an alternative
-    val busyStore by koin.inject<BusyStore>()
+    val busyStore = koin.get<BusyStore>()
     modal {
         openState(busyStore)
         modalPanel() {

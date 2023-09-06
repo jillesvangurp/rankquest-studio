@@ -76,7 +76,7 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
 }
 
 fun RenderContext.ratedSearches() {
-    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+    val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
     ratedSearchesStore.data.render {
         if (it.isNullOrEmpty()) {
@@ -93,7 +93,7 @@ fun RenderContext.ratedSearches() {
 }
 
 fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
-    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+    val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
     val showStore = storeOf(false)
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
@@ -185,7 +185,7 @@ private fun RenderContext.modalFieldEditor(
     fieldStore: Store<String>,
     transform: (String) -> SearchResultRating
 ) {
-    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
+    val ratedSearchesStore = koin.get<RatedSearchesStore>()
     div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
         div("absolute top-48 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white h-48 w-96 p-5 flex flex-col justify-between") {
             textField {

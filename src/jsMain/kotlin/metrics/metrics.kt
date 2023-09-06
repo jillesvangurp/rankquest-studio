@@ -68,84 +68,83 @@ private fun RenderContext.metricResult(
     metricResult: MetricResults
 ) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
-    ratedSearchesStore.data.render {ratedsearches ->
-        val rss =ratedsearches?.associateBy { it.id }.orEmpty()
+    val ratedsearches = ratedSearchesStore.current
+    val rss = ratedsearches?.associateBy { it.id }.orEmpty()
 
-        div("flex flex-col mx-10 hover:bg-blueBright-50 w-full") {
-            val expandedState = storeOf(false)
-            expandedState.data.render { expanded ->
-                div("flex flex-row w-full") {
-                    iconButton(
-                        svg = if (expanded) SvgIconSource.Minus else SvgIconSource.Plus,
-                        title = if (expanded) "Collapse details" else "Expand details"
-                    ) {
-                        clicks.map { !expanded } handledBy expandedState.update
-                    }
-
-                    div("mx-3 w-full") { +"${metric.name}: ${+metricResult.metric}" }
+    div("flex flex-col mx-10 hover:bg-blueBright-50 w-full") {
+        val expandedState = storeOf(false)
+        expandedState.data.render { expanded ->
+            div("flex flex-row w-full") {
+                iconButton(
+                    svg = if (expanded) SvgIconSource.Minus else SvgIconSource.Plus,
+                    title = if (expanded) "Collapse details" else "Expand details"
+                ) {
+                    clicks.map { !expanded } handledBy expandedState.update
                 }
-                if (expanded) {
-                    metricResult.details.forEach { metricResult ->
-                        div("w-full") {
-                            +metricResult.id
-                            +": "
-                            +rss[metricResult.id]!!.searchContext.toString()
-                        }
-                        div("flex flex-row w-full") {
-                            div("w-full flex flax-col") {
-                                div("w-full") {
+
+                div("mx-3 w-full") { +"${metric.name}: ${+metricResult.metric}" }
+            }
+            if (expanded) {
+                metricResult.details.forEach { metricResult ->
+                    div("w-full") {
+                        +metricResult.id
+                        +": "
+                        +rss[metricResult.id]!!.searchContext.toString()
+                    }
+                    div("flex flex-row w-full") {
+                        div("w-full flex flax-col") {
+                            div("w-full") {
+                                div("flex flex-row w-full") {
+                                    div("w-1/6") {
+                                        +"Doc ID"
+                                    }
+                                    div("w-4/6") {
+                                        +"Label"
+                                    }
+                                    div("w-1/6") {
+                                        +"Metric"
+                                    }
+                                }
+                                metricResult.hits.forEach { (doc, score) ->
                                     div("flex flex-row w-full") {
                                         div("w-1/6") {
-                                            +"Doc ID"
+                                            +doc.docId
                                         }
                                         div("w-4/6") {
-                                            +"Label"
+                                            +(doc.label ?: "-")
                                         }
                                         div("w-1/6") {
-                                            +"Metric"
-                                        }
-                                    }
-                                    metricResult.hits.forEach { (doc, score) ->
-                                        div("flex flex-row w-full") {
-                                            div("w-1/6") {
-                                                +doc.docId
-                                            }
-                                            div("w-4/6") {
-                                                +(doc.label ?: "-")
-                                            }
-                                            div("w-1/6") {
-                                                +score.toString()
-                                            }
+                                            +score.toString()
                                         }
                                     }
                                 }
                             }
                         }
-                        if (metricResult.unRated.isNotEmpty()) {
-                            div("flex flex-row") {
-                                div("w-1/12") {
-                                    +"Hits"
-                                }
+                    }
+                    if (metricResult.unRated.isNotEmpty()) {
+                        div("flex flex-row") {
+                            div("w-1/12") {
+                                +"Hits"
                             }
-                            div {
-                                div("w-11/12") {
-                                    div {
+                        }
+                        div {
+                            div("w-11/12") {
+                                div {
+                                    div("flex flex-row w-full") {
+                                        div("w-1/6") {
+                                            +"Doc Id"
+                                        }
+                                        div("w-5/6") {
+                                            +"Label"
+                                        }
+                                    }
+                                    metricResult.unRated.forEach { docId ->
                                         div("flex flex-row w-full") {
                                             div("w-1/6") {
-                                                +"Doc Id"
+                                                +docId.docId
                                             }
                                             div("w-5/6") {
-                                                +"Label"
-                                            }
-                                        }
-                                        metricResult.unRated.forEach { docId ->
-                                            div("flex flex-row w-full") {
-                                                div("w-1/6") {
-                                                    +docId.docId
-                                                }
-                                                div("w-5/6") {
-                                                    +(docId.label ?: "-")
-                                                }
+                                                +(docId.label ?: "-")
                                             }
                                         }
                                     }

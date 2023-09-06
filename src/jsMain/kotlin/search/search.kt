@@ -41,7 +41,7 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
 ) {
     // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
     private val movieQuotesStore = koin.get<MovieQuotesStore>()
-    private val searchResultsStore by koin.inject<SearchResultsStore>()
+    private val searchResultsStore = koin.get<SearchResultsStore>()
 
     val search = handle<Map<String, String>> { config, query ->
         busy({
@@ -85,9 +85,9 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
 }
 
 fun RenderContext.searchScreen() {
-    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
-    val ratedSearchesStore by koin.inject<RatedSearchesStore>()
-    val searchResultsStore by koin.inject<SearchResultsStore>()
+    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
+    val ratedSearchesStore = koin.get<RatedSearchesStore>()
+    val searchResultsStore = koin.get<SearchResultsStore>()
 
 
     activeSearchPluginConfiguration.data.render { config ->
@@ -175,7 +175,7 @@ fun RenderContext.searchScreen() {
 }
 
 fun RenderContext.searchResults() {
-    val searchResultsStore by koin.inject<SearchResultsStore>()
+    val searchResultsStore = koin.get<SearchResultsStore>()
     searchResultsStore.data.render { rs ->
         div("mt-10") {
             when (rs) {

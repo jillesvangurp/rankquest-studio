@@ -94,7 +94,7 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
     //    val searchPluginStore = storeOf(listOf<MovieQuote>().searchPlugin())
-    private val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
+    private val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
 
     val load = handle<String> { _, path ->
         http(path).get().body().let<String, List<MovieQuote>> { body ->

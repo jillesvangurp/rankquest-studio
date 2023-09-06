@@ -51,7 +51,7 @@ sealed interface SearchContextField {
 data class SearchPluginConfiguration(val pluginName: String, val fieldConfig: List<SearchContextField>, val pluginSettings: JsonObject)
 
 fun RenderContext.pluginConfiguration() {
-    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
+    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
     div {
         h1(
         content = fun HtmlTag<HTMLHeadingElement>.() {

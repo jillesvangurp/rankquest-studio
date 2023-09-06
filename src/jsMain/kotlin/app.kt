@@ -38,8 +38,8 @@ private fun RenderContext.rankQuestStudio() {
 }
 
 private fun RenderContext.mainView() {
-    val router by koin.inject<MapRouter>()
-    val activeSearchPluginConfiguration by koin.inject<ActiveSearchPluginConfiguration>()
+    val router = koin.get<MapRouter>()
+    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
     busyPopup()
     div {
         router.select(key = "page").render { (selected, _) ->

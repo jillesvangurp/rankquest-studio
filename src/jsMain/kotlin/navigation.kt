@@ -30,7 +30,7 @@ enum class Page(val title: String, val showInMenu: Boolean = true) {
 val Page.route get() = mapOf("page" to name.lowercase())
 
 fun RenderContext.pageLink(page: Page) {
-    val router by koin.inject<MapRouter>()
+    val router = koin.get<MapRouter>()
 
     a {
         +page.title
@@ -40,7 +40,7 @@ fun RenderContext.pageLink(page: Page) {
 
 
 fun RenderContext.menu() {
-    val router by koin.inject<MapRouter>()
+    val router = koin.get<MapRouter>()
     router.select(key = "page").render { (selected, _) ->
         Page.entries.filter { it.showInMenu }.forEach { page ->
             menuButton(page, page.name.lowercase() == selected)
@@ -51,7 +51,7 @@ fun RenderContext.menu() {
 
 
 private fun RenderContext.menuButton(page: Page, active: Boolean = false) {
-    val router by koin.inject<MapRouter>()
+    val router = koin.get<MapRouter>()
 
     if(active) {
         activeNavButton {
