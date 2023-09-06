@@ -2,14 +2,13 @@ package search
 
 import Page
 import com.jilesvangurp.rankquest.core.RatedSearch
-import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.SearchResults
+import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
+import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
+import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
-import examples.quotesearch.MovieQuotesStore
-import examples.quotesearch.movieQuotesSearchPluginConfig
-import examples.quotesearch.searchPlugin
 import handlerScope
 import koin
 import kotlinx.coroutines.coroutineScope
@@ -22,26 +21,24 @@ import org.koin.dsl.module
 import org.w3c.dom.HTMLHeadingElement
 import pageLink
 import ratedsearches.RatedSearchesStore
-import searchpluginconfig.SearchContextField
-import searchpluginconfig.SearchPluginConfiguration
 import utils.md5Hash
 import kotlin.time.Duration.Companion.milliseconds
 
 val searchModule = module {
-    singleOf(::ActiveSearchPluginConfiguration)
+    singleOf(::ActiveSearchPluginConfigurationStore)
     singleOf(::SearchResultsStore)
 }
 
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
-class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfiguration?>(
+class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfiguration?>(
     null,
     "active-search-plugin-configuration",
     SearchPluginConfiguration.serializer().nullable
 ) {
     // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
-    private val movieQuotesStore = koin.get<MovieQuotesStore>()
     private val searchResultsStore = koin.get<SearchResultsStore>()
+    private val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
 
     val search = handle<Map<String, String>> { config, query ->
         busy({
@@ -53,6 +50,7 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
                         if (selectedPlugin != null) {
                             handlerScope.launch {
                                 console.log("SEARCH $query")
+                                val searchPlugin = pluginFactoryRegistry.get(config.pluginType)?.create(config)
                                 outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
                             }
                         } else {
@@ -70,27 +68,15 @@ class ActiveSearchPluginConfiguration : LocalStoringStore<SearchPluginConfigurat
         }, initialTitle = "Searching", initialMessage = "Query for $query")
         config
     }
-
-    val searchPlugin: SearchPlugin?
-        get() = when (current?.pluginName) {
-            movieQuotesSearchPluginConfig.pluginName -> {
-                movieQuotesStore.current.searchPlugin()
-            }
-
-            else -> {
-                console.log("unknown plugin ${current?.pluginName}")
-                null
-            }
-        }
 }
 
 fun RenderContext.searchScreen() {
-    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
     val searchResultsStore = koin.get<SearchResultsStore>()
 
 
-    activeSearchPluginConfiguration.data.render { config ->
+    activeSearchPluginConfigurationStore.data.render { config ->
         if (config == null) {
             para {
                 +"Configure a search plugin first. "
@@ -107,7 +93,7 @@ fun RenderContext.searchScreen() {
             div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
                 h1(
                     content = fun HtmlTag<HTMLHeadingElement>.() {
-                        +config.pluginName
+                        +config.title
                     })
                 div("") {
                     for (field in config.fieldConfig) {
@@ -121,7 +107,7 @@ fun RenderContext.searchScreen() {
                                     value(fieldStore)
                                     changes.map {
                                         stores.map { (f, s) -> f to s.current }.toMap()
-                                    } handledBy activeSearchPluginConfiguration.search
+                                    } handledBy activeSearchPluginConfigurationStore.search
                                 }
                             }
                         }
@@ -164,7 +150,7 @@ fun RenderContext.searchScreen() {
 
                         clicks.map {
                             stores.map { (f, s) -> f to s.current }.toMap()
-                        } handledBy activeSearchPluginConfiguration.search
+                        } handledBy activeSearchPluginConfigurationStore.search
                     }
 
                 }

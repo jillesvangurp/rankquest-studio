@@ -3,33 +3,47 @@ package examples.quotesearch
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.SearchPlugin
 import com.jilesvangurp.rankquest.core.SearchResults
+import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
+import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
+import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
+import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
+import com.jilesvangurp.rankquest.core.plugins.PluginFactory
+import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
 import koin
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.*
-import searchpluginconfig.SearchContextField
-import searchpluginconfig.SearchPluginConfiguration
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
 
 val quoteSearchModule = module {
     singleOf(::MovieQuotesStore)
+
+    single {
+        val movieQuotesStoreFactory= MovieQuotesStorePluginFactory(get())
+
+        PluginFactoryRegistry().also {
+            it.register("movies", movieQuotesStoreFactory)
+        }
+    }
+
 }
 
 val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
-    pluginName = "Movie Quote Search",
+    title = "Movie Quote Search",
+    pluginType = "movies",
     fieldConfig = listOf(
         SearchContextField.StringField("q"),
         SearchContextField.IntField("size", 5)
     ),
-    pluginSettings = JsonObject(mapOf())
+    pluginSettings = null,
+    metrics = Metric.entries.map { MetricConfiguration(it.name, it, listOf()) }
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -93,9 +107,6 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
 }
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
-    //    val searchPluginStore = storeOf(listOf<MovieQuote>().searchPlugin())
-    private val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
-
     val load = handle<String> { _, path ->
         http(path).get().body().let<String, List<MovieQuote>> { body ->
             DEFAULT_JSON.decodeFromString(body)
@@ -107,6 +118,12 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
     init {
         load("moviequotes.json")
         console.log("done loading")
+    }
+}
+
+class MovieQuotesStorePluginFactory(val movieQuotesStore: MovieQuotesStore) : PluginFactory {
+    override fun create(configuration: SearchPluginConfiguration): SearchPlugin {
+        return movieQuotesStore.current.searchPlugin()
     }
 }
 

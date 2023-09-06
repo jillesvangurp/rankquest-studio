@@ -6,7 +6,7 @@ import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
 import metrics.metrics
 import ratedsearches.ratedSearches
-import search.ActiveSearchPluginConfiguration
+import search.ActiveSearchPluginConfigurationStore
 import search.searchScreen
 import searchpluginconfig.pluginConfiguration
 
@@ -39,7 +39,7 @@ private fun RenderContext.rankQuestStudio() {
 
 private fun RenderContext.mainView() {
     val router = koin.get<MapRouter>()
-    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     busyPopup()
     div {
         router.select(key = "page").render { (selected, _) ->
@@ -54,7 +54,7 @@ private fun RenderContext.mainView() {
                 Page.RatedSearches -> ratedSearches()
                 Page.Metrics -> metrics()
                 Page.Root -> {
-                    if(activeSearchPluginConfiguration.current == null) {
+                    if(activeSearchPluginConfigurationStore.current == null) {
                         router.navTo(Page.Conf.route)
                     } else {
                         router.navTo(Page.Search.route)

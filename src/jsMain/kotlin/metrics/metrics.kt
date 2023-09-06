@@ -1,25 +1,20 @@
 package metrics
 
-import com.jilesvangurp.rankquest.core.Metric
 import com.jilesvangurp.rankquest.core.MetricResults
-import com.jilesvangurp.rankquest.core.runAllMetrics
-import com.jillesvangurp.ktsearch.DEFAULT_PRETTY_JSON
+import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
+import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.SvgIconSource
 import components.iconButton
-import components.para
 import components.primaryButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
-import dev.fritz2.core.transition
-import dev.fritz2.headless.components.tooltip
 import koin
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import ratedsearches.RatedSearchesStore
-import search.ActiveSearchPluginConfiguration
+import search.ActiveSearchPluginConfigurationStore
 
 val metricsModule = module {
     singleOf(::MetricsOutputStore)
@@ -27,15 +22,21 @@ val metricsModule = module {
 
 class MetricsOutputStore : RootStore<List<Pair<Metric, MetricResults>>>(listOf()) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
-    val activeSearchPluginConfiguration = koin.get<ActiveSearchPluginConfiguration>()
+    val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
 
     val measure = handle {
         ratedSearchesStore.current?.let { ratedSearches ->
-            activeSearchPluginConfiguration.searchPlugin?.runAllMetrics(ratedSearches).also {
-                console.log(it)
+            activeSearchPluginConfigurationStore.current?.let { config ->
+                pluginFactoryRegistry.get(config.pluginType)?.let { pf ->
+                    val plugin = pf.create(config)
+                    config.metrics.map { m->
+                        m.metric to m.metric.run(plugin,ratedSearches,m.params)
+                    }
+                }
             }
-        } ?: it
+        } ?: listOf()
     }
 }
 
