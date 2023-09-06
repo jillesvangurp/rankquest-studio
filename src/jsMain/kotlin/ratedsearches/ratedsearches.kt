@@ -97,34 +97,29 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
 
     val showStore = storeOf(false)
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
-        div("flex flex-row items-center") {
-            showStore.data.render { show ->
-                if (show) {
-                    iconButton(SvgIconSource.Minus, title = "Collapse rated search") {
+        showStore.data.render { show ->
+            div("flex flex-row items-center") {
+                    iconButton(
+                        svg = if (show) SvgIconSource.Minus else SvgIconSource.Plus,
+                        title = if (show) "Collapse rated search" else "Expand rated search"
+                    ) {
                         clicks.map { !show } handledBy showStore.update
                     }
-                } else {
-                    iconButton(SvgIconSource.Plus, "Expand rated search") {
-                        clicks.map { !show } handledBy showStore.update
-                    }
+                div("mx-3 grow") {
+                    +"${
+                        ratedSearch.searchContext.map { (k, v) -> "$k: $v" }.joinToString(", ")
+                    } rated results: ${ratedSearch.ratings.size} "
+                }
+                iconButton(SvgIconSource.Delete, "Delete rated search") {
+                    clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
                 }
             }
-            div("mx-3 grow") {
-                +"${
-                    ratedSearch.searchContext.map { (k, v) -> "$k: $v" }.joinToString(", ")
-                } rated results: ${ratedSearch.ratings.size} "
-            }
-            iconButton(SvgIconSource.Delete, "Delete rated search") {
-                clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
-            }
-        }
-        showStore.data.render { show ->
             if (show) {
                 div("") {
                     p { +"RsId: ${ratedSearch.id}" }
                     div("flex flex-row w-full gap-3 items-center") {
                         div("w-1/12 bg-blueMuted-200") {
-                            +"Document Id"
+                            +"Doc Id"
                         }
                         div("w-1/12 bg-blueMuted-200") {
                             +"Rating"
@@ -165,7 +160,7 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
                                         modalFieldEditor(
                                             commentEditingStore,
                                             ratedSearch.id,
-                                            storeOf(searchResultRating.comment?:""),
+                                            storeOf(searchResultRating.comment ?: ""),
                                         ) { s -> searchResultRating.copy(comment = s.takeIf { it.isNotBlank() }) }
                                     } else {
                                         div {
