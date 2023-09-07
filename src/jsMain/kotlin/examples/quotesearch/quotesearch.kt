@@ -11,7 +11,6 @@ import com.jilesvangurp.rankquest.core.plugins.PluginFactory
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
-import koin
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

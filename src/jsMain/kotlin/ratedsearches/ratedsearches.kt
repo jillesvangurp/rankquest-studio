@@ -168,7 +168,7 @@ fun RenderContext.ratedSearch(showStore: Store<Map<String, Boolean>>, ratedSearc
             if (show) {
 
                 div("") {
-                    p { +"RsId: ${ratedSearch.id}" }
+                    p { +"RsId: ${ratedSearch.id} Rated documents" }
                     div("flex flex-row w-full gap-3 items-center") {
                         div("w-1/12 bg-blueMuted-200") {
                             +"Doc Id"
