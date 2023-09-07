@@ -1,17 +1,28 @@
 package ratedsearches
 
+import com.jilesvangurp.rankquest.core.DEFAULT_JSON
+import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.Store
-import dev.fritz2.core.storeOf
+import dev.fritz2.core.*
+import dev.fritz2.headless.components.inputField
+import dev.fritz2.routing.encodeURIComponent
 import koin
+import kotlinx.browser.document
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.events.MouseEvent
+import org.w3c.files.FileReader
+import org.w3c.files.get
+import org.w3c.xhr.ProgressEvent
 import pageLink
+import kotlin.random.Random
+import kotlin.random.nextULong
 
 val ratedSearchesModule = module {
     singleOf(::RatedSearchesStore)
@@ -78,24 +89,73 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
 fun RenderContext.ratedSearches() {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
-    ratedSearchesStore.data.render {
-        if (it.isNullOrEmpty()) {
+    ratedSearchesStore.data.render { ratedSearches ->
+        val downloadLinkId = "rated-search-download-link"
+        a("hidden", id= downloadLinkId) {
+            +"invisible"
+
+            href("data:application/json;charset=utf-8,${encodeURIComponent(DEFAULT_PRETTY_JSON.encodeToString(ratedSearches))}")
+            download("rated-searches.json")
+        }
+        div("flex flex-row gap-3") {
+            primaryButton {
+                +"Clear"
+                disabled(ratedSearches.isNullOrEmpty())
+                clicks handledBy {
+                    confirm("Are you sure you want to do this?","This remove all your rated searches. Make sure to download your rated searches first!") {
+                        ratedSearchesStore.update(listOf())
+                    }
+                }
+            }
+            primaryButton {
+                +"Download"
+                disabled(ratedSearches.isNullOrEmpty())
+                clicks handledBy {
+                    val e = document.createEvent("MouseEvents") as MouseEvent
+                    e.initEvent("click", bubbles = true, cancelable = true)
+                    // issue a click on the link to cause the download to happen
+                    document.getElementById(downloadLinkId)?.dispatchEvent(e)
+                        ?: console.log("could not find link to click")
+                }
+            }
+            val textStore = storeOf("")
+            textStore.data.render {text->
+                primaryButton {
+                    +"Import"
+                    disabled(text.isBlank())
+                    clicks handledBy {
+                        val decoded = DEFAULT_JSON.decodeFromString<List<RatedSearch>>(text)
+                        console.log(decoded)
+                        ratedSearchesStore.update(decoded)
+                    }
+                }
+            }
+            textFileInput(
+                fileType = ".json",
+                textStore = textStore
+            )
+
+        }
+
+        if (ratedSearches.isNullOrEmpty()) {
             p {
                 +"Create some test cases from the search screen. "
                 pageLink(Page.Search)
             }
         } else {
-            it.forEach { rs ->
+            ratedSearches.forEach { rs ->
                 ratedSearch(rs)
             }
         }
     }
 }
 
+
 fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
     val showStore = storeOf(false)
+
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
         showStore.data.render { show ->
             div("flex flex-row items-center") {

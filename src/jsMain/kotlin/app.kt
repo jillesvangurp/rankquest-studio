@@ -43,7 +43,6 @@ private fun RenderContext.mainView() {
     busyPopup()
     div {
         router.select(key = "page").render { (selected, _) ->
-//            console.log("selected $selected")
             when (Page.resolve(selected)) {
                 Page.Search -> div {
                     searchScreen()
@@ -66,42 +65,3 @@ private fun RenderContext.mainView() {
     }
     portalRoot()
 }
-
-
-/**
-
-manage search APIs
-
-Search plugin configurations:
-
-- templated json POST
-- extract template variables from json string
-- add headers
-- json path for items, id, and label
-- export configuration
-
-- search explore UI
-- populate query context
-- review results
-- add to test cases
-
-- test case browser
-- list test cases
-- open test case
-- edit query context
-- result rater (star rating)
-- benchmark configuration
-- sane defaults
-- add/remove metric configuration
-- configure metric configuration
-- run benchmark
-- review results
-- detail for each test case
-- export/import
-- diff
-- export/import
-
-- cli run benchmark
-- cli search
-- cli add test case
- */

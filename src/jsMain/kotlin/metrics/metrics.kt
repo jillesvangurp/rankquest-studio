@@ -25,7 +25,6 @@ class MetricsOutputStore : RootStore<List<Pair<Metric, MetricResults>>>(listOf()
     val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
-
     val measure = handle {
         ratedSearchesStore.current?.let { ratedSearches ->
             activeSearchPluginConfigurationStore.current?.let { config ->
