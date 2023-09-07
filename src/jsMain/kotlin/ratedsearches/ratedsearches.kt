@@ -1,28 +1,19 @@
 package ratedsearches
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
-import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
 import dev.fritz2.core.*
-import dev.fritz2.headless.components.inputField
-import dev.fritz2.routing.encodeURIComponent
+import dev.fritz2.headless.components.toast
 import koin
-import kotlinx.browser.document
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.events.MouseEvent
-import org.w3c.files.FileReader
-import org.w3c.files.get
-import org.w3c.xhr.ProgressEvent
 import pageLink
-import kotlin.random.Random
-import kotlin.random.nextULong
+import kotlin.time.Duration.Companion.seconds
 
 val ratedSearchesModule = module {
     singleOf(::RatedSearchesStore)
@@ -90,13 +81,7 @@ fun RenderContext.ratedSearches() {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
     ratedSearchesStore.data.render { ratedSearches ->
-        val downloadLinkId = "rated-search-download-link"
-        a("hidden", id= downloadLinkId) {
-            +"invisible"
 
-            href("data:application/json;charset=utf-8,${encodeURIComponent(DEFAULT_PRETTY_JSON.encodeToString(ratedSearches))}")
-            download("rated-searches.json")
-        }
         div("flex flex-row gap-3") {
             primaryButton {
                 +"Clear"
@@ -104,20 +89,13 @@ fun RenderContext.ratedSearches() {
                 clicks handledBy {
                     confirm("Are you sure you want to do this?","This remove all your rated searches. Make sure to download your rated searches first!") {
                         ratedSearchesStore.update(listOf())
+                        toast("messages", duration = 3.seconds.inWholeMilliseconds) {
+                            +"Cleared!"
+                        }
                     }
                 }
             }
-            primaryButton {
-                +"Download"
-                disabled(ratedSearches.isNullOrEmpty())
-                clicks handledBy {
-                    val e = document.createEvent("MouseEvents") as MouseEvent
-                    e.initEvent("click", bubbles = true, cancelable = true)
-                    // issue a click on the link to cause the download to happen
-                    document.getElementById(downloadLinkId)?.dispatchEvent(e)
-                        ?: console.log("could not find link to click")
-                }
-            }
+            jsonDownloadButton(ratedSearchesStore,"rated-searches-${Clock.System.now()}.json", ListSerializer(RatedSearch.serializer()))
             val textStore = storeOf("")
             textStore.data.render {text->
                 primaryButton {

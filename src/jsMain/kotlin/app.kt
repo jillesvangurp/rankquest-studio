@@ -2,6 +2,7 @@ import components.busyPopup
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
+import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
 import metrics.metrics
@@ -63,5 +64,9 @@ private fun RenderContext.mainView() {
             }
         }
     }
+    toastContainer(
+        "messages", // name
+        "absolute bottom-5 left-1/2 -translate-x-48 mx-auto flex flex-col gap-2 place-items-center w-96"
+    )
     portalRoot()
 }
