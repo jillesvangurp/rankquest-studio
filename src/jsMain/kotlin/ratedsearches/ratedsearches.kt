@@ -13,6 +13,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
+import search.SearchResultsStore
 import kotlin.time.Duration.Companion.seconds
 
 val ratedSearchesModule = module {
@@ -80,6 +81,8 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
 fun RenderContext.ratedSearches() {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
+
+    val showStore = storeOf<Map<String, Boolean>>(mapOf())
     ratedSearchesStore.data.render { ratedSearches ->
 
         div("flex flex-row gap-3") {
@@ -87,7 +90,10 @@ fun RenderContext.ratedSearches() {
                 +"Clear"
                 disabled(ratedSearches.isNullOrEmpty())
                 clicks handledBy {
-                    confirm("Are you sure you want to do this?","This remove all your rated searches. Make sure to download your rated searches first!") {
+                    confirm(
+                        "Are you sure you want to do this?",
+                        "This remove all your rated searches. Make sure to download your rated searches first!"
+                    ) {
                         ratedSearchesStore.update(listOf())
                         toast("messages", duration = 3.seconds.inWholeMilliseconds) {
                             +"Cleared!"
@@ -95,9 +101,13 @@ fun RenderContext.ratedSearches() {
                     }
                 }
             }
-            jsonDownloadButton(ratedSearchesStore,"rated-searches-${Clock.System.now()}.json", ListSerializer(RatedSearch.serializer()))
+            jsonDownloadButton(
+                ratedSearchesStore,
+                "rated-searches-${Clock.System.now()}.json",
+                ListSerializer(RatedSearch.serializer())
+            )
             val textStore = storeOf("")
-            textStore.data.render {text->
+            textStore.data.render { text ->
                 primaryButton {
                     +"Import"
                     disabled(text.isBlank())
@@ -122,27 +132,30 @@ fun RenderContext.ratedSearches() {
             }
         } else {
             ratedSearches.forEach { rs ->
-                ratedSearch(rs)
+                ratedSearch(showStore, rs)
             }
         }
     }
 }
 
 
-fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
+fun RenderContext.ratedSearch(showStore: Store<Map<String, Boolean>>, ratedSearch: RatedSearch) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
-    val showStore = storeOf(false)
-
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
-        showStore.data.render { show ->
+        showStore.data.render { showMap ->
+            val show = showMap[ratedSearch.id] == true
             div("flex flex-row items-center") {
-                    iconButton(
-                        svg = if (show) SvgIconSource.Minus else SvgIconSource.Plus,
-                        title = if (show) "Collapse rated search" else "Expand rated search"
-                    ) {
-                        clicks.map { !show } handledBy showStore.update
-                    }
+                iconButton(
+                    svg = if (show) SvgIconSource.Minus else SvgIconSource.Plus,
+                    title = if (show) "Collapse rated search" else "Expand rated search"
+                ) {
+                    clicks.map {
+                        val m = showMap.toMutableMap()
+                        if (show) m.remove(ratedSearch.id) else m[ratedSearch.id] = true
+                        m
+                    } handledBy showStore.update
+                }
                 div("mx-3 grow") {
                     +"${
                         ratedSearch.searchContext.map { (k, v) -> "$k: $v" }.joinToString(", ")
@@ -153,6 +166,7 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
                 }
             }
             if (show) {
+
                 div("") {
                     p { +"RsId: ${ratedSearch.id}" }
                     div("flex flex-row w-full gap-3 items-center") {
@@ -169,6 +183,16 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
                     ratedSearch.ratings.sortedByDescending { it.rating }.forEach { searchResultRating ->
                         div("flex flex-row w-full gap-3 border-t border-blueMuted-200") {
                             div("w-1/12 bg-blueBright-50") {
+                                iconButton(SvgIconSource.Delete, title = "Remove this result") {
+                                    clicks.map {
+                                        ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != searchResultRating.documentId  })
+                                    } handledBy { modified ->
+                                        confirm("Remove this result?",description = "Remove ${searchResultRating.documentId} | ${searchResultRating.label}") {
+                                            ratedSearchesStore.addOrReplace(modified)
+                                        }
+                                    }
+                                }
+                                +" "
                                 +searchResultRating.documentId
                             }
                             div("w-1/12 bg-blueBright-50 hover:bg-blueBright-200") {
@@ -211,6 +235,74 @@ fun RenderContext.ratedSearch(ratedSearch: RatedSearch) {
                         }
                     }
                 }
+                div {
+                    val addMoreStore = storeOf(false)
+                    a {
+                        +"Add more documents"
+                        clicks.map { !addMoreStore.current } handledBy addMoreStore.update
+                    }
+                    addMoreStore.data.render { show ->
+                        if (show) {
+                            overlay("absolute top-48 left-1/2 -translate-x-1/2 z-50 bg-white h-96 w-200 p-5 flex flex-col justify-between overflow-auto") {
+                                val searchResultsStore = koin.get<SearchResultsStore>()
+                                searchResultsStore.data.render { rs ->
+                                    when (rs) {
+                                        null -> {
+                                            para { +"Do a search in the search screen and then come back here" }
+                                        }
+
+                                        else -> {
+                                            if (rs.isFailure) {
+                                                para { +"Oopsie ${rs.exceptionOrNull()}" }
+                                            } else {
+                                                val results = rs.getOrThrow()
+                                                p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+
+                                                ul("list-disc") {
+                                                    results.searchResultList.forEach { result ->
+                                                        li("ml-5") {
+                                                            +"${result.id}${result.label?.let { l -> ": $l" } ?: ""} "
+                                                            if (ratedSearch.ratings.firstOrNull { it.documentId == result.id } == null) {
+                                                                a {
+                                                                    +"Add to rated search"
+                                                                    clicks.map {
+                                                                        ratedSearch.copy(
+                                                                            ratings = ratedSearch.ratings + SearchResultRating(
+                                                                                result.id,
+                                                                                1,
+                                                                                result.label
+                                                                            )
+                                                                        )
+                                                                    } handledBy ratedSearchesStore.addOrReplace
+                                                                }
+                                                            } else {
+                                                                p { +"Already rated" }
+                                                                a {
+                                                                    +"Remove from rated search"
+                                                                    clicks.map {
+                                                                        ratedSearch.copy(
+                                                                            ratings = ratedSearch.ratings.filter { it.documentId != result.id }
+                                                                        )
+                                                                    } handledBy ratedSearchesStore.addOrReplace
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                div("flex flex=row") {
+                                    secondaryButton {
+                                        +"Done"
+                                        clicks.map { false } handledBy addMoreStore.update
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -224,24 +316,24 @@ private fun RenderContext.modalFieldEditor(
     transform: (String) -> SearchResultRating
 ) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
-    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
-        div("absolute top-48 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white h-48 w-96 p-5 flex flex-col justify-between") {
-            textField {
-                value(fieldStore)
+//    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
+    overlay {
+        textField {
+            value(fieldStore)
+        }
+        div("flex flex=row") {
+            secondaryButton {
+                +"Cancel"
+                clicks.map { false } handledBy editingStore.update
             }
-            div("flex flex=row") {
-                secondaryButton {
-                    +"Cancel"
-                    clicks.map { false } handledBy editingStore.update
-                }
-                primaryButton {
-                    +"OK"
-                    clicks.map {
-                        ratedSearchId to transform(fieldStore.current)
-                    } handledBy ratedSearchesStore.updateSearchResultRating
-                    clicks.map { false } handledBy editingStore.update
-                }
+            primaryButton {
+                +"OK"
+                clicks.map {
+                    ratedSearchId to transform(fieldStore.current)
+                } handledBy ratedSearchesStore.updateSearchResultRating
+                clicks.map { false } handledBy editingStore.update
             }
         }
+//        }
     }
 }

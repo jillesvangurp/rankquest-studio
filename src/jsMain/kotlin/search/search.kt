@@ -32,9 +32,7 @@ val searchModule = module {
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
 class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfiguration?>(
-    null,
-    "active-search-plugin-configuration",
-    SearchPluginConfiguration.serializer().nullable
+    null, "active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable
 ) {
     // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
     private val searchResultsStore = koin.get<SearchResultsStore>()
@@ -75,7 +73,6 @@ fun RenderContext.searchScreen() {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
     val searchResultsStore = koin.get<SearchResultsStore>()
 
-
     activeSearchPluginConfigurationStore.data.render { config ->
         if (config == null) {
             para {
@@ -83,26 +80,24 @@ fun RenderContext.searchScreen() {
                 pageLink(Page.Conf)
             }
         } else {
-            val stores = config.fieldConfig.associate {
-                it.name to when (it) {
-                    is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
-                    is SearchContextField.IntField -> storeOf("${it.defaultValue}")
-                    is SearchContextField.StringField -> storeOf("")
-                }
-            }
             div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
-                h1(
-                    content = fun HtmlTag<HTMLHeadingElement>.() {
-                        +config.title
-                    })
-                div("") {
+                h1(content = fun HtmlTag<HTMLHeadingElement>.() {
+                    +config.title
+                })
+                val stores = config.fieldConfig.associate {
+                    it.name to when (it) {
+                        is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
+                        is SearchContextField.IntField -> storeOf("${it.defaultValue}")
+                        is SearchContextField.StringField -> storeOf("")
+                    }
+                }
+                div {
                     for (field in config.fieldConfig) {
                         val fieldStore = stores[field.name]!!
                         when (field) {
                             else -> {
                                 textField(
-                                    placeHolder = "Type something to search for ..",
-                                    inputLabelText = field.name
+                                    placeHolder = "Type something to search for ..", inputLabelText = field.name
                                 ) {
                                     value(fieldStore)
                                     changes.map {
@@ -116,8 +111,10 @@ fun RenderContext.searchScreen() {
                 div("flex flex-row") {
                     searchResultsStore.data.render { searchResults ->
                         ratedSearchesStore.data.render { ratedSearches ->
+                            // use a content hash to avoid duplicates
                             val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
-                            val alreadyAdded = ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
+                            val alreadyAdded =
+                                ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
                             secondaryButton {
                                 +if (alreadyAdded) "Already a Testcase" else "Add Testcase"
                                 disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
@@ -127,15 +124,12 @@ fun RenderContext.searchScreen() {
                                             var rate = searchResults.searchResultList.size
                                             searchResults.searchResultList.map {
                                                 SearchResultRating(
-                                                    it.id,
-                                                    label = it.label,
-                                                    rating = rate--
+                                                    it.id, label = it.label, rating = rate--
                                                 )
                                             }
                                         }
                                     } ?: listOf()
                                     RatedSearch(
-                                        // FIXME nicer id?
                                         id = rsId,
                                         searchContext = stores.map { (f, s) -> f to s.current }.toMap(),
                                         ratings = ratings
