@@ -39,7 +39,7 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
     private val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
 
     val search = handle<Map<String, String>> { config, query ->
-        busy({
+        busyResult({
             var outcome: Result<SearchResults>? = null
             coroutineScope {
                 launch {

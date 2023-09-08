@@ -27,7 +27,7 @@ class MetricsOutputStore : RootStore<List<Pair<MetricConfiguration, MetricResult
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
     val measure = handle {
-        busy2({
+        runWithBusy({
             ratedSearchesStore.current?.let { ratedSearches ->
                 activeSearchPluginConfigurationStore.current?.let { config ->
                     pluginFactoryRegistry.get(config.pluginType)?.let { pf ->

@@ -18,7 +18,7 @@ val busyPopupModule = module {
     singleOf(::BusyStore)
 }
 
-suspend fun <T> busy2(
+suspend fun <T> runWithBusy(
     supplier: suspend () -> T,
     successMessage: String = "Done!",
     initialTitle: String = "Working",
@@ -26,7 +26,7 @@ suspend fun <T> busy2(
     errorResult: suspend (Result<T>) -> Unit = {},
     processResult: suspend (T) -> Unit = { }
 ) {
-    busy(suspend {
+    busyResult(suspend {
         try {
             Result.success(supplier.invoke())
         } catch (e: Exception) {
@@ -35,7 +35,7 @@ suspend fun <T> busy2(
     },successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
-suspend fun <R> busy(
+suspend fun <R> busyResult(
     supplier: suspend () -> Result<R>,
     successMessage: String = "Done!",
     initialTitle: String = "Working",
@@ -48,12 +48,11 @@ suspend fun <R> busy(
 }
 
 
-fun busyPopup() {
-    // FIXME this doesn't work; figure out an alternative
+fun busyPopupMountPoint() {
     val busyStore = koin.get<BusyStore>()
     modal {
         openState(busyStore)
-        modalPanel() {
+        modalPanel {
             modalOverlay("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
                 // some nice fade in/out effect for the overlay
                 transition(

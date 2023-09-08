@@ -1,4 +1,4 @@
-import components.busyPopup
+import components.busyPopupMountPoint
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
@@ -41,7 +41,7 @@ private fun RenderContext.rankQuestStudio() {
 private fun RenderContext.mainView() {
     val router = koin.get<MapRouter>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-    busyPopup()
+    busyPopupMountPoint()
     div {
         router.select(key = "page").render { (selected, _) ->
             when (Page.resolve(selected)) {
