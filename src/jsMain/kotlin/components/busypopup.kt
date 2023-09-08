@@ -18,6 +18,23 @@ val busyPopupModule = module {
     singleOf(::BusyStore)
 }
 
+suspend fun <T> busy2(
+    supplier: suspend () -> T,
+    successMessage: String = "Done!",
+    initialTitle: String = "Working",
+    initialMessage: String = "Please wait ...",
+    errorResult: suspend (Result<T>) -> Unit = {},
+    processResult: suspend (T) -> Unit = { }
+) {
+    busy(suspend {
+        try {
+            Result.success(supplier.invoke())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    },successMessage, initialTitle, initialMessage, errorResult, processResult)
+}
+
 suspend fun <R> busy(
     supplier: suspend () -> Result<R>,
     successMessage: String = "Done!",
@@ -29,6 +46,7 @@ suspend fun <R> busy(
     val busyStore = koin.get<BusyStore>()
     busyStore.withBusyState(supplier, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
+
 
 fun busyPopup() {
     // FIXME this doesn't work; figure out an alternative

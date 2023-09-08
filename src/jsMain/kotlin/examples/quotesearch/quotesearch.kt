@@ -42,7 +42,7 @@ val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
         SearchContextField.IntField("size", 5)
     ),
     pluginSettings = null,
-    metrics = Metric.entries.map { MetricConfiguration(it.name, it, listOf()) }
+    metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }
 )
 
 @OptIn(ExperimentalSerializationApi::class)

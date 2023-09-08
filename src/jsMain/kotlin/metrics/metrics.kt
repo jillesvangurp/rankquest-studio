@@ -4,9 +4,7 @@ import com.jilesvangurp.rankquest.core.MetricResults
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
-import components.SvgIconSource
-import components.iconButton
-import components.primaryButton
+import components.*
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.Store
@@ -29,20 +27,25 @@ class MetricsOutputStore : RootStore<List<Pair<MetricConfiguration, MetricResult
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
     val measure = handle {
-        ratedSearchesStore.current?.let { ratedSearches ->
-            activeSearchPluginConfigurationStore.current?.let { config ->
-                pluginFactoryRegistry.get(config.pluginType)?.let { pf ->
-                    val plugin = pf.create(config)
-                    config.metrics.map { metricConfiguration ->
-                        metricConfiguration to metricConfiguration.metric.run(
-                            plugin,
-                            ratedSearches,
-                            metricConfiguration.params
-                        )
+        busy2({
+            ratedSearchesStore.current?.let { ratedSearches ->
+                activeSearchPluginConfigurationStore.current?.let { config ->
+                    pluginFactoryRegistry.get(config.pluginType)?.let { pf ->
+                        val plugin = pf.create(config)
+                        config.metrics.map { metricConfiguration ->
+                            metricConfiguration to metricConfiguration.metric.run(
+                                plugin,
+                                ratedSearches,
+                                metricConfiguration.params
+                            )
+                        }
                     }
                 }
-            }
-        } ?: listOf()
+            } ?: listOf()
+        }) {
+            update(it)
+        }
+        it
     }
 }
 
@@ -59,7 +62,7 @@ fun RenderContext.metrics() {
 
         }
         primaryButton {
-            +"Go!"
+            +"Run Metrics"
             clicks handledBy metricsOutputStore.measure
         }
         metricsOutputStore.data.render { metrics ->
@@ -86,6 +89,9 @@ private fun RenderContext.metricResult(
             val rss = ratedsearches?.associateBy { it.id }.orEmpty()
 
             div("flex flex-col mx-10 hover:bg-blueBright-50 w-full") {
+                h2 {
+                    +metricConfiguration.name
+                }
                 div("flex flex-row w-full") {
                     iconButton(
                         svg = if (expanded) SvgIconSource.Minus else SvgIconSource.Plus,
@@ -106,8 +112,9 @@ private fun RenderContext.metricResult(
                         }
                     }
 
-                    div("mx-3 w-full") { +"${metricConfiguration.name}: ${+metricResult.metric}" }
+                    div("mx-3 w-full") { +"SearchContext: (${metricConfiguration.params.map { "${it.name} = ${it.value}" }.joinToString(", ")})" }
                 }
+                div { +"Metric: ${+metricResult.metric}" }
                 if (expanded) {
                     metricResult.details.forEach { metricResult ->
                         div("w-full") {
@@ -119,7 +126,7 @@ private fun RenderContext.metricResult(
                             div("w-full flex flax-col") {
                                 div("w-full") {
                                     h2 { +"Rated results" }
-                                    div("flex flex-row w-full") {
+                                    div("ml-5 flex flex-row w-full bg-blueBright-200") {
                                         div("w-1/6") {
                                             +"Doc ID"
                                         }
@@ -131,7 +138,7 @@ private fun RenderContext.metricResult(
                                         }
                                     }
                                     metricResult.hits.forEach { (doc, score) ->
-                                        div("flex flex-row w-full") {
+                                        div("ml-5 flex flex-row w-full") {
                                             div("w-1/6") {
                                                 +doc.docId
                                             }
@@ -146,7 +153,7 @@ private fun RenderContext.metricResult(
                                     if (metricResult.unRated.isNotEmpty()) {
                                         h2 { +"Unrated results" }
                                         metricResult.unRated.forEach { doc ->
-                                            div("flex flex-row w-full") {
+                                            div("ml-5 flex flex-row w-full") {
                                                 div("w-1/6") {
                                                     +doc.docId
                                                 }
