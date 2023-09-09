@@ -12,9 +12,7 @@ fun renderMarkdown(md: String): String {
     val src = md
     val flavour = GFMFlavourDescriptor()
     val parsedTree = MarkdownParser(flavour).parse(IElementType("ROOT"),src)
-    return HtmlGenerator(src, parsedTree, flavour).generateHtml().also {
-        println(it)
-    }
+    return HtmlGenerator(src, parsedTree, flavour).generateHtml()
 }
 
 private class MarkdownStore(file: String): RootStore<String>("") {
