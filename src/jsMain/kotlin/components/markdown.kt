@@ -3,6 +3,7 @@ package components
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
+import org.intellij.markdown.IElementType
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
@@ -10,9 +11,9 @@ import org.intellij.markdown.parser.MarkdownParser
 fun renderMarkdown(md: String): String {
     val src = md
     val flavour = GFMFlavourDescriptor()
-    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(src)
+    val parsedTree = MarkdownParser(flavour).parse(IElementType("ROOT"),src)
     return HtmlGenerator(src, parsedTree, flavour).generateHtml().also {
-        console.log(it)
+        println(it)
     }
 }
 

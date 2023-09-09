@@ -15,6 +15,12 @@
   p {
     @apply mb-2;
   }
+  ul {
+    @apply list-disc;
+  }
+  li {
+    @apply ml-5;
+  }
   a {
     @apply text-blueBright-600 hover:text-blueBright-400 underline cursor-pointer;
   }

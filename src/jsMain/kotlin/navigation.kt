@@ -17,6 +17,8 @@ enum class Page(val title: String, val showInMenu: Boolean = true) {
     Metrics("Metrics"),
     Conf("Configuration"),
     About("About"),
+    Privacy("Privacy Policy",false),
+    License("License", false),
     Root("Not Found)",false)
     ;
     companion object {

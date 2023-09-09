@@ -2,7 +2,7 @@
 
 package searchpluginconfig
 
-import com.jillesvangurp.ktsearch.DEFAULT_PRETTY_JSON
+import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import components.para
 import components.primaryButton
 import dev.fritz2.core.HtmlTag

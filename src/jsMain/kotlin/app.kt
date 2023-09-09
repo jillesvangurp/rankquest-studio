@@ -42,6 +42,7 @@ private fun RenderContext.mainView() {
     val router = koin.get<MapRouter>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     busyPopupMountPoint()
+    cookiePopup()
     div {
         div("w-full") {
 
@@ -58,6 +59,8 @@ private fun RenderContext.mainView() {
                     Page.TestCases -> ratedSearches()
                     Page.Metrics -> metrics()
                     Page.About -> about()
+                    Page.Privacy -> privacy()
+                    Page.License -> license()
                     Page.Root -> {
                         if (activeSearchPluginConfigurationStore.current == null) {
                             router.navTo(Page.Conf.route)

@@ -16,6 +16,7 @@ suspend fun koinInit() {
     startKoin {
         modules(
             busyPopupModule,
+            cookiePermissionModule,
             quoteSearchModule,
             searchModule,
             ratedSearchesModule,

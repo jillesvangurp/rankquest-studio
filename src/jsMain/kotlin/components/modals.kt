@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 
 
-fun RenderContext.overlay(baseClass: String?="absolute top-48 left-1/2 -translate-x-1/2 z-50 bg-white h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.overlay(baseClass: String?="absolute top-48 left-1/2  z-50 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
         div(baseClass,content = content)
     }

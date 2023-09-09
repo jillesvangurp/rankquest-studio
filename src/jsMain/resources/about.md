@@ -6,17 +6,23 @@ calculate **metrics**.
 
 ## Getting started
 
-Start by creating a **search plugin configuration**. You can also choose to play with one of the built in demo configurations. A search plugin configuration tells Rankquest studio how to fetch results from your search service. Results must be assigned an id and you can optionally extract a label from your results that is displayed. Additionally, you need to specify what parameters are needed to use your search service. Finally, you can specify a list of metric configurations that you want to measure. 
+- Start by creating a **search plugin configuration**. You can also choose to play with one of the built in demo configurations. A search plugin configuration tells Rankquest studio how to fetch results from your search service. Results must be assigned an id and you can optionally extract a label from your results that is displayed. Additionally, you need to specify what parameters are needed to use your search service. Finally, you can specify a list of metric configurations that you want to measure. 
 
-Then you can start creating **test cases**. Simply use the search tool to run a search. You can convert the results in a test case. Each new test case is initialized with a copy of the parameters you used for the search (the search context) and initialized with the results that it found. 
+- Then you can start creating **test cases**. Simply use the search tool to run a search. You can convert the results in a test case. Each new test case is initialized with a copy of the parameters you used for the search (the search context) and initialized with the results that it found. 
 
-You can **fine tune** your test cases in the Test Cases screen. You can review your test cases, and add/remove more results, modify the rating of your results, and document your test cases with some comments. 
+- You can **fine tune** your test cases in the Test Cases screen. You can review your test cases, and add/remove more results, modify the rating of your results, and document your test cases with some comments. 
 
-Once you have test cases, you can go to the **metrics** screen to get metrics.
+- Once you have test cases, you can go to the **metrics** screen to get metrics.
 
 You should **export and backup** your configuration, test cases, and metrics. A good suggestion is to store them in a git repository or some other safe place.
 
 You can also produce metrics from your builds by using the **command line** version of Rankquest (*coming soon*).
+
+## Links
+
+- [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework.
+- [rankquest-core](https://github.com/jillesvangurp/rankquest-core) A Kotlin multiplatform kotlin library that implements the metrics and search plugins used in Rankquest Studio.
+- [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch.
 
 ## Why another tool?
 
@@ -50,7 +56,7 @@ ratings, configurations, and metrics reports in json format. The only network
 traffic that rank quest studio makes is to your own search service.
 
 It makes no assumptions about how your search API works. It uses an extensible plugin model to talk to 
-your search service. The only assumption it makes is that whatever you have can return a list of results with ids for a given search context (your search parameters). 
+your search service. The only assumption it makes is that whatever you have can return a list of results with ids for a given search context (your search parameters).
 
 ## Support & Getting help with improving your ranking further
 
@@ -66,9 +72,17 @@ If you need help with your search, want an outside opinion about your current se
 
 As a **search consultant**, I have advised many clients over the years on how to architect and use search effectively. This usually involves both advising on query and mapping strategies, refining their product strategy, coming up with good ETL strategies, coming up with solutions for difficult problems, and educating people about all this. Unfortunately, I am not able to join your team for extended amounts of time. However, I can add a lot of value quickly and help set your team up for success. My preferred way of working is doing short, result driven products and coaching people how to do what they need to get done.
 
-**Jilles van Gurp**
+## Showing your appreciation
 
-jilles AT jillesvangurp.com
+This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), etc.
 
-[@jillesvangurp](https://twitter.com/jillesvangurp) [@jillesvangurp@mastodon.world](https://mastodon.world/@jillesvangurp) 
+## Jilles van Gurp
+
+<img src="jilles.jpg" style="width: 100px;height: 100px">
+
+**email**: jilles AT jillesvangurp.com
+
+**address**: Bergstrasse 16, 10115 Berlin, Germany
+
+[www.jillesvangurp.com](https://www.jillesvangurp.com) [@jillesvangurp](https://twitter.com/jillesvangurp) [@jillesvangurp@mastodon.world](https://mastodon.world/@jillesvangurp) 
 

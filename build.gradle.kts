@@ -37,7 +37,6 @@ kotlin {
             dependencies {
                 implementation("com.tryformation.fritz2:core:_")
                 implementation("com.tryformation.fritz2:headless:_")
-                implementation("com.jillesvangurp:search-client:_")
                 implementation("com.jillesvangurp:rankquest-core:_")
                 implementation("com.github.jillesvangurp:querylight:_")
                 implementation("com.soywiz.korlibs.krypto:krypto:_")
