@@ -41,6 +41,7 @@ kotlin {
                 implementation("com.jillesvangurp:rankquest-core:_")
                 implementation("com.github.jillesvangurp:querylight:_")
                 implementation("com.soywiz.korlibs.krypto:krypto:_")
+                implementation("org.jetbrains:markdown:_")
                 implementation(KotlinX.serialization.json)
                 implementation(Koin.core)
             }
@@ -60,7 +61,7 @@ kotlin {
                 implementation(devNpm("autoprefixer", "_"))
                 implementation(devNpm("css-loader", "_"))
                 implementation(devNpm("style-loader", "_"))
-                implementation(devNpm("cssnano", "_"))            }
+                implementation(devNpm("cssnano", "_")) }
         }
     }
 }

@@ -4,11 +4,13 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.MetricResults
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
+import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
+import dev.fritz2.headless.components.popOver
 import koin
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -16,6 +18,9 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
@@ -39,10 +44,8 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
                         val plugin = pf.create(config)
                         config.metrics.map { metricConfiguration ->
                             MetricsOutput(
-                                config.name,metricConfiguration, metricConfiguration.metric.run(
-                                    plugin,
-                                    ratedSearches,
-                                    metricConfiguration.params
+                                config.name, metricConfiguration, metricConfiguration.metric.run(
+                                    plugin, ratedSearches, metricConfiguration.params
                                 )
                             )
                         }
@@ -100,8 +103,7 @@ fun RenderContext.metrics() {
                         }
                     }
                     textFileInput(
-                        fileType = ".json",
-                        textStore = textStore
+                        fileType = ".json", textStore = textStore
                     )
                 }
 
@@ -118,9 +120,7 @@ fun RenderContext.metrics() {
 }
 
 private fun RenderContext.metricResult(
-    expandedState: Store<Map<String, Boolean>>,
-    metricConfiguration: MetricConfiguration,
-    metricResult: MetricResults
+    expandedState: Store<Map<String, Boolean>>, metricConfiguration: MetricConfiguration, metricResult: MetricResults
 ) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
@@ -132,11 +132,15 @@ private fun RenderContext.metricResult(
             val rss = ratedsearches?.associateBy { it.id }.orEmpty()
 
             div("flex flex-col mx-10 my-3 hover:bg-blueBright-50 p-3 rounded-lg border-2 border-blueBright-400") {
-                h2 {
-                    +metricConfiguration.name
+                div("flex flex-row w-full align-middle justify-between") {
+                    h2 {
+                        +metricConfiguration.name
+                    }
+                    infoBubble(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
                 }
+
                 div { +"Metric: ${+metricResult.metric}" }
-                para {+"SearchConfiguration: ${metricConfiguration.name}"}
+                para { +"SearchConfiguration: ${metricConfiguration.name}" }
                 div("flex flex-row w-full") {
                     iconButton(
                         svg = if (expanded) SvgIconSource.Minus else SvgIconSource.Plus,
@@ -181,10 +185,10 @@ private fun RenderContext.metricResult(
                                         div("w-1/6") {
                                             +"Doc ID"
                                         }
-                                        div("w-4/6") {
+                                        div("w-1/6") {
                                             +"Rating"
                                         }
-                                        div("w-4/6") {
+                                        div("w-3/6") {
                                             +"Label"
                                         }
                                         div("w-1/6") {
@@ -197,10 +201,11 @@ private fun RenderContext.metricResult(
                                                 +doc.docId
                                             }
                                             div("w-1/6") {
-                                                +(rss[metricResult.id]?.ratings?.firstOrNull { it.documentId == doc.docId }?.rating?.toString() ?: "1")
+                                                +(rss[metricResult.id]?.ratings?.firstOrNull { it.documentId == doc.docId }?.rating?.toString()
+                                                    ?: "1")
                                             }
 
-                                            div("w-4/6") {
+                                            div("w-3/6") {
                                                 +(doc.label ?: "-")
                                             }
                                             div("w-1/6") {
@@ -236,9 +241,7 @@ private fun RenderContext.metricResult(
                                                     } else {
                                                         iconButton(SvgIconSource.Minus) {
                                                             clicks.mapNotNull {
-                                                                ratedSearch.copy(
-                                                                    ratings = ratedSearch.ratings.filter { it.documentId != doc.docId }
-                                                                )
+                                                                ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != doc.docId })
 
                                                             } handledBy ratedSearchesStore.addOrReplace
                                                         }
@@ -254,6 +257,66 @@ private fun RenderContext.metricResult(
                 }
             }
         }
+    }
+}
+
+val Metric.title get() = when (this) {
+    Metric.PrecisionAtK -> "Precision at K"
+    Metric.RecallAtK -> "Recall at K"
+    Metric.MeanReciprocalRank -> "Mean Reciprocal Rank"
+    Metric.ExpectedReciprocalRank -> "Expected Reciprocal Rank"
+    Metric.DiscountedCumulativeGain -> "Discounted Cumulative Gain"
+    Metric.NormalizedDiscountedCumulativeGain -> "Normalized Discounted Cumulative Gain"
+}
+val Metric.explanation
+    get() = renderMarkdown(
+        when (this) {
+            Metric.PrecisionAtK -> """
+                # Precision at K
+                
+                Precision at K is measures the proportion of relevant items or documents 
+                among the top K items that are returned for a given search query. The more relevant 
+                results, the higher the precision.
+            """.trimIndent()
+
+                    Metric.RecallAtK -> """
+                Recall@k is a measure of whether the rated results are part of the result list. For a 
+                perfect score of 1, all rated results should be found. 
+                
+            """.trimIndent()
+
+            Metric.MeanReciprocalRank -> """
+                Reciprocal rank measures the quality of the first relevant result. The further down
+                the list the result is, the lower the score.
+            """.trimIndent()
+
+            Metric.ExpectedReciprocalRank -> """
+                Expected reciprocal rank calculates the probability that each result is the one the 
+                user is looking for. If a documents with lowe rating appear before one with a higher
+                rating, the score is lower than if the better rated results appear first.
+            """.trimIndent()
+            Metric.DiscountedCumulativeGain -> """
+                Discounted Cumulative Gain calculates a score that adds up the gain of each result
+                relative to its position in the results. 
+                
+                Two gain functions are supported; a linear gain function that simply uses the rating 
+                as is and an exponential one that uses an exponential of the rating to exaggerate 
+                the effect of important results appearing near the top.
+            """.trimIndent()
+            Metric.NormalizedDiscountedCumulativeGain -> """
+                NDCG is similar to DCG but it divides the score by an ideal DCG that is calculated 
+                from the provided ratings. Consequently, the score is always below 0 and 1 where 
+                higher scores indicate that the results return the best rated results first.
+            """.trimIndent()
+        }
+    )
+
+fun renderMarkdown(md: String): String {
+    val src = md
+    val flavour = CommonMarkFlavourDescriptor()
+    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(src)
+    return HtmlGenerator(src, parsedTree, flavour).generateHtml().also {
+        console.log(it)
     }
 }
 
