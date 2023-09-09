@@ -1,5 +1,4 @@
 import components.activeNavButton
-import components.secondaryButton
 import components.navButton
 import dev.fritz2.core.RenderContext
 import dev.fritz2.routing.MapRouter
@@ -14,9 +13,10 @@ val navigationModule = module {
 }
 enum class Page(val title: String, val showInMenu: Boolean = true) {
     Search("Search Tool"),
-    RatedSearches("Rated Searches"),
+    TestCases("Test Cases"),
     Metrics("Metrics"),
-    Conf("Plugin Configuration"),
+    Conf("Configuration"),
+    About("About"),
     Root("Not Found)",false)
     ;
     companion object {

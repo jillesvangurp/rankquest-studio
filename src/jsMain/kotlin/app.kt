@@ -55,8 +55,9 @@ private fun RenderContext.mainView() {
                         pluginConfiguration()
                     }
 
-                    Page.RatedSearches -> ratedSearches()
+                    Page.TestCases -> ratedSearches()
                     Page.Metrics -> metrics()
+                    Page.About -> about()
                     Page.Root -> {
                         if (activeSearchPluginConfigurationStore.current == null) {
                             router.navTo(Page.Conf.route)

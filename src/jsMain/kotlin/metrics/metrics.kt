@@ -2,7 +2,6 @@ package metrics
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.MetricResults
-import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
@@ -10,17 +9,11 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
-import dev.fritz2.headless.components.popOver
 import koin
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
@@ -76,7 +69,7 @@ fun RenderContext.metrics() {
                 if (ratedSearches == null) {
                     p {
                         +"Rate some searches first. "
-                        pageLink(Page.RatedSearches)
+                        pageLink(Page.TestCases)
                     }
 
                 }
@@ -311,12 +304,5 @@ val Metric.explanation
         }
     )
 
-fun renderMarkdown(md: String): String {
-    val src = md
-    val flavour = CommonMarkFlavourDescriptor()
-    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(src)
-    return HtmlGenerator(src, parsedTree, flavour).generateHtml().also {
-        console.log(it)
-    }
-}
+
 
