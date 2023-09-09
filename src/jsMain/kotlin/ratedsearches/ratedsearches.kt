@@ -7,12 +7,14 @@ import components.*
 import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
 import koin
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
+import search.ActiveSearchPluginConfigurationStore
 import search.SearchResultsStore
 import kotlin.time.Duration.Companion.seconds
 
@@ -80,59 +82,64 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
 
 fun RenderContext.ratedSearches() {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
 
     val showStore = storeOf<Map<String, Boolean>>(mapOf())
-    ratedSearchesStore.data.render { ratedSearches ->
+    activeSearchPluginConfigurationStore.data.filterNotNull().render { searchPluginConfiguration ->
 
-        div("flex flex-row gap-3") {
-            primaryButton {
-                +"Clear"
-                disabled(ratedSearches.isNullOrEmpty())
-                clicks handledBy {
-                    confirm(
-                        "Are you sure you want to do this?",
-                        "This remove all your rated searches. Make sure to download your rated searches first!"
-                    ) {
-                        ratedSearchesStore.update(listOf())
-                        toast("messages", duration = 3.seconds.inWholeMilliseconds) {
-                            +"Cleared!"
+
+        ratedSearchesStore.data.render { ratedSearches ->
+
+            div("flex flex-row gap-3") {
+                primaryButton {
+                    +"Clear"
+                    disabled(ratedSearches.isNullOrEmpty())
+                    clicks handledBy {
+                        confirm(
+                            "Are you sure you want to do this?",
+                            "This remove all your rated searches. Make sure to download your rated searches first!"
+                        ) {
+                            ratedSearchesStore.update(listOf())
+                            toast("messages", duration = 3.seconds.inWholeMilliseconds) {
+                                +"Cleared!"
+                            }
                         }
                     }
                 }
-            }
-            jsonDownloadButton(
-                ratedSearchesStore,
-                "rated-searches-${Clock.System.now()}.json",
-                ListSerializer(RatedSearch.serializer())
-            )
-            val textStore = storeOf("")
-            textStore.data.render { text ->
-                primaryButton {
-                    +"Import"
-                    disabled(text.isBlank())
-                    clicks handledBy {
-                        val decoded = DEFAULT_JSON.decodeFromString<List<RatedSearch>>(text)
-                        console.log(decoded)
-                        ratedSearchesStore.update(decoded)
+                jsonDownloadButton(
+                    ratedSearchesStore,
+                    "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+                    ListSerializer(RatedSearch.serializer())
+                )
+                val textStore = storeOf("")
+                textStore.data.render { text ->
+                    primaryButton {
+                        +"Import"
+                        disabled(text.isBlank())
+                        clicks handledBy {
+                            val decoded = DEFAULT_JSON.decodeFromString<List<RatedSearch>>(text)
+                            console.log(decoded)
+                            ratedSearchesStore.update(decoded)
+                        }
                     }
                 }
-            }
-            textFileInput(
-                fileType = ".json",
-                textStore = textStore
-            )
+                textFileInput(
+                    fileType = ".json",
+                    textStore = textStore
+                )
 
-        }
-
-        if (ratedSearches.isNullOrEmpty()) {
-            p {
-                +"Create some test cases from the search screen. "
-                pageLink(Page.Search)
             }
-        } else {
-            ratedSearches.forEach { rs ->
-                ratedSearch(showStore, rs)
+
+            if (ratedSearches.isNullOrEmpty()) {
+                p {
+                    +"Create some test cases from the search screen. "
+                    pageLink(Page.Search)
+                }
+            } else {
+                ratedSearches.forEach { rs ->
+                    ratedSearch(showStore, rs)
+                }
             }
         }
     }

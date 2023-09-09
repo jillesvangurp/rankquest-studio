@@ -8,6 +8,7 @@ import components.primaryButton
 import dev.fritz2.core.HtmlTag
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.disabled
+import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
 import koin
 import kotlinx.coroutines.flow.map
@@ -26,18 +27,27 @@ fun RenderContext.pluginConfiguration() {
             })
 
         activeSearchPluginConfigurationStore.data.render { pc ->
+            div("flex flex-row") {
+                primaryButton {
+                    +"Use Movie Quotes"
+                    this.disabled(pc?.name == movieQuotesSearchPluginConfig.name)
+                    clicks.map { movieQuotesSearchPluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                }
+                primaryButton {
+                    +"Use Movie Quotes With Ngrams"
+                    this.disabled(pc?.name == movieQuotesNgramsSearchPluginConfig.name)
+                    clicks.map { movieQuotesNgramsSearchPluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                }
+            }
             if (pc != null) {
-                para { +"Current configuration: ${pc.title}" }
+                para { +"Current configuration: ${pc.name}" }
                 pre {
                     +DEFAULT_PRETTY_JSON.encodeToString(pc)
                 }
+            } else {
+                para { +"No active search plugin comfiguration" }
             }
 
-            primaryButton {
-                +"Use Movie Quotes"
-                this.disabled(pc?.title == movieQuotesSearchPluginConfig.title)
-                clicks.map { movieQuotesSearchPluginConfig } handledBy activeSearchPluginConfigurationStore.update
-            }
         }
     }
 }

@@ -43,24 +43,29 @@ private fun RenderContext.mainView() {
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     busyPopupMountPoint()
     div {
-        router.select(key = "page").render { (selected, _) ->
-            when (Page.resolve(selected)) {
-                Page.Search -> div {
-                    searchScreen()
-                }
-                Page.Conf -> {
-                    pluginConfiguration()
-                }
-                Page.RatedSearches -> ratedSearches()
-                Page.Metrics -> metrics()
-                Page.Root -> {
-                    if(activeSearchPluginConfigurationStore.current == null) {
-                        router.navTo(Page.Conf.route)
-                    } else {
-                        router.navTo(Page.Search.route)
-                    }
-                }
+        div("w-full") {
 
+            router.select(key = "page").render { (selected, _) ->
+                when (Page.resolve(selected)) {
+                    Page.Search -> div {
+                        searchScreen()
+                    }
+
+                    Page.Conf -> {
+                        pluginConfiguration()
+                    }
+
+                    Page.RatedSearches -> ratedSearches()
+                    Page.Metrics -> metrics()
+                    Page.Root -> {
+                        if (activeSearchPluginConfigurationStore.current == null) {
+                            router.navTo(Page.Conf.route)
+                        } else {
+                            router.navTo(Page.Search.route)
+                        }
+                    }
+
+                }
             }
         }
     }

@@ -82,7 +82,7 @@ fun RenderContext.searchScreen() {
         } else {
             div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
                 h1(content = fun HtmlTag<HTMLHeadingElement>.() {
-                    +config.title
+                    +config.name
                 })
                 val stores = config.fieldConfig.associate {
                     it.name to when (it) {

@@ -25,7 +25,7 @@ val quoteSearchModule = module {
     singleOf(::MovieQuotesStore)
 
     single {
-        val movieQuotesStoreFactory= MovieQuotesStorePluginFactory(get())
+        val movieQuotesStoreFactory = MovieQuotesStorePluginFactory(get())
 
         PluginFactoryRegistry().also {
             it.register("movies", movieQuotesStoreFactory)
@@ -35,7 +35,18 @@ val quoteSearchModule = module {
 }
 
 val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
-    title = "Movie Quote Search",
+    name = "movie-quotes",
+    pluginType = "movies",
+    fieldConfig = listOf(
+        SearchContextField.StringField("q"),
+        SearchContextField.IntField("size", 5)
+    ),
+    pluginSettings = null,
+    metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }
+)
+
+val movieQuotesNgramsSearchPluginConfig = SearchPluginConfiguration(
+    name = "movie-quotes-ngrams",
     pluginType = "movies",
     fieldConfig = listOf(
         SearchContextField.StringField("q"),
@@ -56,12 +67,23 @@ data class MovieQuote(
     val year: Int
 )
 
-fun List<MovieQuote>.searchPlugin(): SearchPlugin {
+fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
     val documentIndex = DocumentIndex(
-        mutableMapOf(
-            "quote" to TextFieldIndex(),
-            "movie" to TextFieldIndex()
-        )
+        if (nice) {
+            mutableMapOf(
+                "quote" to TextFieldIndex(),
+                "movie" to TextFieldIndex()
+            )
+        } else {
+            val analyzer = Analyzer(
+                tokenFilter = listOf(NgramTokenFilter(3))
+            )
+            mutableMapOf(
+                "quote" to TextFieldIndex(analyzer, analyzer),
+                "movie" to TextFieldIndex(analyzer, analyzer)
+            )
+
+        }
     )
     val labels = mutableMapOf<String, String>()
     this.indices.forEach {
@@ -89,7 +111,6 @@ fun List<MovieQuote>.searchPlugin(): SearchPlugin {
                         should = listOf(
                             MatchQuery("quote", text, prefixMatch = true),
                             MatchQuery("movie", text, prefixMatch = true, boost = 0.25),
-
                             )
                     )
                 } else {
@@ -114,6 +135,7 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
             quotes.indices.map { i -> quotes[i].copy(id = "$i") }
         }
     }
+
     init {
         load("moviequotes.json")
         console.log("done loading")
@@ -122,7 +144,13 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
 
 class MovieQuotesStorePluginFactory(val movieQuotesStore: MovieQuotesStore) : PluginFactory {
     override fun create(configuration: SearchPluginConfiguration): SearchPlugin {
-        return movieQuotesStore.current.searchPlugin()
+        return when (configuration.name) {
+            "movie-quotes" -> movieQuotesStore.current.searchPlugin()
+            "movie-quotes-ngrams" -> movieQuotesStore.current.searchPlugin(false)
+
+            else -> error("Unsupported name ${configuration.name}")
+        }
+
     }
 }
 
