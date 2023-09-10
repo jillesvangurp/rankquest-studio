@@ -79,7 +79,6 @@ fun <T> RenderContext.jsonDownloadButton(contentStore: Store<T?>, fileName: Stri
             }
             disabled(content == null)
             clicks handledBy {
-                console.log("Click")
                 val e = document.createEvent("MouseEvents") as MouseEvent
                 e.initEvent("click", bubbles = true, cancelable = true)
                 // issue a click on the link to cause the download to happen

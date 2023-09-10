@@ -21,52 +21,16 @@ import org.koin.dsl.module
 import org.w3c.dom.HTMLHeadingElement
 import pageLink
 import ratedsearches.RatedSearchesStore
+import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import utils.md5Hash
 import kotlin.time.Duration.Companion.milliseconds
 
 val searchModule = module {
-    singleOf(::ActiveSearchPluginConfigurationStore)
     singleOf(::SearchResultsStore)
 }
 
 class SearchResultsStore : RootStore<Result<SearchResults>?>(null)
 
-class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfiguration?>(
-    null, "active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable
-) {
-    // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
-    private val searchResultsStore = koin.get<SearchResultsStore>()
-    private val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
-
-    val search = handle<Map<String, String>> { config, query ->
-        busyResult({
-            var outcome: Result<SearchResults>? = null
-            coroutineScope {
-                launch {
-                    if (config != null) {
-                        val selectedPlugin = current
-                        if (selectedPlugin != null) {
-                            handlerScope.launch {
-                                console.log("SEARCH $query")
-                                val searchPlugin = pluginFactoryRegistry.get(config.pluginType)?.create(config)
-                                outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
-                            }
-                        } else {
-                            outcome = Result.failure(IllegalArgumentException("no plugin selected"))
-                        }
-                    }
-                }
-                // whichever takes longer; make sure the spinner doesn't flash in and out
-                launch {
-                    delay(200.milliseconds)
-                }
-            }.join()
-            searchResultsStore.update(outcome)
-            Result.success(true)
-        }, initialTitle = "Searching", initialMessage = "Query for $query")
-        config
-    }
-}
 
 fun RenderContext.searchScreen() {
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
@@ -97,7 +61,7 @@ fun RenderContext.searchScreen() {
                         when (field) {
                             else -> {
                                 textField(
-                                    placeHolder = "Type something to search for ..", inputLabelText = field.name
+                                    placeHolder = "Type something to search for ..", label = field.name
                                 ) {
                                     value(fieldStore)
                                     changes.map {

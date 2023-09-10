@@ -1,5 +1,6 @@
 package metrics
 
+import Page
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.MetricResults
 import com.jilesvangurp.rankquest.core.SearchResultRating
@@ -18,7 +19,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
 import ratedsearches.RatedSearchesStore
-import search.ActiveSearchPluginConfigurationStore
+import searchpluginconfig.ActiveSearchPluginConfigurationStore
 
 val metricsModule = module {
     singleOf(::MetricsOutputStore)
@@ -90,7 +91,6 @@ fun RenderContext.metrics() {
                             disabled(text.isBlank())
                             clicks handledBy {
                                 val decoded = DEFAULT_JSON.decodeFromString<List<MetricsOutput>>(text)
-                                console.log(decoded)
                                 metricsOutputStore.update(decoded)
                             }
                         }
@@ -253,14 +253,15 @@ private fun RenderContext.metricResult(
     }
 }
 
-val Metric.title get() = when (this) {
-    Metric.PrecisionAtK -> "Precision at K"
-    Metric.RecallAtK -> "Recall at K"
-    Metric.MeanReciprocalRank -> "Mean Reciprocal Rank"
-    Metric.ExpectedReciprocalRank -> "Expected Reciprocal Rank"
-    Metric.DiscountedCumulativeGain -> "Discounted Cumulative Gain"
-    Metric.NormalizedDiscountedCumulativeGain -> "Normalized Discounted Cumulative Gain"
-}
+val Metric.title
+    get() = when (this) {
+        Metric.PrecisionAtK -> "Precision at K"
+        Metric.RecallAtK -> "Recall at K"
+        Metric.MeanReciprocalRank -> "Mean Reciprocal Rank"
+        Metric.ExpectedReciprocalRank -> "Expected Reciprocal Rank"
+        Metric.DiscountedCumulativeGain -> "Discounted Cumulative Gain"
+        Metric.NormalizedDiscountedCumulativeGain -> "Normalized Discounted Cumulative Gain"
+    }
 val Metric.explanation
     get() = renderMarkdown(
         when (this) {
@@ -272,7 +273,7 @@ val Metric.explanation
                 results, the higher the precision.
             """.trimIndent()
 
-                    Metric.RecallAtK -> """
+            Metric.RecallAtK -> """
                 Recall@k is a measure of whether the rated results are part of the result list. For a 
                 perfect score of 1, all rated results should be found. 
                 
@@ -288,6 +289,7 @@ val Metric.explanation
                 user is looking for. If a documents with lowe rating appear before one with a higher
                 rating, the score is lower than if the better rated results appear first.
             """.trimIndent()
+
             Metric.DiscountedCumulativeGain -> """
                 Discounted Cumulative Gain calculates a score that adds up the gain of each result
                 relative to its position in the results. 
@@ -296,6 +298,7 @@ val Metric.explanation
                 as is and an exponential one that uses an exponential of the rating to exaggerate 
                 the effect of important results appearing near the top.
             """.trimIndent()
+
             Metric.NormalizedDiscountedCumulativeGain -> """
                 NDCG is similar to DCG but it divides the score by an ideal DCG that is calculated 
                 from the provided ratings. Consequently, the score is always below 0 and 1 where 

@@ -1,10 +1,14 @@
 package ratedsearches
 
+import Page
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
-import dev.fritz2.core.*
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.Store
+import dev.fritz2.core.disabled
+import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toast
 import koin
 import kotlinx.coroutines.flow.filterNotNull
@@ -14,8 +18,8 @@ import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
-import search.ActiveSearchPluginConfigurationStore
 import search.SearchResultsStore
+import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlin.time.Duration.Companion.seconds
 
 val ratedSearchesModule = module {

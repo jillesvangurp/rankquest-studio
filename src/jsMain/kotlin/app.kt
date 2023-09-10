@@ -7,8 +7,8 @@ import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
 import metrics.metrics
 import ratedsearches.ratedSearches
-import search.ActiveSearchPluginConfigurationStore
 import search.searchScreen
+import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
 
 suspend fun main() {

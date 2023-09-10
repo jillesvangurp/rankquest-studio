@@ -19,10 +19,10 @@ open class LocalStoringStore<T>(
     private val storeHandler = handle<T?> { old, v ->
         if (latest != v && loaded) {
             if (v == null || v == initialData) {
-                console.log("DELETE $key")
+//                console.log("DELETE $key")
                 window.localStorage.removeItem(key)
             } else {
-                console.log("Update $key")
+//                console.log("Update $key")
                 val value = DEFAULT_JSON.encodeToString(serializer, v)
                 window.localStorage.setItem(key, value)
             }
@@ -35,7 +35,7 @@ open class LocalStoringStore<T>(
             data.distinctUntilChanged() handledBy storeHandler
             val item = window.localStorage.getItem(key)?.let { content ->
                 DEFAULT_JSON.decodeFromString(serializer, content).also { v ->
-                    console.log("INIT $key with stored value $v")
+                    console.log("INIT $key")
                     latest = v
                 }
             }

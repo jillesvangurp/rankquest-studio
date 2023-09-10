@@ -4,12 +4,13 @@ import dev.fritz2.core.HtmlTag
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.ScopeContext
 import org.w3c.dom.HTMLHeadingElement
+import org.w3c.dom.HTMLParagraphElement
 
 fun RenderContext.para(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
-    content: HtmlTag<HTMLHeadingElement>.() -> Unit
-) = h2(
+    content: HtmlTag<HTMLParagraphElement>.() -> Unit
+) = p(
     "mb-2 text-sm",
     id=id,
     scope = scope,

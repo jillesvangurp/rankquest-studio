@@ -35,6 +35,7 @@ val quoteSearchModule = module {
 }
 
 val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
+    id = "movie-quotes",
     name = "movie-quotes",
     pluginType = "movies",
     fieldConfig = listOf(
@@ -46,6 +47,7 @@ val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
 )
 
 val movieQuotesNgramsSearchPluginConfig = SearchPluginConfiguration(
+    id = "movie-quotes-ngrams",
     name = "movie-quotes-ngrams",
     pluginType = "movies",
     fieldConfig = listOf(
@@ -55,6 +57,8 @@ val movieQuotesNgramsSearchPluginConfig = SearchPluginConfiguration(
     pluginSettings = null,
     metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }
 )
+
+val demoSearchPlugins = listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
