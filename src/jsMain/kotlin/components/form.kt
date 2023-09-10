@@ -160,12 +160,13 @@ fun RenderContext.textFileInput(
 }
 
 fun RenderContext.selectBox(
-    selectedPlugin: Store<String>,
+    selectedStore: Store<String>,
     items: List<String>,
-    emptyItem: String? = null
+    emptyItem: String? = null,
+    initialize: (Listbox<String, HTMLDivElement>.() -> Unit)?=null
 ) {
     listbox {
-        value(selectedPlugin)
+        value(selectedStore)
         listboxButton("bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5") {
             span { value.data.renderText() }
         }
@@ -193,6 +194,9 @@ fun RenderContext.selectBox(
 
                 }
             }
+        }
+        initialize?.let {
+            initialize(this)
         }
     }
 }

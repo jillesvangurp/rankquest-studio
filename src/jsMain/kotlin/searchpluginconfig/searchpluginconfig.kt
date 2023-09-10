@@ -179,7 +179,8 @@ fun RenderContext.pluginConfiguration() {
                             clicks.map { showStore.current.not() } handledBy showStore.update
                         }
                         if (show) {
-                            pre {
+                            pre("overflow-auto w-full") {
+                                console.log(DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig))
                                 +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
                             }
                         }
@@ -260,9 +261,23 @@ fun RenderContext.elasticsearchEditor(
             )
         }
 
-        val queryTemplate = storeOf(settings?.queryTemplate ?: "")
+        val queryTemplate = storeOf(
+            settings?.queryTemplate ?: """
+            {
+              "size": {{ size }}, 
+              "query": {
+                
+                "multi_match": {
+                  "query": "{{ text }}",
+                  "fields": ["title^2","description","ingredients","directions","author.name"],
+                  "fuzziness": "AUTO"
+                }
+              }
+            }
+        """.trimIndent()
+        )
         val index = storeOf(settings?.index ?: "")
-        val labelFields = storeOf(settings?.labelFields?.joinToString(", ") ?: "")
+        val labelFields = storeOf(settings?.labelFields?.joinToString(", ") ?: "titel, author.name")
         val host = storeOf(settings?.host ?: "")
         val port = storeOf(settings?.port?.toString() ?: "")
         val https = storeOf(settings?.https ?: false)
@@ -323,6 +338,8 @@ fun RenderContext.elasticsearchEditor(
         ) {
             value(labelFields)
         }
+        val templateVariableStore = storeOf(existing?.fieldConfig.orEmpty())
+        templateVarEditor(templateVariableStore, queryTemplate)
 
         div("flex flex-row") {
             secondaryButton {
@@ -330,26 +347,17 @@ fun RenderContext.elasticsearchEditor(
                 clicks.map { "_" } handledBy selectedPluginStore.update
             }
             primaryButton {
-                if (existing == null)
+                if (existing == null) {
                     +"Add Configuration"
-                else
+                } else {
                     +"Save"
-                val templateVarsRE = "\\{\\{\\s*(.*?)\\s*\\}\\}".toRegex(RegexOption.MULTILINE)
-                val templateVars = templateVarsRE.findAll(queryTemplate.current).let { matchResult ->
-                    console.log(queryTemplate.current, matchResult)
-                    matchResult.mapNotNull { m ->
-                        m.groups[1]?.value?.let { field ->
-                            console.log(field)
-                            SearchContextField.StringField(field)
-                        }
-                    }
-                }.sortedBy { it.name }.distinctBy { it.name }.toList()
+                }
                 clicks.map {
                     SearchPluginConfiguration(
                         id = existing?.id ?: md5Hash(Random.nextLong()),
                         name = configName.current,
                         pluginType = BuiltinPlugins.ElasticSearch.name,
-                        fieldConfig = templateVars,
+                        fieldConfig = templateVariableStore.current,
                         metrics = listOf(),
                         pluginSettings = ElasticsearchPluginConfiguration(
                             queryTemplate = queryTemplate.current,
@@ -362,10 +370,10 @@ fun RenderContext.elasticsearchEditor(
                             password = password.current,
                             logging = logging.current
                         ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-                    ).also { updated->
-                        activeSearchPluginConfigurationStore.current?.let {active ->
+                    ).also { updated ->
+                        activeSearchPluginConfigurationStore.current?.let { active ->
                             // a little hacky but it ensures everything uses the new plugin
-                            if(active.id == updated.id) {
+                            if (active.id == updated.id) {
                                 activeSearchPluginConfigurationStore.update(updated)
                             }
                         }
@@ -380,3 +388,130 @@ fun RenderContext.elasticsearchEditor(
         }
     }
 }
+
+
+fun RenderContext.templateVarEditor(
+    templateVarStore: Store<List<SearchContextField>>,
+    queryTemplateStore: Store<String>
+) {
+    queryTemplateStore.data handledBy {
+        // make sure any new variables from the template are added
+        val templateVarsRE = "\\{\\{\\s*(.*?)\\s*\\}\\}".toRegex(RegexOption.MULTILINE)
+        val newVars = templateVarsRE.findAll(queryTemplateStore.current).let { matchResult ->
+            matchResult.mapNotNull { m ->
+                m.groups[1]?.value?.let { field ->
+                    console.log(field)
+                    SearchContextField.StringField(field)
+                }
+            }
+        }.sortedBy { it.name }.distinctBy { it.name }.toList()
+
+        newVars.filter { newVar ->
+            console.log(newVar, templateVarStore.current.toString())
+            templateVarStore.current.firstOrNull { it -> it.name == newVar.name } == null
+        }.takeIf { it.isNotEmpty() }?.let {
+            console.log(it.toString())
+            templateVarStore.update((templateVarStore.current + it).distinctBy { it.name })
+        }
+    }
+
+    h2 { +"Search Context Variables" }
+    templateVarStore.data.render { fields ->
+
+        fields.forEach { field ->
+            val nameStore = storeOf(field.name)
+            val typeStore = storeOf(field::class.simpleName!!)
+            val defaultValueStore = storeOf("")
+            val placeHolderStore = storeOf("")
+            div("flex flex-row") {
+                textField("", "name") {
+                    value(nameStore)
+                }
+                defaultValueStore.data.render { defaultValue ->
+                    when (field) {
+                        is SearchContextField.BoolField -> {
+                            val boolStore = storeOf(defaultValue.toBoolean())
+                            boolStore.data handledBy {
+                                defaultValueStore.update(it.toString())
+                            }
+                            switchField {
+                                value(boolStore)
+                            }
+                        }
+
+                        else -> {
+                            textField("", "Default Value") {
+                                value(defaultValueStore)
+                            }
+                            textField("", "PlaceHolder") {
+                                value(placeHolderStore)
+                            }
+
+                        }
+                    }
+                }
+                primaryButton {
+                    +"OK"
+                    clicks handledBy {
+                        val updatedField = when (typeStore.current) {
+                            SearchContextField.BoolField::class.simpleName!! -> {
+                                SearchContextField.BoolField(
+                                    name = nameStore.current,
+                                    defaultValue = defaultValueStore.current.toBoolean()
+                                )
+                            }
+
+                            SearchContextField.IntField::class.simpleName!! -> {
+                                SearchContextField.IntField(
+                                    name = nameStore.current,
+                                    defaultValue = defaultValueStore.current.toIntOrNull() ?: 0,
+                                    placeHolder = placeHolderStore.current,
+                                )
+
+                            }
+
+                            else -> {
+                                SearchContextField.StringField(
+                                    name = nameStore.current,
+                                    defaultValue = defaultValueStore.current,
+                                    placeHolder = placeHolderStore.current,
+                                )
+                            }
+                        }
+                        templateVarStore.update(templateVarStore.current.map {
+                            if (it.name == updatedField.name) {
+                                updatedField
+                            } else {
+                                it
+                            }
+                        })
+                    }
+                }
+            }
+
+            div("flex flex-row") {
+                typeStore.data.render { fieldType ->
+                    div {
+                        primaryButton {
+                            +"int"
+                            disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
+                            clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
+                        }
+                        primaryButton {
+                            +"bool"
+                            disabled(fieldType == SearchContextField.BoolField::class.simpleName!!)
+                            clicks.map { SearchContextField.BoolField::class.simpleName!! } handledBy typeStore.update
+                        }
+                        primaryButton {
+                            +"string"
+                            disabled(fieldType == SearchContextField.StringField::class.simpleName!!)
+                            clicks.map { SearchContextField.StringField::class.simpleName!! } handledBy typeStore.update
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
