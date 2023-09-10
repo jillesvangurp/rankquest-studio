@@ -1,5 +1,6 @@
 package searchpluginconfig
 
+import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
@@ -16,8 +17,10 @@ import handlerScope
 import koin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.encodeToJsonElement
@@ -36,9 +39,11 @@ val configurationModule = module {
     singleOf(::ActiveSearchPluginConfigurationStore)
 }
 
-class PluginConfigurationsStore : RootStore<List<SearchPluginConfiguration>>(listOf()) {
+class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfiguration>>(
+    listOf(), "plugin-configurations", ListSerializer(SearchPluginConfiguration.serializer())
+) {
     val addOrReplace = handle<SearchPluginConfiguration> { old, config ->
-        current.map {
+        (current ?: listOf()).map {
             if (it.id == config.id) {
                 config
             } else {
@@ -53,7 +58,10 @@ class PluginConfigurationsStore : RootStore<List<SearchPluginConfiguration>>(lis
         }
     }
     val remove = handle<String> { old, id ->
-        current.filter { it.id != id }
+        confirm {
+            update((current ?: listOf()).filter { it.id != id })
+        }
+        old
     }
 }
 
@@ -111,17 +119,20 @@ fun RenderContext.pluginConfiguration() {
                 } else {
                     para { +"No active search plugin comfiguration" }
                 }
-                showDemoContent.data.render { demoContentEnabled ->
-                    pluginConfigurationStore.data.render { configurations ->
-
+                val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
+                showDemoContent.data.filterNotNull().render { demoContentEnabled ->
+                    pluginConfigurationStore.data.filterNotNull().render { configurations ->
+                        val editConfiguration = storeOf<SearchPluginConfiguration?>(null)
                         if (demoContentEnabled) {
                             configurations + demoSearchPlugins
                         } else {
                             configurations
                         }.also {
-                            if(it.isEmpty()) {
-                                para { +"""You have no search plugin configurations yet. Add a 
-                                    |configuration or use one of the demo configurations.""".trimMargin() }
+                            if (it.isEmpty()) {
+                                para {
+                                    +"""You have no search plugin configurations yet. Add a 
+                                    |configuration or use one of the demo configurations.""".trimMargin()
+                                }
                             }
                         }.forEach { pluginConfig ->
 
@@ -130,15 +141,22 @@ fun RenderContext.pluginConfiguration() {
                                     +pluginConfig.name
                                 }
                                 div("w-4/6") {
-
+                                    val editable = pluginConfig.id in demoSearchPlugins.map { dp -> dp.id }
                                     secondaryButton {
                                         +"Edit"
-                                        disabled(activePluginConfig?.id == pluginConfig.id || activeIsDemo)
+                                        disabled(editable)
+                                        clicks.map { pluginConfig } handledBy editConfigurationStore.update
+
                                     }
                                     primaryButton {
                                         +"Use"
                                         disabled(activePluginConfig?.id == pluginConfig.id)
                                         clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                                    }
+                                    secondaryButton {
+                                        +"Delete"
+                                        disabled(editable)
+                                        clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
                                     }
                                 }
                             }
@@ -147,141 +165,64 @@ fun RenderContext.pluginConfiguration() {
 
                     }
                 }
-                switchField("Use Demo Content") {
+                switchField("Show Demo Plugins") {
                     value(showDemoContent)
                 }
-            }
 
-            val selectedPluginStore = storeOf("-")
-            h2 { +"Add Plugin Configuration" }
-            selectBox(selectedPluginStore, BuiltinPlugins.entries.map { it.name }, emptyItem = "-")
-            selectedPluginStore.data.render { selectedPlugin ->
-                BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
-                    val configName = storeOf(plugin.name)
-                    val queryTemplate = storeOf("""
-                        {
-                          "size": {{ size }}, 
-                          "query": {
-                            
-                            "multi_match": {
-                              "query": "{{ text }}",
-                              "fields": ["title^2","description","ingredients","directions","author.name"],
-                              "fuzziness": "AUTO"
-                            }
-                          }
+                createOrEditPlugin(editConfigurationStore)
+
+                if (activePluginConfig != null) {
+                    val showStore = storeOf(false)
+                    showStore.data.render { show ->
+                        a {
+                            +"Show json"
+                            clicks.map { showStore.current.not() } handledBy showStore.update
                         }
-                    """.trimIndent())
-                    val index = storeOf("")
-                    val labelFields = storeOf("title,author")
-                    val host = storeOf("")
-                    val port = storeOf("")
-                    val https = storeOf(false)
-                    val user = storeOf("")
-                    val password = storeOf("")
-                    val logging = storeOf(false)
-                    div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
+                        if (show) {
+                            pre {
+                                +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
-                        textField(placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration") {
+fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginConfiguration?>) {
+    editConfigurationStore.data.render { existing ->
+
+        val selectedPluginStore = storeOf(existing?.pluginType ?: "")
+
+        div("flex flex-row") {
+            BuiltinPlugins.entries.forEach { p ->
+                primaryButton {
+                    +"New ${p.name}"
+                    clicks.map { p.name } handledBy selectedPluginStore.update
+                }
+            }
+        }
+
+        selectedPluginStore.data.render { selectedPlugin ->
+            BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
+                overlayLarge {
+                    val configName = storeOf(plugin.name)
+
+                    div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
+                        h1 { +"New search configuration for $selectedPlugin" }
+                        textField(
+                            placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
+                        ) {
                             value(configName)
                         }
                         // plugin settings
                         when (plugin) {
-                            BuiltinPlugins.ElasticSearch -> {
-                                textField("myindex", "index", "Index or alias name that you want to query") {
-                                    value(index)
-                                }
-                                textField(
-                                    "localhost", "host", ""
-                                ) {
-                                    value(host)
-                                }
-                                textField(
-                                    "9200", "port", ""
-                                ) {
-                                    value(port)
-                                }
-                                switchField("Https", "Use https:// instead of http://") {
-                                    value(https)
-                                }
-                                switchField(
-                                    "Logging", "Turn on request logging in the client (use the browser console)."
-                                ) {
-                                    value(logging)
-                                }
-
-                                textField(
-                                    "elastic", "user", ""
-                                ) {
-                                    value(user)
-                                }
-                                textField(
-                                    "secret", "password", ""
-                                ) {
-                                    value(password)
-                                }
-                                textAreaField(
-                                    placeHolder = """
-                                {
-                                  "query": {
-                                    "match": {
-                                      "title": "{{ query }}"
-                                    }
-                                  }
-                                }""".trimIndent(),
-                                    label = "Query Template",
-                                    description = "Paste a query and use variable names surrounded " + "by {{ myvariable }} where parameters from your search context will be substituted"
-                                ) {
-                                    value(queryTemplate)
-                                }
-                                textField(
-                                    "title,author",
-                                    "Label fields",
-                                    "Comma separated list of fields that will be used to generate the labels for your search results"
-                                ) {
-                                    value(labelFields)
-                                }
-
-                                div("flex flex-row") {
-                                    secondaryButton {
-                                        +"Cancel"
-                                        clicks.map { "_" } handledBy selectedPluginStore.update
-                                    }
-                                    primaryButton {
-                                        +"Add Configuration"
-                                        val templateVarsRE = "\\{\\{\\s*(.*?)\\s*\\}\\}".toRegex(RegexOption.MULTILINE)
-                                        val templateVars =
-                                            templateVarsRE.findAll(queryTemplate.current).let { matchResult ->
-                                                console.log(queryTemplate.current, matchResult)
-                                                matchResult.mapNotNull { m ->
-                                                    m.groups[1]?.value?.let { field ->
-                                                        console.log(field)
-                                                        SearchContextField.StringField(field)
-                                                    }
-                                                }
-                                            }?.sortedBy { it.name }?.distinctBy { it.name }.orEmpty().toList()
-                                        clicks.map {
-                                            SearchPluginConfiguration(
-                                                id = md5Hash(Random.nextLong()),
-                                                name = configName.current,
-                                                pluginType = selectedPlugin,
-                                                fieldConfig = templateVars,
-                                                metrics = listOf(),
-                                                pluginSettings = ElasticsearchPluginConfiguration(
-                                                    queryTemplate = queryTemplate.current,
-                                                    index = index.current,
-                                                    labelFields = labelFields.current.split(',').map { it.trim() },
-                                                    host = host.current,
-                                                    port = port.current.toIntOrNull() ?: 9200,
-                                                    https = https.current,
-                                                    user = user.current,
-                                                    password = password.current,
-                                                    logging = logging.current
-                                                ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-                                            )
-                                        } handledBy pluginConfigurationStore.addOrReplace
-                                    }
-                                }
-                            }
+                            BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
+                                selectedPluginStore = selectedPluginStore,
+                                configName = configName,
+                                editConfigurationStore = editConfigurationStore
+                            )
 
                             BuiltinPlugins.JsonGetAPIPlugin -> {
                                 p {
@@ -296,21 +237,146 @@ fun RenderContext.pluginConfiguration() {
                             }
                         }
                     }
-                    // search context config
-                    // metric config
                 }
-            }
-
-
-            if (activePluginConfig != null) {
-                para { +"Current configuration: ${activePluginConfig.name}" }
-                pre {
-                    +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
-                }
-            } else {
-                para { +"No active search plugin comfiguration" }
+                // search context config
+                // metric config
             }
         }
     }
 }
 
+fun RenderContext.elasticsearchEditor(
+    selectedPluginStore: Store<String>,
+    configName: Store<String>,
+    editConfigurationStore: Store<SearchPluginConfiguration?>
+) {
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+
+    editConfigurationStore.data.render { existing ->
+        val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
+        val settings = existing?.pluginSettings?.let {
+            DEFAULT_JSON.decodeFromJsonElement(
+                ElasticsearchPluginConfiguration.serializer(), it
+            )
+        }
+
+        val queryTemplate = storeOf(settings?.queryTemplate ?: "")
+        val index = storeOf(settings?.index ?: "")
+        val labelFields = storeOf(settings?.labelFields?.joinToString(", ") ?: "")
+        val host = storeOf(settings?.host ?: "")
+        val port = storeOf(settings?.port?.toString() ?: "")
+        val https = storeOf(settings?.https ?: false)
+        val user = storeOf(settings?.user ?: "")
+        val password = storeOf(settings?.password ?: "")
+        val logging = storeOf(settings?.logging ?: false)
+
+        textField("myindex", "index", "Index or alias name that you want to query") {
+            value(index)
+        }
+        textField(
+            "localhost", "host", ""
+        ) {
+            value(host)
+        }
+        textField(
+            "9200", "port", ""
+        ) {
+            value(port)
+        }
+        switchField("Https", "Use https:// instead of http://") {
+            value(https)
+        }
+        switchField(
+            "Logging", "Turn on request logging in the client (use the browser console)."
+        ) {
+            value(logging)
+        }
+
+        textField(
+            "elastic", "user", ""
+        ) {
+            value(user)
+        }
+        textField(
+            "secret", "password", ""
+        ) {
+            value(password)
+        }
+        textAreaField(
+            placeHolder = """
+            {
+              "query": {
+                "match": {
+                  "title": "{{ query }}"
+                }
+              }
+            }""".trimIndent(),
+            label = "Query Template",
+            description = "Paste a query and use variable names surrounded " + "by {{ myvariable }} where parameters from your search context will be substituted"
+        ) {
+            value(queryTemplate)
+        }
+        textField(
+            "title,author",
+            "Label fields",
+            "Comma separated list of fields that will be used to generate the labels for your search results"
+        ) {
+            value(labelFields)
+        }
+
+        div("flex flex-row") {
+            secondaryButton {
+                +"Cancel"
+                clicks.map { "_" } handledBy selectedPluginStore.update
+            }
+            primaryButton {
+                if (existing == null)
+                    +"Add Configuration"
+                else
+                    +"Save"
+                val templateVarsRE = "\\{\\{\\s*(.*?)\\s*\\}\\}".toRegex(RegexOption.MULTILINE)
+                val templateVars = templateVarsRE.findAll(queryTemplate.current).let { matchResult ->
+                    console.log(queryTemplate.current, matchResult)
+                    matchResult.mapNotNull { m ->
+                        m.groups[1]?.value?.let { field ->
+                            console.log(field)
+                            SearchContextField.StringField(field)
+                        }
+                    }
+                }.sortedBy { it.name }.distinctBy { it.name }.toList()
+                clicks.map {
+                    SearchPluginConfiguration(
+                        id = existing?.id ?: md5Hash(Random.nextLong()),
+                        name = configName.current,
+                        pluginType = BuiltinPlugins.ElasticSearch.name,
+                        fieldConfig = templateVars,
+                        metrics = listOf(),
+                        pluginSettings = ElasticsearchPluginConfiguration(
+                            queryTemplate = queryTemplate.current,
+                            index = index.current,
+                            labelFields = labelFields.current.split(',').map { it.trim() },
+                            host = host.current,
+                            port = port.current.toIntOrNull() ?: 9200,
+                            https = https.current,
+                            user = user.current,
+                            password = password.current,
+                            logging = logging.current
+                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
+                    ).also { updated->
+                        activeSearchPluginConfigurationStore.current?.let {active ->
+                            // a little hacky but it ensures everything uses the new plugin
+                            if(active.id == updated.id) {
+                                activeSearchPluginConfigurationStore.update(updated)
+                            }
+                        }
+                    }
+                } handledBy pluginConfigurationStore.addOrReplace
+                clicks handledBy {
+                    // hide the overlay
+                    selectedPluginStore.update("")
+                    editConfigurationStore.update(null)
+                }
+            }
+        }
+    }
+}

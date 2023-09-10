@@ -9,11 +9,19 @@ import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 
 
-fun RenderContext.overlay(baseClass: String?="absolute top-48 left-1/2  z-50 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.overlay(baseClass: String?="absolute top-48 left-1/2 z-50 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
         div(baseClass,content = content)
     }
 }
+
+fun RenderContext.overlayLarge(baseClass: String?="mx-auto z-50 bg-white h-screen w-5/6 p-5 flex flex-col justify-between overflow-y-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
+    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
+        div(baseClass,content = content)
+    }
+}
+
+
 suspend fun confirm(question:String="Are you sure?!", description:String="If you click yes, the action will be completed", yes: String="Yes!",no:String="No get me out of here", conditionalBlock: suspend ()->Unit) {
     val openStateStore = storeOf(true)
     modal {
