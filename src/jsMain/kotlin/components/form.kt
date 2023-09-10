@@ -163,7 +163,6 @@ fun RenderContext.selectBox(
     selectedStore: Store<String>,
     items: List<String>,
     emptyItem: String? = null,
-    initialize: (Listbox<String, HTMLDivElement>.() -> Unit)?=null
 ) {
     listbox {
         value(selectedStore)
@@ -184,19 +183,9 @@ fun RenderContext.selectBox(
             // using a loop is a typical pattern to create the options
             (listOfNotNull(emptyItem) + items).forEach { entry ->
                 listboxItem(entry) {
-                    selected.render { off ->
-                        if (off) {
-                            span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2.5") { +entry }
-                        } else {
-                            span("block bg-blueBright-50 hover:bg-blueBright-300 text-blueBright-900 p-2.5") { +entry }
-                        }
-                    }
-
+                    span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2.5") { +entry }
                 }
             }
-        }
-        initialize?.let {
-            initialize(this)
         }
     }
 }

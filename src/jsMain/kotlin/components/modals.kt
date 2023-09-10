@@ -15,7 +15,7 @@ fun RenderContext.overlay(baseClass: String?="absolute top-48 left-1/2 z-50 bg-w
     }
 }
 
-fun RenderContext.overlayLarge(baseClass: String?="mx-auto z-50 bg-white h-screen w-5/6 p-5 flex flex-col justify-between overflow-y-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.overlayLarge(baseClass: String?="mx-auto z-50 bg-white h-screen w-5/6 p-5 flex flex-col overflow-y-auto",content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
         div(baseClass,content = content)
     }

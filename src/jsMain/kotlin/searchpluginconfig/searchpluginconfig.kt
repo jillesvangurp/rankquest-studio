@@ -3,8 +3,7 @@ package searchpluginconfig
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.SearchResults
-import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
-import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
+import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import com.jilesvangurp.rankquest.core.plugins.ElasticsearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
@@ -120,6 +119,7 @@ fun RenderContext.pluginConfiguration() {
                     para { +"No active search plugin comfiguration" }
                 }
                 val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
+
                 showDemoContent.data.filterNotNull().render { demoContentEnabled ->
                     pluginConfigurationStore.data.filterNotNull().render { configurations ->
                         val editConfiguration = storeOf<SearchPluginConfiguration?>(null)
@@ -135,7 +135,8 @@ fun RenderContext.pluginConfiguration() {
                                 }
                             }
                         }.forEach { pluginConfig ->
-
+                            val metricConfigurationsStore = storeOf(pluginConfig.metrics)
+                            val showMetricsEditor = storeOf(false)
                             div("flex flex-row w-full items-center") {
                                 div("mr-5 w-2/6 text-right") {
                                     +pluginConfig.name
@@ -146,8 +147,13 @@ fun RenderContext.pluginConfiguration() {
                                         +"Edit"
                                         disabled(editable)
                                         clicks.map { pluginConfig } handledBy editConfigurationStore.update
-
                                     }
+                                    secondaryButton {
+                                        +"Metrics"
+                                        disabled(editable)
+                                        clicks.map { true } handledBy showMetricsEditor.update
+                                    }
+
                                     primaryButton {
                                         +"Use"
                                         disabled(activePluginConfig?.id == pluginConfig.id)
@@ -159,6 +165,7 @@ fun RenderContext.pluginConfiguration() {
                                         clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
                                     }
                                 }
+                                metricsEditor(showMetricsEditor, metricConfigurationsStore)
                             }
                         }
                         listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
@@ -170,6 +177,7 @@ fun RenderContext.pluginConfiguration() {
                 }
 
                 createOrEditPlugin(editConfigurationStore)
+
 
                 if (activePluginConfig != null) {
                     val showStore = storeOf(false)
@@ -338,8 +346,12 @@ fun RenderContext.elasticsearchEditor(
         ) {
             value(labelFields)
         }
+
         val templateVariableStore = storeOf(existing?.fieldConfig.orEmpty())
         templateVarEditor(templateVariableStore, queryTemplate)
+
+        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
+//        metricsEditor(metricConfigurationsStore)
 
         div("flex flex-row") {
             secondaryButton {
@@ -358,7 +370,7 @@ fun RenderContext.elasticsearchEditor(
                         name = configName.current,
                         pluginType = BuiltinPlugins.ElasticSearch.name,
                         fieldConfig = templateVariableStore.current,
-                        metrics = listOf(),
+                        metrics = metricConfigurationsStore.current,
                         pluginSettings = ElasticsearchPluginConfiguration(
                             queryTemplate = queryTemplate.current,
                             index = index.current,
@@ -383,6 +395,161 @@ fun RenderContext.elasticsearchEditor(
                     // hide the overlay
                     selectedPluginStore.update("")
                     editConfigurationStore.update(null)
+                }
+            }
+        }
+    }
+}
+
+fun RenderContext.metricsEditor(
+    showMetricsEditor: Store<Boolean>,
+    metricConfigurationsStore: Store<List<MetricConfiguration>>
+) {
+    val editMetricStore = storeOf<MetricConfiguration?>(null)
+    val showMetricsPickerStore = storeOf(false)
+    val newMetricTypeStore = storeOf<Metric?>(null)
+    showMetricsEditor.data.render { show ->
+        if (show) {
+            overlayLarge {
+
+                metricConfigurationsStore.data.render { mcs ->
+                    mcs.forEach { mc ->
+                        h2 { +"Metric Configuration" }
+
+                        div {
+                            +"${mc.name} (${mc.metric})"
+                        }
+                        div {
+                            +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
+                        }
+                        div("flex flex-row") {
+                            secondaryButton {
+                                +"delete"
+                            }
+                            primaryButton {
+                                +"edit"
+                                clicks.map { mc } handledBy editMetricStore.update
+                            }
+                        }
+                        editMetricStore.data.render { editMetricConfiguration ->
+                            val paramMap = mc.params.map { it.name to storeOf(it.value.content) }.toMap()
+                            if (editMetricConfiguration?.name == mc.name) {
+                                mc.params.forEach { p ->
+                                    textField("", p.name) {
+                                        value(paramMap[p.name]!!)
+                                    }
+                                }
+                                primaryButton {
+                                    +"Save Params"
+                                    clicks handledBy {
+                                        val newValues = paramMap.map { (name, valueStore) ->
+                                            MetricParam(name, valueStore.current.let { s ->
+                                                when {
+                                                    s.toIntOrNull() != null -> {
+                                                        s.toIntOrNull()!!.primitive
+                                                    }
+
+                                                    s.lowercase() in listOf("true", "false") -> {
+                                                        s.toBoolean().primitive
+                                                    }
+
+                                                    else -> {
+                                                        s.primitive
+                                                    }
+                                                }
+                                            })
+                                        }
+                                        metricConfigurationsStore.update(
+                                            metricConfigurationsStore.current.map {
+                                                if (it.name == mc.name) {
+                                                    it.copy(params = newValues)
+                                                } else {
+                                                    it
+                                                }
+                                            }
+                                        )
+                                        editMetricStore.update(null)
+                                        showMetricsEditor.update(false)
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    showMetricsPickerStore.data.render { showMetricsPicker ->
+                        if (showMetricsPicker) {
+                            newMetricTypeStore.data.render { selectedMetric ->
+
+                                if (selectedMetric == null) {
+                                    para {
+                                        +"What metric type do you want to create?"
+                                    }
+                                    div("flex flex-row gap-3") {
+                                        Metric.entries.forEach { metric ->
+                                            a {
+                                                +metric.name
+                                                clicks.map { metric } handledBy newMetricTypeStore.update
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    h2 { +"Create new $selectedMetric metric" }
+                                    val metricNameStore = storeOf(selectedMetric.name)
+                                    textField("","Metric Name","Pick a unique name") {
+                                        value(metricNameStore)
+                                    }
+                                    div("flex flex-row") {
+                                        secondaryButton {
+                                            +"Cancel"
+                                        }
+
+                                        primaryButton {
+                                            +"OK"
+                                            disabled(mcs.map { it.name }.contains(metricNameStore.current) || metricNameStore.current.isBlank())
+                                            clicks handledBy {
+                                                showMetricsPickerStore.update(false)
+                                                newMetricTypeStore.update(null)
+//                                                showMetricsEditor.update(false)
+                                                val newConfig = MetricConfiguration(
+                                                    metric = selectedMetric,
+                                                    name = metricNameStore.current,
+                                                    params = selectedMetric.supportedParams
+                                                )
+                                                editMetricStore.update(newConfig)
+                                                metricConfigurationsStore.update(
+                                                    mcs+ newConfig
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            editMetricStore.data.render {
+                                if(it == null) {
+                                    primaryButton {
+                                        +"Add new Metric"
+                                        clicks.map { true } handledBy showMetricsPickerStore.update
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            div("flex flex-row") {
+                secondaryButton {
+                    +"Cancel"
+                    clicks.map { false } handledBy showMetricsEditor.update
+                }
+                primaryButton {
+                    +"Save"
+                    clicks handledBy {
+                        showMetricsEditor.update(false)
+                        newMetricTypeStore.update(null)
+                    }
                 }
             }
         }
@@ -421,16 +588,16 @@ fun RenderContext.templateVarEditor(
         fields.forEach { field ->
             val nameStore = storeOf(field.name)
             val typeStore = storeOf(field::class.simpleName!!)
-            val defaultValueStore = when(field) {
-                is SearchContextField.BoolField -> storeOf( field.defaultValue.toString())
-                is SearchContextField.IntField -> storeOf( field.defaultValue.toString())
-                is SearchContextField.StringField -> storeOf( field.defaultValue.toString())
+            val defaultValueStore = when (field) {
+                is SearchContextField.BoolField -> storeOf(field.defaultValue.toString())
+                is SearchContextField.IntField -> storeOf(field.defaultValue.toString())
+                is SearchContextField.StringField -> storeOf(field.defaultValue.toString())
             }
-            val placeHolderStore = when(field) {
-                is SearchContextField.BoolField -> storeOf( "")
-                is SearchContextField.IntField -> storeOf( field.placeHolder)
-                is SearchContextField.StringField -> storeOf( field.placeHolder)
-            }             
+            val placeHolderStore = when (field) {
+                is SearchContextField.BoolField -> storeOf("")
+                is SearchContextField.IntField -> storeOf(field.placeHolder)
+                is SearchContextField.StringField -> storeOf(field.placeHolder)
+            }
 
             div("flex flex-row") {
                 textField("", "name") {
