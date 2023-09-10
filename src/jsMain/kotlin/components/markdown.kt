@@ -28,6 +28,11 @@ private class MarkdownStore(file: String): RootStore<String>("") {
 fun RenderContext.markdownFile(file:String, baseClass: String?=null) {
     val mdStore =MarkdownStore(file)
     mdStore.data.render {
-        div(baseClass) {  }.domNode.innerHTML = renderMarkdown(it)
+        div(baseClass) {
+            // make sure we render lists with bullets, tailwind seems to not like this; so use css
+        }.domNode.innerHTML = renderMarkdown(it)
+            // fix styling for the markdown
+            .replace("<li", """<li style="margin-left:5px;list-style-type: disc;"""")
+            .replace("<ul", """<ul style="margin-left:5px;"""")
     }
 }
