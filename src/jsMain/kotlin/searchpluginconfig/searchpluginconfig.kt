@@ -421,8 +421,17 @@ fun RenderContext.templateVarEditor(
         fields.forEach { field ->
             val nameStore = storeOf(field.name)
             val typeStore = storeOf(field::class.simpleName!!)
-            val defaultValueStore = storeOf("")
-            val placeHolderStore = storeOf("")
+            val defaultValueStore = when(field) {
+                is SearchContextField.BoolField -> storeOf( field.defaultValue.toString())
+                is SearchContextField.IntField -> storeOf( field.defaultValue.toString())
+                is SearchContextField.StringField -> storeOf( field.defaultValue.toString())
+            }
+            val placeHolderStore = when(field) {
+                is SearchContextField.BoolField -> storeOf( "")
+                is SearchContextField.IntField -> storeOf( field.placeHolder)
+                is SearchContextField.StringField -> storeOf( field.placeHolder)
+            }             
+
             div("flex flex-row") {
                 textField("", "name") {
                     value(nameStore)
