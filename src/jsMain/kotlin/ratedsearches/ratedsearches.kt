@@ -96,8 +96,7 @@ fun RenderContext.ratedSearches() {
         ratedSearchesStore.data.render { ratedSearches ->
 
             div("flex flex-row gap-3") {
-                primaryButton {
-                    +"Clear"
+                primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
                     disabled(ratedSearches.isNullOrEmpty())
                     clicks handledBy {
                         confirm(
@@ -118,8 +117,7 @@ fun RenderContext.ratedSearches() {
                 )
                 val textStore = storeOf("")
                 textStore.data.render { text ->
-                    primaryButton {
-                        +"Import"
+                    primaryButton(text="Import", iconSource = SvgIconSource.Upload) {
                         disabled(text.isBlank())
                         clicks handledBy {
                             val decoded = DEFAULT_JSON.decodeFromString<List<RatedSearch>>(text)

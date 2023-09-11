@@ -79,8 +79,7 @@ fun RenderContext.searchScreen() {
                             val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
                             val alreadyAdded =
                                 ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
-                            secondaryButton {
-                                +if (alreadyAdded) "Already a Testcase" else "Add Testcase"
+                            secondaryButton(text = if (alreadyAdded) "Already a Testcase" else "Add Testcase", iconSource = SvgIconSource.Plus) {
                                 disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
                                 clicks.map {
                                     val ratings = searchResultsStore.current?.let {
@@ -103,8 +102,7 @@ fun RenderContext.searchScreen() {
                         }
                     }
 
-                    primaryButton {
-                        +"Search!"
+                    primaryButton(text = "Search!", iconSource = SvgIconSource.Magnifier) {
 
                         clicks.map {
                             stores.map { (f, s) -> f to s.current }.toMap()

@@ -14,23 +14,57 @@ import kotlin.random.nextULong
 fun RenderContext.primaryButton(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
+    iconSource: SvgIconSource?=null,
+    text: String?=null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 focus:ring-button-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = """m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
+        |focus:ring-button-300 focus:ring-4 font-medium rounded-lg 
+        |text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
-    content = content
+    content = {
+        if(iconSource !=null || text != null) {
+            div("flex flex-row gap-2 place-items-center") {
+                iconSource?.let {
+                    iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
+                }
+                text?.let {
+                    span {
+                        +text
+                    }
+                }
+            }
+        }
+        content.invoke(this)
+    }
 )
 
 fun RenderContext.secondaryButton(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
+    iconSource: SvgIconSource?=null,
+    text: String?=null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
     baseClass = "m-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
     id = id,
     scope = scope,
-    content = content
+    content = {
+        if(iconSource !=null || text != null) {
+            div("flex flex-row gap-2 place-items-center") {
+                iconSource?.let {
+                    iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
+                }
+                text?.let {
+                    span {
+                        +text
+                    }
+                }
+            }
+        }
+        content.invoke(this)
+    }
 )
 
 fun RenderContext.navButton(
@@ -86,6 +120,39 @@ fun <T> RenderContext.jsonDownloadButton(contentStore: Store<T?>, fileName: Stri
                     ?: console.log("could not find link to click")
                 infoBubble("Downloaded ")
             }
+        }
+    }
+}
+
+fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serializer: KSerializer<T>) {
+    val downloadLinkId = "link-${Random.nextULong()}"
+    if (content != null) {
+        val downloadContent = encodeURIComponent(
+            DEFAULT_PRETTY_JSON.encodeToString(serializer, content)
+        )
+        a("hidden", id = downloadLinkId) {
+            +"invisible"
+
+            href("data:application/json;charset=utf-8,$downloadContent")
+            download(fileName)
+        }
+    }
+    primaryButton {
+        // invisible link that we simulate a click on
+        div("flex flex-row gap-2 place-items-center") {
+            iconImage(SvgIconSource.Download, baseClass = "h-5 w-5 fill-white place-items-center")
+            span {
+                +"Download"
+            }
+        }
+        disabled(content == null)
+        clicks handledBy {
+            val e = document.createEvent("MouseEvents") as MouseEvent
+            e.initEvent("click", bubbles = true, cancelable = true)
+            // issue a click on the link to cause the download to happen
+            document.getElementById(downloadLinkId)?.dispatchEvent(e)
+                ?: console.log("could not find link to click")
+            infoBubble("Downloaded ")
         }
     }
 }

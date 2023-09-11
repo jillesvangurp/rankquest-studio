@@ -75,8 +75,7 @@ fun RenderContext.metrics() {
 
                 }
                 div("flex flex-row") {
-                    primaryButton {
-                        +"Run Metrics"
+                    primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
                         clicks handledBy metricsOutputStore.measure
                     }
                     jsonDownloadButton(
@@ -86,8 +85,7 @@ fun RenderContext.metrics() {
                     )
                     val textStore = storeOf("")
                     textStore.data.render { text ->
-                        primaryButton {
-                            +"Import"
+                        primaryButton(text="Import", iconSource = SvgIconSource.Upload) {
                             disabled(text.isBlank())
                             clicks handledBy {
                                 val decoded = DEFAULT_JSON.decodeFromString<List<MetricsOutput>>(text)
