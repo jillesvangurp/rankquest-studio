@@ -237,6 +237,28 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
+//        row {
+//            BuiltinPlugins.entries.forEach { p ->
+//                primaryButton {
+//                    +"New ${p.name}"
+//                    clicks.map { p.name } handledBy selectedPluginTypeStore.update
+//                }
+//            }
+//            val textStore = storeOf("")
+//            textStore.data.render { text ->
+//                primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
+//                    disabled(text.isBlank())
+//                    clicks handledBy {
+//                        val decoded = DEFAULT_JSON.decodeFromString<SearchPluginConfiguration>(text)
+//                        pluginConfigurationStore.addOrReplace(decoded)
+//                    }
+//                }
+//            }
+//            textFileInput(
+//                fileType = ".json",
+//                textStore = textStore
+//            )
+//        }
         row {
             BuiltinPlugins.entries.forEach { p ->
                 primaryButton {
@@ -244,20 +266,9 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                     clicks.map { p.name } handledBy selectedPluginTypeStore.update
                 }
             }
-            val textStore = storeOf("")
-            textStore.data.render { text ->
-                primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
-                    disabled(text.isBlank())
-                    clicks handledBy {
-                        val decoded = DEFAULT_JSON.decodeFromString<SearchPluginConfiguration>(text)
-                        pluginConfigurationStore.addOrReplace(decoded)
-                    }
-                }
-            }
-            textFileInput(
-                fileType = ".json",
-                textStore = textStore
-            )
+        jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
+            pluginConfigurationStore.addOrReplace(decoded)
+        }
         }
 
         selectedPluginTypeStore.data.render { selectedPlugin ->

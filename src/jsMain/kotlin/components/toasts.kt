@@ -20,10 +20,16 @@ fun RenderContext.warningBubble(text: String) {
     }
 }
 
-fun RenderContext.errorBubble(text: String) {
+fun RenderContext.errorBubble(text: String, e: Throwable?=null) {
+    if(e!=null) {
+        console.error(e)
+    }
     toast("messages", duration = 3.seconds.inWholeMilliseconds, ) {
         div("bg-red-200 p-5 rounded-lg border-2 border-red-400 text-center w-96") {
             +text
+            e?.let {
+                +": ${e.message}"
+            }
         }
     }
 }

@@ -1,12 +1,13 @@
 package components
 
+import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import dev.fritz2.core.*
-import dev.fritz2.headless.components.popOver
 import dev.fritz2.routing.encodeURIComponent
 import kotlinx.browser.document
 import kotlinx.serialization.KSerializer
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.MouseEvent
 import kotlin.random.Random
 import kotlin.random.nextULong
@@ -14,8 +15,8 @@ import kotlin.random.nextULong
 fun RenderContext.primaryButton(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
-    iconSource: SvgIconSource?=null,
-    text: String?=null,
+    iconSource: SvgIconSource? = null,
+    text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
     baseClass = """m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
@@ -24,7 +25,7 @@ fun RenderContext.primaryButton(
     id = id,
     scope = scope,
     content = {
-        if(iconSource !=null || text != null) {
+        if (iconSource != null || text != null) {
             div("flex flex-row gap-2 place-items-center") {
                 iconSource?.let {
                     iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
@@ -43,15 +44,15 @@ fun RenderContext.primaryButton(
 fun RenderContext.secondaryButton(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
-    iconSource: SvgIconSource?=null,
-    text: String?=null,
+    iconSource: SvgIconSource? = null,
+    text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
     baseClass = "m-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
     id = id,
     scope = scope,
     content = {
-        if(iconSource !=null || text != null) {
+        if (iconSource != null || text != null) {
             div("flex flex-row gap-2 place-items-center") {
                 iconSource?.let {
                     iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
@@ -154,5 +155,35 @@ fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serialize
                 ?: console.log("could not find link to click")
             infoBubble("Downloaded ")
         }
+    }
+}
+
+fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, onImport: (T) -> Unit) {
+    row {
+        val textStore = storeOf("")
+        val fileInputId = "file-input-${Random.nextULong()}"
+        textStore.data.render { text ->
+            primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
+                disabled(text.isBlank())
+                clicks handledBy {
+                    try {
+                        val decoded = DEFAULT_JSON.decodeFromString(serializer, text)
+                        onImport.invoke(decoded)
+                    } catch (e: Exception) {
+                        errorBubble("Parse error for file: ${e.message}")
+                    }
+                    document.getElementById(fileInputId)?.let { inputElement ->
+                        inputElement as HTMLInputElement
+                        inputElement.value = ""
+                        textStore.update("")
+                    }
+                }
+            }
+        }
+        textFileInput(
+            fileType = ".json",
+            textStore = textStore,
+            fileInputId = fileInputId
+        )
     }
 }

@@ -133,10 +133,9 @@ fun RenderContext.switchField(
 fun RenderContext.textFileInput(
     fileType: String,
     textStore: Store<String>,
+    fileInputId:String = "file-input-${Random.nextULong()}",
     baseClass: String? = "file:m-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 focus:file:outline-none hover:file:cursor-pointer"
 ) {
-
-    val fileInputId = "file-input-${Random.nextULong()}"
     input(baseClass = baseClass, id = fileInputId) {
         type("file")
         accept(fileType)
