@@ -11,7 +11,7 @@ fun RenderContext.para(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLParagraphElement>.() -> Unit
 ) = p(
-    "mb-2 text-sm",
+    "mb-2",
     id=id,
     scope = scope,
     content = content)
@@ -21,7 +21,7 @@ fun RenderContext.paraCentered(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLHeadingElement>.() -> Unit
 ) = h2(
-    "mb-2 text-sm text-center",
+    "mb-2 text-center",
     id=id,
     scope = scope,
     content = content)

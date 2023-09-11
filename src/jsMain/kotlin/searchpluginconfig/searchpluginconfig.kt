@@ -67,6 +67,9 @@ class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfigurati
     val remove = handle<String> { old, id ->
         confirm {
             update((current ?: listOf()).filter { it.id != id })
+            if(activeSearchPluginConfigurationStore.current?.id ==id) {
+                activeSearchPluginConfigurationStore.update(null)
+            }
         }
         old
     }
@@ -118,7 +121,12 @@ fun RenderContext.pluginConfiguration() {
             val showDemoContentStore = storeOf(activeIsDemo)
             div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
                 if (activePluginConfig != null) {
-                    para { +"Current configuration: ${activePluginConfig.name}" }
+                    para {
+                        +"Current configuration: "
+                        strong {
+                            +activePluginConfig.name
+                        }
+                    }
                 } else {
                     para { +"No active search plugin comfiguration" }
                 }
@@ -151,6 +159,8 @@ fun RenderContext.pluginConfiguration() {
 
                                     secondaryButton {
                                         +"Edit"
+                                        // can't edit the demo plugins
+                                        disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
                                         clicks.map { pluginConfig } handledBy editConfigurationStore.update
                                     }
                                     secondaryButton {
@@ -365,7 +375,7 @@ fun RenderContext.elasticsearchEditor(
         )
         val indexStore = storeOf(settings?.index ?: "")
         val labelFieldsStore = storeOf(settings?.labelFields?.joinToString(", ") ?: "titel, author.name")
-        val hostStore = storeOf(settings?.host ?: "")
+        val hostStore = storeOf(settings?.host ?: "localhost")
         val portStore = storeOf(settings?.port?.toString() ?: "")
         val httpsStore = storeOf(settings?.https ?: false)
         val userStore = storeOf(settings?.user ?: "")
