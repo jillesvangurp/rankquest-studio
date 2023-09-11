@@ -40,6 +40,8 @@ val configurationModule = module {
 class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfiguration>>(
     listOf(), "plugin-configurations", ListSerializer(SearchPluginConfiguration.serializer())
 ) {
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+
     val addOrReplace = handle<SearchPluginConfiguration> { old, config ->
         (current ?: listOf()).map {
             if (it.id == config.id) {
@@ -52,6 +54,13 @@ class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfigurati
                 it + config
             } else {
                 it
+            }
+        }.also { newConfigs ->
+            val active = activeSearchPluginConfigurationStore.current
+            newConfigs.forEach {
+                if(it.id ==active?.id) {
+                    activeSearchPluginConfigurationStore.update(it)
+                }
             }
         }
     }
@@ -117,7 +126,6 @@ fun RenderContext.pluginConfiguration() {
 
                 showDemoContentStore.data.filterNotNull().render { showDemoContent ->
                     pluginConfigurationStore.data.filterNotNull().render { configurations ->
-//                        val editConfiguration = storeOf<SearchPluginConfiguration?>(null)
                         configurations.also {
                             if (it.isEmpty()) {
                                 para {
@@ -127,6 +135,25 @@ fun RenderContext.pluginConfiguration() {
                             }
                         }.forEach { pluginConfig ->
                             val metricConfigurationsStore = storeOf(pluginConfig.metrics)
+                            metricConfigurationsStore.data handledBy { newMetrics ->
+//                                pluginConfigurationStore.update(
+//                                    pluginConfigurationStore.current.orEmpty().map {
+//                                        if(it.id ==pluginConfig.id) {
+//                                            it.copy(
+//                                                metrics = newMetrics
+//                                            )
+//                                        } else {
+//                                            it
+//                                        }
+//                                    }
+//                                )
+
+                                pluginConfigurationStore.addOrReplace(
+                                    pluginConfig.copy(
+                                        metrics = newMetrics
+                                    )
+                                )
+                            }
                             val showMetricsEditor = storeOf(false)
                             div("flex flex-row w-full items-center") {
                                 div("mr-5 w-2/6 text-right") {
@@ -154,6 +181,7 @@ fun RenderContext.pluginConfiguration() {
                                     }
                                 }
                                 metricsEditor(showMetricsEditor, metricConfigurationsStore)
+
                             }
                         }
                         listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
@@ -506,14 +534,15 @@ fun RenderContext.elasticsearchEditor(
                             password = password.current,
                             logging = logging.current
                         ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-                    ).also { updated ->
-                        activeSearchPluginConfigurationStore.current?.let { active ->
-                            // a little hacky but it ensures everything uses the new plugin
-                            if (active.id == updated.id) {
-                                activeSearchPluginConfigurationStore.update(updated)
-                            }
-                        }
-                    }
+                    )
+//                        .also { updated ->
+//                        activeSearchPluginConfigurationStore.current?.let { active ->
+//                            // a little hacky but it ensures everything uses the new plugin
+//                            if (active.id == updated.id) {
+//                                activeSearchPluginConfigurationStore.update(updated)
+//                            }
+//                        }
+//                    }
                 } handledBy pluginConfigurationStore.addOrReplace
                 clicks handledBy {
                     // hide the overlay
@@ -550,6 +579,11 @@ fun RenderContext.metricsEditor(
                         }
                             secondaryButton {
                                 +"Delete"
+                                clicks handledBy {
+                                    confirm {
+                                        metricConfigurationsStore.update(metricConfigurationsStore.current.filter { it.name != mc.name })
+                                    }
+                                }
                             }
                             primaryButton {
                                 +"Edit"
@@ -559,43 +593,60 @@ fun RenderContext.metricsEditor(
                         editMetricStore.data.render { editMetricConfiguration ->
                             val paramMap = mc.params.map { it.name to storeOf(it.value.content) }.toMap()
                             if (editMetricConfiguration?.name == mc.name) {
+                                val nameStore = storeOf(mc.name)
+                                textField("","name") {
+                                    value(nameStore)
+                                }
                                 mc.params.forEach { p ->
                                     textField("", p.name) {
                                         value(paramMap[p.name]!!)
                                     }
                                 }
-                                primaryButton {
-                                    +"Save Params"
-                                    clicks handledBy {
-                                        val newValues = paramMap.map { (name, valueStore) ->
-                                            MetricParam(name, valueStore.current.let { s ->
-                                                when {
-                                                    s.toIntOrNull() != null -> {
-                                                        s.toIntOrNull()!!.primitive
-                                                    }
-
-                                                    s.lowercase() in listOf("true", "false") -> {
-                                                        s.toBoolean().primitive
-                                                    }
-
-                                                    else -> {
-                                                        s.primitive
-                                                    }
-                                                }
-                                            })
+                                div("flex flex-row") {
+                                    secondaryButton {
+                                        +"Cancel"
+                                        clicks handledBy {
+                                            editMetricStore.update(null)
+                                            showMetricsEditor.update(false)
                                         }
-                                        metricConfigurationsStore.update(
-                                            metricConfigurationsStore.current.map {
-                                                if (it.name == mc.name) {
-                                                    it.copy(params = newValues)
-                                                } else {
-                                                    it
-                                                }
-                                            }
-                                        )
-                                        editMetricStore.update(null)
-                                        showMetricsEditor.update(false)
+                                    }
+                                    primaryButton {
+                                        +"Save Params"
+                                        clicks handledBy {
+                                            val newValues = paramMap.map { (name, valueStore) ->
+                                                MetricParam(name, valueStore.current.let { s ->
+                                                    when {
+                                                        s.toIntOrNull() != null -> {
+                                                            s.toIntOrNull()!!.primitive
+                                                        }
 
+                                                        s.lowercase() in listOf("true", "false") -> {
+                                                            s.toBoolean().primitive
+                                                        }
+
+                                                        else -> {
+                                                            s.primitive
+                                                        }
+                                                    }
+                                                })
+                                            }
+                                            metricConfigurationsStore.update(
+                                                metricConfigurationsStore.current.map {
+                                                    if (it.name == mc.name) {
+                                                        it.copy(
+                                                            name = nameStore.current,
+                                                            params = newValues
+                                                        )
+                                                    } else {
+                                                        it
+                                                    }
+                                                }
+                                            )
+
+                                            editMetricStore.update(null)
+                                            showMetricsEditor.update(false)
+
+                                        }
                                     }
                                 }
                             }
@@ -688,6 +739,7 @@ fun RenderContext.metricsEditor(
                     clicks handledBy {
                         showMetricsEditor.update(false)
                         newMetricTypeStore.update(null)
+                        // FIXME does not save anything
                     }
                 }
             }
