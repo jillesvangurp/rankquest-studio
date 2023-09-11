@@ -2,14 +2,16 @@ package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
-import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import com.jilesvangurp.rankquest.core.plugins.ElasticsearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
-import dev.fritz2.core.*
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.Store
+import dev.fritz2.core.disabled
+import dev.fritz2.core.storeOf
 import examples.quotesearch.demoSearchPlugins
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
@@ -41,20 +43,20 @@ val configurationModule = module {
 class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfiguration>>(
     listOf(), "plugin-configurations", ListSerializer(SearchPluginConfiguration.serializer())
 ) {
-    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+    private val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
 
-    val addOrReplace = handle<SearchPluginConfiguration> { old, config ->
+    val addOrReplace = handle<SearchPluginConfiguration> { _, config ->
         (current ?: listOf()).map {
             if (it.id == config.id) {
                 config
             } else {
                 it
             }
-        }.let {
-            if (it.firstOrNull { it.id == config.id } == null) {
-                it + config
+        }.let { configurations ->
+            if (configurations.firstOrNull { it.id == config.id } == null) {
+                configurations + config
             } else {
-                it
+                configurations
             }
         }.also { newConfigs ->
             val active = activeSearchPluginConfigurationStore.current
@@ -93,7 +95,7 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
                         if (selectedPlugin != null) {
                             handlerScope.launch {
                                 console.log("SEARCH $query")
-                                val searchPlugin = pluginFactoryRegistry.get(config.pluginType)?.create(config)
+                                val searchPlugin = pluginFactoryRegistry[config.pluginType]?.create(config)
                                 outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
                             }
                         } else {
@@ -266,9 +268,9 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                     clicks.map { p.name } handledBy selectedPluginTypeStore.update
                 }
             }
-        jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
-            pluginConfigurationStore.addOrReplace(decoded)
-        }
+            jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
+                pluginConfigurationStore.addOrReplace(decoded)
+            }
         }
 
         selectedPluginTypeStore.data.render { selectedPlugin ->
@@ -313,8 +315,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 }
 
 fun RenderContext.jsonGetEditor(
-    selectedPluginStore: Store<String>,
-    editConfigurationStore: Store<SearchPluginConfiguration?>
+    selectedPluginStore: Store<String>, editConfigurationStore: Store<SearchPluginConfiguration?>
 ) {
     editConfigurationStore.data.render { existing ->
         p {
@@ -342,8 +343,7 @@ fun RenderContext.jsonGetEditor(
 }
 
 fun RenderContext.jsonPostEditor(
-    selectedPluginStore: Store<String>,
-    editConfigurationStore: Store<SearchPluginConfiguration?>
+    selectedPluginStore: Store<String>, editConfigurationStore: Store<SearchPluginConfiguration?>
 ) {
     editConfigurationStore.data.render { existing ->
         p {
@@ -508,8 +508,7 @@ fun RenderContext.elasticsearchEditor(
 }
 
 fun RenderContext.metricsEditor(
-    showMetricsEditor: Store<Boolean>,
-    metricConfigurationsStore: Store<List<MetricConfiguration>>
+    showMetricsEditor: Store<Boolean>, metricConfigurationsStore: Store<List<MetricConfiguration>>
 ) {
     val editMetricStore = storeOf<MetricConfiguration?>(null)
     val showMetricsPickerStore = storeOf(false)
@@ -527,7 +526,7 @@ fun RenderContext.metricsEditor(
                                     +"${mc.name} (${mc.metric})"
                                 }
                                 div {
-                                    +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
+                                    +mc.params.joinToString(", ") { "${it.name} = ${it.value}" }
                                 }
                             }
                             secondaryButton {
@@ -544,7 +543,7 @@ fun RenderContext.metricsEditor(
                             }
                         }
                         editMetricStore.data.render { editMetricConfiguration ->
-                            val paramMap = mc.params.map { it.name to storeOf(it.value.content) }.toMap()
+                            val paramMap = mc.params.associate { it.name to storeOf(it.value.content) }
                             if (editMetricConfiguration?.name == mc.name) {
                                 val nameStore = storeOf(mc.name)
                                 textField("", "name") {
@@ -583,18 +582,15 @@ fun RenderContext.metricsEditor(
                                                     }
                                                 })
                                             }
-                                            metricConfigurationsStore.update(
-                                                metricConfigurationsStore.current.map {
-                                                    if (it.name == mc.name) {
-                                                        it.copy(
-                                                            name = nameStore.current,
-                                                            params = newValues
-                                                        )
-                                                    } else {
-                                                        it
-                                                    }
+                                            metricConfigurationsStore.update(metricConfigurationsStore.current.map {
+                                                if (it.name == mc.name) {
+                                                    it.copy(
+                                                        name = nameStore.current, params = newValues
+                                                    )
+                                                } else {
+                                                    it
                                                 }
-                                            )
+                                            })
 
                                             editMetricStore.update(null)
                                             showMetricsEditor.update(false)
@@ -702,8 +698,7 @@ fun RenderContext.metricsEditor(
 
 
 fun RenderContext.templateVarEditor(
-    templateVarStore: Store<List<SearchContextField>>,
-    queryTemplateStore: Store<String>
+    templateVarStore: Store<List<SearchContextField>>, queryTemplateStore: Store<String>
 ) {
     queryTemplateStore.data handledBy {
         // make sure any new variables from the template are added
@@ -719,10 +714,10 @@ fun RenderContext.templateVarEditor(
 
         newVars.filter { newVar ->
             console.log(newVar, templateVarStore.current.toString())
-            templateVarStore.current.firstOrNull { it -> it.name == newVar.name } == null
-        }.takeIf { it.isNotEmpty() }?.let {
-            console.log(it.toString())
-            templateVarStore.update((templateVarStore.current + it).distinctBy { it.name })
+            templateVarStore.current.firstOrNull { it.name == newVar.name } == null
+        }.takeIf { it.isNotEmpty() }?.let { fields ->
+            console.log(fields.toString())
+            templateVarStore.update((templateVarStore.current + fields).distinctBy { it.name })
         }
     }
 
@@ -735,7 +730,7 @@ fun RenderContext.templateVarEditor(
             val defaultValueStore = when (field) {
                 is SearchContextField.BoolField -> storeOf(field.defaultValue.toString())
                 is SearchContextField.IntField -> storeOf(field.defaultValue.toString())
-                is SearchContextField.StringField -> storeOf(field.defaultValue.toString())
+                is SearchContextField.StringField -> storeOf(field.defaultValue)
             }
             val placeHolderStore = when (field) {
                 is SearchContextField.BoolField -> storeOf("")
@@ -776,8 +771,7 @@ fun RenderContext.templateVarEditor(
                         val updatedField = when (typeStore.current) {
                             SearchContextField.BoolField::class.simpleName!! -> {
                                 SearchContextField.BoolField(
-                                    name = nameStore.current,
-                                    defaultValue = defaultValueStore.current.toBoolean()
+                                    name = nameStore.current, defaultValue = defaultValueStore.current.toBoolean()
                                 )
                             }
 
