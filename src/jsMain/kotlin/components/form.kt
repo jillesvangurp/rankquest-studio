@@ -87,7 +87,7 @@ fun RenderContext.switchField(
     scope: (ScopeContext.() -> Unit) = {},
     initialize: SwitchWithLabel<HTMLDivElement>.() -> Unit
 ) {
-    switchWithLabel("flex flex-col border p-2 items-center w-full", id = id, scope = scope) {
+    switchWithLabel("flex flex-col items-center w-full", id = id, scope = scope) {
         initialize(this)
 
         div("flex flex-row items-center w-full") {
