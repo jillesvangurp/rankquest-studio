@@ -136,18 +136,6 @@ fun RenderContext.pluginConfiguration() {
                         }.forEach { pluginConfig ->
                             val metricConfigurationsStore = storeOf(pluginConfig.metrics)
                             metricConfigurationsStore.data handledBy { newMetrics ->
-//                                pluginConfigurationStore.update(
-//                                    pluginConfigurationStore.current.orEmpty().map {
-//                                        if(it.id ==pluginConfig.id) {
-//                                            it.copy(
-//                                                metrics = newMetrics
-//                                            )
-//                                        } else {
-//                                            it
-//                                        }
-//                                    }
-//                                )
-
                                 pluginConfigurationStore.addOrReplace(
                                     pluginConfig.copy(
                                         metrics = newMetrics
@@ -212,9 +200,7 @@ fun RenderContext.pluginConfiguration() {
                     }
                 }
 
-
                 createOrEditPlugin(editConfigurationStore)
-
 
                 if (activePluginConfig != null) {
                     val showStore = storeOf(false)
@@ -239,49 +225,47 @@ fun RenderContext.pluginConfiguration() {
 fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginConfiguration?>) {
     editConfigurationStore.data.render { existing ->
 
-        val selectedPluginStore = storeOf(existing?.pluginType ?: "")
+        val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
         div("flex flex-row") {
             BuiltinPlugins.entries.forEach { p ->
                 primaryButton {
                     +"New ${p.name}"
-                    clicks.map { p.name } handledBy selectedPluginStore.update
+                    clicks.map { p.name } handledBy selectedPluginTypeStore.update
                 }
             }
         }
 
-        selectedPluginStore.data.render { selectedPlugin ->
+        selectedPluginTypeStore.data.render { selectedPlugin ->
             BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
                 overlayLarge {
-                    val configName = storeOf(plugin.name)
+                    val configNameStore = storeOf(plugin.name)
 
                     div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
                         h1 { +"New search configuration for $selectedPlugin" }
                         textField(
                             placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
                         ) {
-                            value(configName)
+                            value(configNameStore)
                         }
                         // plugin settings
                         when (plugin) {
                             BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
-                                selectedPluginStore = selectedPluginStore,
-                                configName = configName,
+                                selectedPluginStore = selectedPluginTypeStore,
+                                configNameStore = configNameStore,
                                 editConfigurationStore = editConfigurationStore
                             )
 
                             BuiltinPlugins.JsonGetAPIPlugin -> {
                                 jsonGetEditor(
-                                    selectedPluginStore = selectedPluginStore,
-                                    configName = configName,
+                                    selectedPluginStore = selectedPluginTypeStore,
                                     editConfigurationStore = editConfigurationStore
                                 )
                             }
 
                             BuiltinPlugins.JsonPostAPIPlugin -> {
                                 jsonPostEditor(
-                                    selectedPluginStore = selectedPluginStore,
-                                    configName = configName,
+                                    selectedPluginStore = selectedPluginTypeStore,
                                     editConfigurationStore = editConfigurationStore
                                 )
                             }
@@ -295,7 +279,6 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 
 fun RenderContext.jsonGetEditor(
     selectedPluginStore: Store<String>,
-    configName: Store<String>,
     editConfigurationStore: Store<SearchPluginConfiguration?>
 ) {
     editConfigurationStore.data.render { existing ->
@@ -313,33 +296,6 @@ fun RenderContext.jsonGetEditor(
                 } else {
                     +"Save"
                 }
-//                clicks.map {
-//                    SearchPluginConfiguration(
-//                        id = existing?.id ?: md5Hash(Random.nextLong()),
-//                        name = configName.current,
-//                        pluginType = BuiltinPlugins.ElasticSearch.name,
-//                        fieldConfig = templateVariableStore.current,
-//                        metrics = metricConfigurationsStore.current,
-//                        pluginSettings = ElasticsearchPluginConfiguration(
-//                            queryTemplate = queryTemplate.current,
-//                            index = index.current,
-//                            labelFields = labelFields.current.split(',').map { it.trim() },
-//                            host = host.current,
-//                            port = port.current.toIntOrNull() ?: 9200,
-//                            https = https.current,
-//                            user = user.current,
-//                            password = password.current,
-//                            logging = logging.current
-//                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-//                    ).also { updated ->
-//                        activeSearchPluginConfigurationStore.current?.let { active ->
-//                            // a little hacky but it ensures everything uses the new plugin
-//                            if (active.id == updated.id) {
-//                                activeSearchPluginConfigurationStore.update(updated)
-//                            }
-//                        }
-//                    }
-//                } handledBy pluginConfigurationStore.addOrReplace
                 clicks handledBy {
                     // hide the overlay
                     selectedPluginStore.update("-")
@@ -352,7 +308,6 @@ fun RenderContext.jsonGetEditor(
 
 fun RenderContext.jsonPostEditor(
     selectedPluginStore: Store<String>,
-    configName: Store<String>,
     editConfigurationStore: Store<SearchPluginConfiguration?>
 ) {
     editConfigurationStore.data.render { existing ->
@@ -370,33 +325,6 @@ fun RenderContext.jsonPostEditor(
                 } else {
                     +"Save"
                 }
-//                clicks.map {
-//                    SearchPluginConfiguration(
-//                        id = existing?.id ?: md5Hash(Random.nextLong()),
-//                        name = configName.current,
-//                        pluginType = BuiltinPlugins.ElasticSearch.name,
-//                        fieldConfig = templateVariableStore.current,
-//                        metrics = metricConfigurationsStore.current,
-//                        pluginSettings = ElasticsearchPluginConfiguration(
-//                            queryTemplate = queryTemplate.current,
-//                            index = index.current,
-//                            labelFields = labelFields.current.split(',').map { it.trim() },
-//                            host = host.current,
-//                            port = port.current.toIntOrNull() ?: 9200,
-//                            https = https.current,
-//                            user = user.current,
-//                            password = password.current,
-//                            logging = logging.current
-//                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-//                    ).also { updated ->
-//                        activeSearchPluginConfigurationStore.current?.let { active ->
-//                            // a little hacky but it ensures everything uses the new plugin
-//                            if (active.id == updated.id) {
-//                                activeSearchPluginConfigurationStore.update(updated)
-//                            }
-//                        }
-//                    }
-//                } handledBy pluginConfigurationStore.addOrReplace
                 clicks handledBy {
                     // hide the overlay
                     selectedPluginStore.update("-")
@@ -409,11 +337,9 @@ fun RenderContext.jsonPostEditor(
 
 fun RenderContext.elasticsearchEditor(
     selectedPluginStore: Store<String>,
-    configName: Store<String>,
+    configNameStore: Store<String>,
     editConfigurationStore: Store<SearchPluginConfiguration?>
 ) {
-    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-
     editConfigurationStore.data.render { existing ->
         val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
         val settings = existing?.pluginSettings?.let {
@@ -422,7 +348,7 @@ fun RenderContext.elasticsearchEditor(
             )
         }
 
-        val queryTemplate = storeOf(
+        val queryTemplateStore = storeOf(
             settings?.queryTemplate ?: """
             {
               "size": {{ size }}, 
@@ -437,46 +363,46 @@ fun RenderContext.elasticsearchEditor(
             }
         """.trimIndent()
         )
-        val index = storeOf(settings?.index ?: "")
-        val labelFields = storeOf(settings?.labelFields?.joinToString(", ") ?: "titel, author.name")
-        val host = storeOf(settings?.host ?: "")
-        val port = storeOf(settings?.port?.toString() ?: "")
-        val https = storeOf(settings?.https ?: false)
-        val user = storeOf(settings?.user ?: "")
-        val password = storeOf(settings?.password ?: "")
-        val logging = storeOf(settings?.logging ?: false)
+        val indexStore = storeOf(settings?.index ?: "")
+        val labelFieldsStore = storeOf(settings?.labelFields?.joinToString(", ") ?: "titel, author.name")
+        val hostStore = storeOf(settings?.host ?: "")
+        val portStore = storeOf(settings?.port?.toString() ?: "")
+        val httpsStore = storeOf(settings?.https ?: false)
+        val userStore = storeOf(settings?.user ?: "")
+        val passwordStore = storeOf(settings?.password ?: "")
+        val loggingStore = storeOf(settings?.logging ?: false)
 
         textField("myindex", "index", "Index or alias name that you want to query") {
-            value(index)
+            value(indexStore)
         }
         textField(
             "localhost", "host", ""
         ) {
-            value(host)
+            value(hostStore)
         }
         textField(
             "9200", "port", ""
         ) {
-            value(port)
+            value(portStore)
         }
         switchField("Https", "Use https:// instead of http://") {
-            value(https)
+            value(httpsStore)
         }
         switchField(
             "Logging", "Turn on request logging in the client (use the browser console)."
         ) {
-            value(logging)
+            value(loggingStore)
         }
 
         textField(
             "elastic", "user", ""
         ) {
-            value(user)
+            value(userStore)
         }
         textField(
             "secret", "password", ""
         ) {
-            value(password)
+            value(passwordStore)
         }
         textAreaField(
             placeHolder = """
@@ -490,18 +416,18 @@ fun RenderContext.elasticsearchEditor(
             label = "Query Template",
             description = "Paste a query and use variable names surrounded " + "by {{ myvariable }} where parameters from your search context will be substituted"
         ) {
-            value(queryTemplate)
+            value(queryTemplateStore)
         }
         textField(
             "title,author",
             "Label fields",
             "Comma separated list of fields that will be used to generate the labels for your search results"
         ) {
-            value(labelFields)
+            value(labelFieldsStore)
         }
 
         val templateVariableStore = storeOf(existing?.fieldConfig.orEmpty())
-        templateVarEditor(templateVariableStore, queryTemplate)
+        templateVarEditor(templateVariableStore, queryTemplateStore)
 
         val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
 
@@ -519,30 +445,22 @@ fun RenderContext.elasticsearchEditor(
                 clicks.map {
                     SearchPluginConfiguration(
                         id = existing?.id ?: md5Hash(Random.nextLong()),
-                        name = configName.current,
+                        name = configNameStore.current,
                         pluginType = BuiltinPlugins.ElasticSearch.name,
                         fieldConfig = templateVariableStore.current,
                         metrics = metricConfigurationsStore.current,
                         pluginSettings = ElasticsearchPluginConfiguration(
-                            queryTemplate = queryTemplate.current,
-                            index = index.current,
-                            labelFields = labelFields.current.split(',').map { it.trim() },
-                            host = host.current,
-                            port = port.current.toIntOrNull() ?: 9200,
-                            https = https.current,
-                            user = user.current,
-                            password = password.current,
-                            logging = logging.current
+                            queryTemplate = queryTemplateStore.current,
+                            index = indexStore.current,
+                            labelFields = labelFieldsStore.current.split(',').map { it.trim() },
+                            host = hostStore.current,
+                            port = portStore.current.toIntOrNull() ?: 9200,
+                            https = httpsStore.current,
+                            user = userStore.current,
+                            password = passwordStore.current,
+                            logging = loggingStore.current
                         ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
                     )
-//                        .also { updated ->
-//                        activeSearchPluginConfigurationStore.current?.let { active ->
-//                            // a little hacky but it ensures everything uses the new plugin
-//                            if (active.id == updated.id) {
-//                                activeSearchPluginConfigurationStore.update(updated)
-//                            }
-//                        }
-//                    }
                 } handledBy pluginConfigurationStore.addOrReplace
                 clicks handledBy {
                     // hide the overlay
