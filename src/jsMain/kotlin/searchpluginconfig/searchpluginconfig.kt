@@ -2,6 +2,7 @@ package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
+import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
@@ -230,6 +231,8 @@ fun RenderContext.pluginConfiguration() {
 }
 
 fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginConfiguration?>) {
+    val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
+
     editConfigurationStore.data.render { existing ->
 
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
@@ -241,6 +244,20 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                     clicks.map { p.name } handledBy selectedPluginTypeStore.update
                 }
             }
+            val textStore = storeOf("")
+            textStore.data.render { text ->
+                primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
+                    disabled(text.isBlank())
+                    clicks handledBy {
+                        val decoded = DEFAULT_JSON.decodeFromString<SearchPluginConfiguration>(text)
+                        pluginConfigurationStore.addOrReplace(decoded)
+                    }
+                }
+            }
+            textFileInput(
+                fileType = ".json",
+                textStore = textStore
+            )
         }
 
         selectedPluginTypeStore.data.render { selectedPlugin ->
