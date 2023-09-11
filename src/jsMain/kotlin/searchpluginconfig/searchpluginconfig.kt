@@ -26,7 +26,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import org.w3c.dom.HTMLHeadingElement
 import search.SearchResultsStore
 import utils.md5Hash
 import kotlin.random.Random
@@ -105,13 +104,9 @@ fun RenderContext.pluginConfiguration() {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     div {
-        h1(content = fun HtmlTag<HTMLHeadingElement>.() {
-            +"Search Plugin Configuration"
-        })
-
         activeSearchPluginConfigurationStore.data.render { activePluginConfig ->
             val activeIsDemo = activePluginConfig?.id in demoSearchPlugins.map { it.id }
-            val showDemoContent = storeOf(activeIsDemo)
+            val showDemoContentStore = storeOf(activeIsDemo)
             div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
                 if (activePluginConfig != null) {
                     para { +"Current configuration: ${activePluginConfig.name}" }
@@ -120,14 +115,10 @@ fun RenderContext.pluginConfiguration() {
                 }
                 val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
 
-                showDemoContent.data.filterNotNull().render { demoContentEnabled ->
+                showDemoContentStore.data.filterNotNull().render { showDemoContent ->
                     pluginConfigurationStore.data.filterNotNull().render { configurations ->
-                        val editConfiguration = storeOf<SearchPluginConfiguration?>(null)
-                        if (demoContentEnabled) {
-                            configurations + demoSearchPlugins
-                        } else {
-                            configurations
-                        }.also {
+//                        val editConfiguration = storeOf<SearchPluginConfiguration?>(null)
+                        configurations.also {
                             if (it.isEmpty()) {
                                 para {
                                     +"""You have no search plugin configurations yet. Add a 
@@ -142,15 +133,13 @@ fun RenderContext.pluginConfiguration() {
                                     +pluginConfig.name
                                 }
                                 div("w-4/6") {
-                                    val editable = pluginConfig.id in demoSearchPlugins.map { dp -> dp.id }
+
                                     secondaryButton {
                                         +"Edit"
-                                        disabled(editable)
                                         clicks.map { pluginConfig } handledBy editConfigurationStore.update
                                     }
                                     secondaryButton {
                                         +"Metrics"
-                                        disabled(editable)
                                         clicks.map { true } handledBy showMetricsEditor.update
                                     }
 
@@ -161,7 +150,6 @@ fun RenderContext.pluginConfiguration() {
                                     }
                                     secondaryButton {
                                         +"Delete"
-                                        disabled(editable)
                                         clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
                                     }
                                 }
@@ -170,11 +158,32 @@ fun RenderContext.pluginConfiguration() {
                         }
                         listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
 
+                        switchField("Show Demo Plugins") {
+                            value(showDemoContentStore)
+                        }
+                        if(showDemoContent) {
+                            secondaryButton {
+                                +"Add Movie Quotes Search"
+                                clicks handledBy {
+                                    val c = movieQuotesSearchPluginConfig
+                                    if(pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
+                                        pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                    }
+                                }
+                            }
+                            secondaryButton {
+                                +"Add Movie Quotes Search with n-grams"
+                                clicks handledBy {
+                                    val c = movieQuotesNgramsSearchPluginConfig
+                                    if(pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
+                                        pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                switchField("Show Demo Plugins") {
-                    value(showDemoContent)
-                }
+
 
                 createOrEditPlugin(editConfigurationStore)
 
@@ -234,21 +243,137 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                             )
 
                             BuiltinPlugins.JsonGetAPIPlugin -> {
-                                p {
-                                    +"TODO"
-                                }
+                                jsonGetEditor(
+                                    selectedPluginStore = selectedPluginStore,
+                                    configName = configName,
+                                    editConfigurationStore = editConfigurationStore
+                                )
                             }
 
                             BuiltinPlugins.JsonPostAPIPlugin -> {
-                                p {
-                                    +"TODO"
-                                }
+                                jsonPostEditor(
+                                    selectedPluginStore = selectedPluginStore,
+                                    configName = configName,
+                                    editConfigurationStore = editConfigurationStore
+                                )
                             }
                         }
                     }
                 }
-                // search context config
-                // metric config
+            }
+        }
+    }
+}
+
+fun RenderContext.jsonGetEditor(
+    selectedPluginStore: Store<String>,
+    configName: Store<String>,
+    editConfigurationStore: Store<SearchPluginConfiguration?>
+) {
+    editConfigurationStore.data.render { existing ->
+        p {
+            +"NOT IMPLEMENTED YET"
+        }
+        div("flex flex-row") {
+            secondaryButton {
+                +"Cancel"
+                clicks.map { "_" } handledBy selectedPluginStore.update
+            }
+            primaryButton {
+                if (existing == null) {
+                    +"Add Configuration"
+                } else {
+                    +"Save"
+                }
+//                clicks.map {
+//                    SearchPluginConfiguration(
+//                        id = existing?.id ?: md5Hash(Random.nextLong()),
+//                        name = configName.current,
+//                        pluginType = BuiltinPlugins.ElasticSearch.name,
+//                        fieldConfig = templateVariableStore.current,
+//                        metrics = metricConfigurationsStore.current,
+//                        pluginSettings = ElasticsearchPluginConfiguration(
+//                            queryTemplate = queryTemplate.current,
+//                            index = index.current,
+//                            labelFields = labelFields.current.split(',').map { it.trim() },
+//                            host = host.current,
+//                            port = port.current.toIntOrNull() ?: 9200,
+//                            https = https.current,
+//                            user = user.current,
+//                            password = password.current,
+//                            logging = logging.current
+//                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
+//                    ).also { updated ->
+//                        activeSearchPluginConfigurationStore.current?.let { active ->
+//                            // a little hacky but it ensures everything uses the new plugin
+//                            if (active.id == updated.id) {
+//                                activeSearchPluginConfigurationStore.update(updated)
+//                            }
+//                        }
+//                    }
+//                } handledBy pluginConfigurationStore.addOrReplace
+                clicks handledBy {
+                    // hide the overlay
+                    selectedPluginStore.update("-")
+                    editConfigurationStore.update(null)
+                }
+            }
+        }
+    }
+}
+
+fun RenderContext.jsonPostEditor(
+    selectedPluginStore: Store<String>,
+    configName: Store<String>,
+    editConfigurationStore: Store<SearchPluginConfiguration?>
+) {
+    editConfigurationStore.data.render { existing ->
+        p {
+            +"NOT IMPLEMENTED YET"
+        }
+        div("flex flex-row") {
+            secondaryButton {
+                +"Cancel"
+                clicks.map { "_" } handledBy selectedPluginStore.update
+            }
+            primaryButton {
+                if (existing == null) {
+                    +"Add Configuration"
+                } else {
+                    +"Save"
+                }
+//                clicks.map {
+//                    SearchPluginConfiguration(
+//                        id = existing?.id ?: md5Hash(Random.nextLong()),
+//                        name = configName.current,
+//                        pluginType = BuiltinPlugins.ElasticSearch.name,
+//                        fieldConfig = templateVariableStore.current,
+//                        metrics = metricConfigurationsStore.current,
+//                        pluginSettings = ElasticsearchPluginConfiguration(
+//                            queryTemplate = queryTemplate.current,
+//                            index = index.current,
+//                            labelFields = labelFields.current.split(',').map { it.trim() },
+//                            host = host.current,
+//                            port = port.current.toIntOrNull() ?: 9200,
+//                            https = https.current,
+//                            user = user.current,
+//                            password = password.current,
+//                            logging = logging.current
+//                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
+//                    ).also { updated ->
+//                        activeSearchPluginConfigurationStore.current?.let { active ->
+//                            // a little hacky but it ensures everything uses the new plugin
+//                            if (active.id == updated.id) {
+//                                activeSearchPluginConfigurationStore.update(updated)
+//                            }
+//                        }
+//                    }
+//                } handledBy pluginConfigurationStore.addOrReplace
+                clicks handledBy {
+                    // hide the overlay
+                    selectedPluginStore.update("-")
+                    editConfigurationStore.update(null)
+                }
             }
         }
     }
@@ -351,7 +476,6 @@ fun RenderContext.elasticsearchEditor(
         templateVarEditor(templateVariableStore, queryTemplate)
 
         val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
-//        metricsEditor(metricConfigurationsStore)
 
         div("flex flex-row") {
             secondaryButton {
@@ -413,21 +537,22 @@ fun RenderContext.metricsEditor(
             overlayLarge {
 
                 metricConfigurationsStore.data.render { mcs ->
+                    h2 { +"Metric Configuration" }
                     mcs.forEach { mc ->
-                        h2 { +"Metric Configuration" }
-
-                        div {
-                            +"${mc.name} (${mc.metric})"
+                        div("flex flex-row place-items-center") {
+                        div("flex flex-col") {
+                            div {
+                                +"${mc.name} (${mc.metric})"
+                            }
+                            div {
+                                +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
+                            }
                         }
-                        div {
-                            +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
-                        }
-                        div("flex flex-row") {
                             secondaryButton {
-                                +"delete"
+                                +"Delete"
                             }
                             primaryButton {
-                                +"edit"
+                                +"Edit"
                                 clicks.map { mc } handledBy editMetricStore.update
                             }
                         }
@@ -477,7 +602,6 @@ fun RenderContext.metricsEditor(
                         }
                     }
 
-
                     showMetricsPickerStore.data.render { showMetricsPicker ->
                         if (showMetricsPicker) {
                             newMetricTypeStore.data.render { selectedMetric ->
@@ -497,17 +621,22 @@ fun RenderContext.metricsEditor(
                                 } else {
                                     h2 { +"Create new $selectedMetric metric" }
                                     val metricNameStore = storeOf(selectedMetric.name)
-                                    textField("","Metric Name","Pick a unique name") {
+                                    textField("", "Metric Name", "Pick a unique name") {
                                         value(metricNameStore)
                                     }
                                     div("flex flex-row") {
                                         secondaryButton {
                                             +"Cancel"
+                                            clicks handledBy {
+                                                showMetricsPickerStore.update(false)
+                                                newMetricTypeStore.update(null)
+                                            }
                                         }
 
                                         primaryButton {
                                             +"OK"
-                                            disabled(mcs.map { it.name }.contains(metricNameStore.current) || metricNameStore.current.isBlank())
+                                            disabled(mcs.map { it.name }
+                                                .contains(metricNameStore.current) || metricNameStore.current.isBlank())
                                             clicks handledBy {
                                                 showMetricsPickerStore.update(false)
                                                 newMetricTypeStore.update(null)
@@ -519,7 +648,7 @@ fun RenderContext.metricsEditor(
                                                 )
                                                 editMetricStore.update(newConfig)
                                                 metricConfigurationsStore.update(
-                                                    mcs+ newConfig
+                                                    mcs + newConfig
                                                 )
                                             }
                                         }
@@ -527,11 +656,21 @@ fun RenderContext.metricsEditor(
                                 }
                             }
                         } else {
-                            editMetricStore.data.render {
-                                if(it == null) {
-                                    primaryButton {
-                                        +"Add new Metric"
-                                        clicks.map { true } handledBy showMetricsPickerStore.update
+                            editMetricStore.data.render { currentMetric ->
+                                if (currentMetric == null) {
+                                    div("flex flex-row") {
+                                        secondaryButton {
+                                            +"Cancel"
+                                            clicks handledBy {
+                                                showMetricsPickerStore.update(false)
+                                                newMetricTypeStore.update(null)
+                                                showMetricsEditor.update(false)
+                                            }
+                                        }
+                                        primaryButton {
+                                            +"Add new Metric"
+                                            clicks.map { true } handledBy showMetricsPickerStore.update
+                                        }
                                     }
                                 }
                             }
