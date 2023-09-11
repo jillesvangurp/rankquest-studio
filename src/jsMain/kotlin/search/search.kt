@@ -38,79 +38,85 @@ fun RenderContext.searchScreen() {
     val searchResultsStore = koin.get<SearchResultsStore>()
 
     activeSearchPluginConfigurationStore.data.render { config ->
-        if (config == null) {
-            para {
-                +"Configure a search plugin first. "
-                pageLink(Page.Conf)
-            }
-        } else {
-            div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
-                h1(content = fun HtmlTag<HTMLHeadingElement>.() {
-                    +config.name
-                })
-                val stores = config.fieldConfig.associate {
-                    it.name to when (it) {
-                        is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
-                        is SearchContextField.IntField -> storeOf("${it.defaultValue}")
-                        is SearchContextField.StringField -> storeOf("")
-                    }
+        centeredMainPanel {
+
+            if (config == null) {
+                para {
+                    +"Configure a search plugin first. "
+                    pageLink(Page.Conf)
                 }
-                div {
-                    for (field in config.fieldConfig) {
-                        val fieldStore = stores[field.name]!!
-                        when (field) {
-                            else -> {
-                                textField(
-                                    placeHolder = "Type something to search for ..", label = field.name
-                                ) {
-                                    value(fieldStore)
-                                    changes.map {
-                                        stores.map { (f, s) -> f to s.current }.toMap()
-                                    } handledBy activeSearchPluginConfigurationStore.search
+            } else {
+                div("flex flex-col items-left space-y-1 w-fit items-center m-auto") {
+                    h1(content = fun HtmlTag<HTMLHeadingElement>.() {
+                        +config.name
+                    })
+                    val stores = config.fieldConfig.associate {
+                        it.name to when (it) {
+                            is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
+                            is SearchContextField.IntField -> storeOf("${it.defaultValue}")
+                            is SearchContextField.StringField -> storeOf("")
+                        }
+                    }
+                    div {
+                        for (field in config.fieldConfig) {
+                            val fieldStore = stores[field.name]!!
+                            when (field) {
+                                else -> {
+                                    textField(
+                                        placeHolder = "Type something to search for ..", label = field.name
+                                    ) {
+                                        value(fieldStore)
+                                        changes.map {
+                                            stores.map { (f, s) -> f to s.current }.toMap()
+                                        } handledBy activeSearchPluginConfigurationStore.search
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                div("flex flex-row") {
-                    searchResultsStore.data.render { searchResults ->
-                        ratedSearchesStore.data.render { ratedSearches ->
-                            // use a content hash to avoid duplicates
-                            val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
-                            val alreadyAdded =
-                                ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
-                            secondaryButton(text = if (alreadyAdded) "Already a Testcase" else "Add Testcase", iconSource = SvgIconSource.Plus) {
-                                disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
-                                clicks.map {
-                                    val ratings = searchResultsStore.current?.let {
-                                        it.getOrNull()?.let { searchResults ->
-                                            var rate = searchResults.searchResultList.size
-                                            searchResults.searchResultList.map {
-                                                SearchResultRating(
-                                                    it.id, label = it.label, rating = rate--
-                                                )
+                    row {
+                        searchResultsStore.data.render { searchResults ->
+                            ratedSearchesStore.data.render { ratedSearches ->
+                                // use a content hash to avoid duplicates
+                                val rsId = md5Hash(*stores.map { it.value.current }.toTypedArray())
+                                val alreadyAdded =
+                                    ratedSearches != null && ratedSearches.firstOrNull { it.id == rsId } != null
+                                secondaryButton(
+                                    text = if (alreadyAdded) "Already a Testcase" else "Add Testcase",
+                                    iconSource = SvgIconSource.Plus
+                                ) {
+                                    disabled(searchResults?.getOrNull()?.searchResultList.isNullOrEmpty() || alreadyAdded)
+                                    clicks.map {
+                                        val ratings = searchResultsStore.current?.let {
+                                            it.getOrNull()?.let { searchResults ->
+                                                var rate = searchResults.searchResultList.size
+                                                searchResults.searchResultList.map {
+                                                    SearchResultRating(
+                                                        it.id, label = it.label, rating = rate--
+                                                    )
+                                                }
                                             }
-                                        }
-                                    } ?: listOf()
-                                    RatedSearch(
-                                        id = rsId,
-                                        searchContext = stores.map { (f, s) -> f to s.current }.toMap(),
-                                        ratings = ratings
-                                    )
-                                } handledBy ratedSearchesStore.addOrReplace
+                                        } ?: listOf()
+                                        RatedSearch(
+                                            id = rsId,
+                                            searchContext = stores.map { (f, s) -> f to s.current }.toMap(),
+                                            ratings = ratings
+                                        )
+                                    } handledBy ratedSearchesStore.addOrReplace
+                                }
                             }
                         }
+
+                        primaryButton(text = "Search!", iconSource = SvgIconSource.Magnifier) {
+
+                            clicks.map {
+                                stores.map { (f, s) -> f to s.current }.toMap()
+                            } handledBy activeSearchPluginConfigurationStore.search
+                        }
+
                     }
-
-                    primaryButton(text = "Search!", iconSource = SvgIconSource.Magnifier) {
-
-                        clicks.map {
-                            stores.map { (f, s) -> f to s.current }.toMap()
-                        } handledBy activeSearchPluginConfigurationStore.search
-                    }
-
+                    searchResults()
                 }
-                searchResults()
             }
         }
     }

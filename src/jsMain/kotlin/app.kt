@@ -23,7 +23,7 @@ suspend fun main() {
                     menu()
                 }
             }
-            div("bg-white scroll-smooth overflow-auto grow-0 h-full w-full") {
+            div("bg-blueBright-50 scroll-smooth overflow-auto grow-0 h-full w-full") {
                 mainView()
             }
         }

@@ -54,54 +54,57 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
 }
 
 fun RenderContext.metrics() {
-    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-    val ratedSearchesStore = koin.get<RatedSearchesStore>()
-    val metricsOutputStore = koin.get<MetricsOutputStore>()
+    centeredMainPanel {
 
-    val expandedState = storeOf(mapOf<String, Boolean>())
-    activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
-        if (searchPluginConfiguration == null) {
-            para {
-                +"Configure a search plugin first. "
-                pageLink(Page.Conf)
-            }
-        } else {
-            ratedSearchesStore.data.render { ratedSearches ->
-                if (ratedSearches == null) {
-                    p {
-                        +"Rate some searches first. "
-                        pageLink(Page.TestCases)
-                    }
+        val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+        val ratedSearchesStore = koin.get<RatedSearchesStore>()
+        val metricsOutputStore = koin.get<MetricsOutputStore>()
 
+        val expandedState = storeOf(mapOf<String, Boolean>())
+        activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
+            if (searchPluginConfiguration == null) {
+                para {
+                    +"Configure a search plugin first. "
+                    pageLink(Page.Conf)
                 }
-                div("flex flex-row") {
-                    primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
-                        clicks handledBy metricsOutputStore.measure
+            } else {
+                ratedSearchesStore.data.render { ratedSearches ->
+                    if (ratedSearches == null) {
+                        p {
+                            +"Rate some searches first. "
+                            pageLink(Page.TestCases)
+                        }
+
                     }
-                    jsonDownloadButton(
-                        metricsOutputStore,
-                        "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
-                        ListSerializer(MetricsOutput.serializer())
-                    )
-                    val textStore = storeOf("")
-                    textStore.data.render { text ->
-                        primaryButton(text="Import", iconSource = SvgIconSource.Upload) {
-                            disabled(text.isBlank())
-                            clicks handledBy {
-                                val decoded = DEFAULT_JSON.decodeFromString<List<MetricsOutput>>(text)
-                                metricsOutputStore.update(decoded)
+                    row {
+                        primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
+                            clicks handledBy metricsOutputStore.measure
+                        }
+                        jsonDownloadButton(
+                            metricsOutputStore,
+                            "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
+                            ListSerializer(MetricsOutput.serializer())
+                        )
+                        val textStore = storeOf("")
+                        textStore.data.render { text ->
+                            primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
+                                disabled(text.isBlank())
+                                clicks handledBy {
+                                    val decoded = DEFAULT_JSON.decodeFromString<List<MetricsOutput>>(text)
+                                    metricsOutputStore.update(decoded)
+                                }
                             }
                         }
+                        textFileInput(
+                            fileType = ".json", textStore = textStore
+                        )
                     }
-                    textFileInput(
-                        fileType = ".json", textStore = textStore
-                    )
-                }
 
-                metricsOutputStore.data.render { metrics ->
-                    div("w-full") {
-                        metrics?.forEach { (_, metric, metricResult) ->
-                            metricResult(expandedState, metric, metricResult)
+                    metricsOutputStore.data.render { metrics ->
+                        div("w-full") {
+                            metrics?.forEach { (_, metric, metricResult) ->
+                                metricResult(expandedState, metric, metricResult)
+                            }
                         }
                     }
                 }

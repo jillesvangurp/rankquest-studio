@@ -58,7 +58,7 @@ class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfigurati
         }.also { newConfigs ->
             val active = activeSearchPluginConfigurationStore.current
             newConfigs.forEach {
-                if(it.id ==active?.id) {
+                if (it.id == active?.id) {
                     activeSearchPluginConfigurationStore.update(it)
                 }
             }
@@ -67,7 +67,7 @@ class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfigurati
     val remove = handle<String> { old, id ->
         confirm {
             update((current ?: listOf()).filter { it.id != id })
-            if(activeSearchPluginConfigurationStore.current?.id ==id) {
+            if (activeSearchPluginConfigurationStore.current?.id == id) {
                 activeSearchPluginConfigurationStore.update(null)
             }
         }
@@ -113,116 +113,114 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
 }
 
 fun RenderContext.pluginConfiguration() {
-    val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
-    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-    div {
+    centeredMainPanel {
+        val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
+        val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
         activeSearchPluginConfigurationStore.data.render { activePluginConfig ->
             val activeIsDemo = activePluginConfig?.id in demoSearchPlugins.map { it.id }
             val showDemoContentStore = storeOf(activeIsDemo)
-            div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
-                if (activePluginConfig != null) {
-                    para {
-                        +"Current configuration: "
-                        strong {
-                            +activePluginConfig.name
-                        }
+            if (activePluginConfig != null) {
+                para {
+                    +"Current configuration: "
+                    strong {
+                        +activePluginConfig.name
                     }
-                } else {
-                    para { +"No active search plugin comfiguration" }
                 }
-                val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
+            } else {
+                para { +"No active search plugin comfiguration" }
+            }
+            val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
 
-                showDemoContentStore.data.filterNotNull().render { showDemoContent ->
-                    pluginConfigurationStore.data.filterNotNull().render { configurations ->
-                        configurations.also {
-                            if (it.isEmpty()) {
-                                para {
-                                    +"""You have no search plugin configurations yet. Add a 
+            showDemoContentStore.data.filterNotNull().render { showDemoContent ->
+                pluginConfigurationStore.data.filterNotNull().render { configurations ->
+                    configurations.also {
+                        if (it.isEmpty()) {
+                            para {
+                                +"""You have no search plugin configurations yet. Add a 
                                     |configuration or use one of the demo configurations.""".trimMargin()
-                                }
                             }
-                        }.forEach { pluginConfig ->
-                            val metricConfigurationsStore = storeOf(pluginConfig.metrics)
-                            metricConfigurationsStore.data handledBy { newMetrics ->
-                                pluginConfigurationStore.addOrReplace(
-                                    pluginConfig.copy(
-                                        metrics = newMetrics
-                                    )
+                        }
+                    }.forEach { pluginConfig ->
+                        val metricConfigurationsStore = storeOf(pluginConfig.metrics)
+                        metricConfigurationsStore.data handledBy { newMetrics ->
+                            pluginConfigurationStore.addOrReplace(
+                                pluginConfig.copy(
+                                    metrics = newMetrics
                                 )
+                            )
+                        }
+                        val showMetricsEditor = storeOf(false)
+                        div("flex flex-row w-full items-center") {
+                            div("mr-5 w-2/6 text-right") {
+                                +pluginConfig.name
                             }
-                            val showMetricsEditor = storeOf(false)
-                            div("flex flex-row w-full items-center") {
-                                div("mr-5 w-2/6 text-right") {
-                                    +pluginConfig.name
+                            div("w-4/6 flex flex-row place-items-center") {
+                                secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
+                                    // can't edit the demo plugins
+                                    disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
+                                    clicks.map { pluginConfig } handledBy editConfigurationStore.update
                                 }
-                                div("w-4/6 flex flex-row place-items-center") {
-                                    secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
-                                        // can't edit the demo plugins
-                                        disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
-                                        clicks.map { pluginConfig } handledBy editConfigurationStore.update
-                                    }
-                                    secondaryButton(text = "Metrics", iconSource = SvgIconSource.Equalizer) {
-                                        clicks.map { true } handledBy showMetricsEditor.update
-                                    }
-
-                                    secondaryButton(text = "Delete", iconSource = SvgIconSource.Cross) {
-                                        clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
-                                    }
-                                    jsonDownloadButton(
-                                        pluginConfig, "${pluginConfig.name}.json", SearchPluginConfiguration.serializer()
-                                    )
-                                    val inUse = activePluginConfig?.id == pluginConfig.id
-                                    primaryButton(text = if(inUse) "Current" else "Use") {
-                                        disabled(inUse)
-                                        clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
-                                    }
+                                secondaryButton(text = "Metrics", iconSource = SvgIconSource.Equalizer) {
+                                    clicks.map { true } handledBy showMetricsEditor.update
                                 }
-                                metricsEditor(showMetricsEditor, metricConfigurationsStore)
 
+                                secondaryButton(text = "Delete", iconSource = SvgIconSource.Cross) {
+                                    clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
+                                }
+                                jsonDownloadButton(
+                                    pluginConfig, "${pluginConfig.name}.json", SearchPluginConfiguration.serializer()
+                                )
+                                val inUse = activePluginConfig?.id == pluginConfig.id
+                                primaryButton(text = if (inUse) "Current" else "Use") {
+                                    disabled(inUse)
+                                    clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                                }
+                            }
+                            metricsEditor(showMetricsEditor, metricConfigurationsStore)
+
+                        }
+                    }
+                    listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
+
+                    switchField("Show Demo Plugins") {
+                        value(showDemoContentStore)
+                    }
+                    if (showDemoContent) {
+                        secondaryButton {
+                            +"Add Movie Quotes Search"
+                            clicks handledBy {
+                                val c = movieQuotesSearchPluginConfig
+                                if (pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
+                                    pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                }
                             }
                         }
-                        listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
-
-                        switchField("Show Demo Plugins") {
-                            value(showDemoContentStore)
-                        }
-                        if(showDemoContent) {
-                            secondaryButton {
-                                +"Add Movie Quotes Search"
-                                clicks handledBy {
-                                    val c = movieQuotesSearchPluginConfig
-                                    if(pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
-                                        pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
-                                    }
-                                }
-                            }
-                            secondaryButton {
-                                +"Add Movie Quotes Search with n-grams"
-                                clicks handledBy {
-                                    val c = movieQuotesNgramsSearchPluginConfig
-                                    if(pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
-                                        pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
-                                    }
+                        secondaryButton {
+                            +"Add Movie Quotes Search with n-grams"
+                            clicks handledBy {
+                                val c = movieQuotesNgramsSearchPluginConfig
+                                if (pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
+                                    pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                createOrEditPlugin(editConfigurationStore)
+            createOrEditPlugin(editConfigurationStore)
 
-                if (activePluginConfig != null) {
-                    val showStore = storeOf(false)
-                    showStore.data.render { show ->
-                        a {
-                            +"Show json"
-                            clicks.map { showStore.current.not() } handledBy showStore.update
-                        }
-                        if (show) {
-                            pre("overflow-auto w-full") {
-                                console.log(DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig))
-                                +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
-                            }
+            if (activePluginConfig != null) {
+                val showStore = storeOf(false)
+                showStore.data.render { show ->
+                    a {
+                        +"Show json"
+                        clicks.map { showStore.current.not() } handledBy showStore.update
+                    }
+                    if (show) {
+                        pre("overflow-auto w-full") {
+                            console.log(DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig))
+                            +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
                         }
                     }
                 }
@@ -236,7 +234,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
-        div("flex flex-row") {
+        row {
             BuiltinPlugins.entries.forEach { p ->
                 primaryButton {
                     +"New ${p.name}"
@@ -294,7 +292,7 @@ fun RenderContext.jsonGetEditor(
         p {
             +"NOT IMPLEMENTED YET"
         }
-        div("flex flex-row") {
+        row {
             secondaryButton {
                 +"Cancel"
                 clicks.map { "_" } handledBy selectedPluginStore.update
@@ -323,7 +321,7 @@ fun RenderContext.jsonPostEditor(
         p {
             +"NOT IMPLEMENTED YET"
         }
-        div("flex flex-row") {
+        row {
             secondaryButton {
                 +"Cancel"
                 clicks.map { "_" } handledBy selectedPluginStore.update
@@ -440,7 +438,7 @@ fun RenderContext.elasticsearchEditor(
 
         val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
 
-        div("flex flex-row") {
+        row {
             secondaryButton {
                 +"Cancel"
                 clicks.map { "_" } handledBy selectedPluginStore.update
@@ -496,14 +494,14 @@ fun RenderContext.metricsEditor(
                     h2 { +"Metric Configuration" }
                     mcs.forEach { mc ->
                         div("flex flex-row place-items-center") {
-                        div("flex flex-col") {
-                            div {
-                                +"${mc.name} (${mc.metric})"
+                            div("flex flex-col") {
+                                div {
+                                    +"${mc.name} (${mc.metric})"
+                                }
+                                div {
+                                    +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
+                                }
                             }
-                            div {
-                                +mc.params.map { "${it.name} = ${it.value}" }.joinToString(", ")
-                            }
-                        }
                             secondaryButton {
                                 +"Delete"
                                 clicks handledBy {
@@ -521,7 +519,7 @@ fun RenderContext.metricsEditor(
                             val paramMap = mc.params.map { it.name to storeOf(it.value.content) }.toMap()
                             if (editMetricConfiguration?.name == mc.name) {
                                 val nameStore = storeOf(mc.name)
-                                textField("","name") {
+                                textField("", "name") {
                                     value(nameStore)
                                 }
                                 mc.params.forEach { p ->
@@ -529,7 +527,7 @@ fun RenderContext.metricsEditor(
                                         value(paramMap[p.name]!!)
                                     }
                                 }
-                                div("flex flex-row") {
+                                row {
                                     secondaryButton {
                                         +"Cancel"
                                         clicks handledBy {
@@ -588,7 +586,7 @@ fun RenderContext.metricsEditor(
                                     para {
                                         +"What metric type do you want to create?"
                                     }
-                                    div("flex flex-row gap-3") {
+                                    row {
                                         Metric.entries.forEach { metric ->
                                             a {
                                                 +metric.name
@@ -602,7 +600,7 @@ fun RenderContext.metricsEditor(
                                     textField("", "Metric Name", "Pick a unique name") {
                                         value(metricNameStore)
                                     }
-                                    div("flex flex-row") {
+                                    row {
                                         secondaryButton {
                                             +"Cancel"
                                             clicks handledBy {
@@ -636,7 +634,7 @@ fun RenderContext.metricsEditor(
                         } else {
                             editMetricStore.data.render { currentMetric ->
                                 if (currentMetric == null) {
-                                    div("flex flex-row") {
+                                    row {
                                         secondaryButton {
                                             +"Cancel"
                                             clicks handledBy {
@@ -656,7 +654,7 @@ fun RenderContext.metricsEditor(
                     }
                 }
             }
-            div("flex flex-row") {
+            row {
                 secondaryButton {
                     +"Cancel"
                     clicks.map { false } handledBy showMetricsEditor.update
@@ -717,7 +715,7 @@ fun RenderContext.templateVarEditor(
                 is SearchContextField.StringField -> storeOf(field.placeHolder)
             }
 
-            div("flex flex-row") {
+            row {
                 textField("", "name") {
                     value(nameStore)
                 }
@@ -783,7 +781,7 @@ fun RenderContext.templateVarEditor(
                 }
             }
 
-            div("flex flex-row") {
+            row {
                 typeStore.data.render { fieldType ->
                     div {
                         primaryButton {
