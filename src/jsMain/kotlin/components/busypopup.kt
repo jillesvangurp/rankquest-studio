@@ -48,7 +48,6 @@ suspend fun <R> busyResult(
     busyStore.withBusyState(supplier, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
-
 fun busyPopupMountPoint() {
     val busyStore = koin.get<BusyStore>()
     modal {
@@ -100,6 +99,7 @@ fun busyPopupMountPoint() {
                                         +"..."
                                     }
                                 }
+                                setInitialFocus()
                             }
                         }
                     }
