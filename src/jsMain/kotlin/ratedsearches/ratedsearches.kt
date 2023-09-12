@@ -181,7 +181,7 @@ fun RenderContext.ratedSearch(showStore: Store<Map<String, Boolean>>, ratedSearc
 
                 div("") {
                     p { +"RsId: ${ratedSearch.id} Rated documents" }
-                    div("flex flex-row w-full gap-3 items-center") {
+                    div("flex flex-row w-full gap-2 items-center") {
                         div("w-1/12 bg-blueMuted-200") {
                             +"Doc Id"
                         }
@@ -193,7 +193,7 @@ fun RenderContext.ratedSearch(showStore: Store<Map<String, Boolean>>, ratedSearc
                         div("w-3/12 bg-blueMuted-200") { +"Comment" }
                     }
                     ratedSearch.ratings.sortedByDescending { it.rating }.forEach { searchResultRating ->
-                        div("flex flex-row w-full gap-3 border-t border-blueMuted-200") {
+                        div("flex flex-row w-full gap-2 border-t border-blueMuted-200") {
                             div("w-1/12 bg-blueBright-50") {
                                 iconButton(SvgIconSource.Delete, title = "Remove this result") {
                                     clicks.map {

@@ -1,4 +1,5 @@
 import components.busyPopupMountPoint
+import components.row
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
@@ -16,10 +17,10 @@ suspend fun main() {
     render("#target") { // using id selector here, leave blank to use document.body by default
         div("h-screen flex flex-col overflow-hidden") {
             div("bg-blueBright-50 p-1.5 flex flex-col md:flex-row w-full align-middle justify-between") {
-                div("flex flex-row gap-x-3") {
+                row {
                     rankQuestStudio()
                 }
-                div("flex flex-col md:flex-row gap-x-3 overflow-auto") {
+                div("flex flex-col md:flex-row gap-2 overflow-auto") {
                     menu()
                 }
             }

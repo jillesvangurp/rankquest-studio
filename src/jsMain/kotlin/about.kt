@@ -9,7 +9,7 @@ fun RenderContext.about() {
     div("mx-auto w-5/6 bg-blueBright-50 p-10") {
 
 
-        div("flex flex-row gap-3") {
+        div("flex flex-row gap-2") {
             a {
                 +"License"
                 clicks.map { Page.License.route } handledBy router.navTo
