@@ -4,6 +4,7 @@ import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
 import dev.fritz2.core.transition
 import dev.fritz2.headless.components.modal
+import dev.fritz2.headless.foundation.setInitialFocus
 import handlerScope
 import koin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +33,7 @@ suspend fun <T> runWithBusy(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    },successMessage, initialTitle, initialMessage, errorResult, processResult)
+    }, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
 suspend fun <R> busyResult(
@@ -52,41 +53,53 @@ fun busyPopupMountPoint() {
     val busyStore = koin.get<BusyStore>()
     modal {
         openState(busyStore)
-        modalPanel {
-            modalOverlay("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
-                // some nice fade in/out effect for the overlay
-                transition(
-                    enter = "ease-out duration-300",
-                    enterStart = "opacity-0",
-                    enterEnd = "opacity-100",
-                    leave = "ease-in duration-200",
-                    leaveStart = "opacity-100",
-                    leaveEnd = "opacity-0"
-                )
-            }
-            modalTitle("absolute top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white w-96 p-5") {
-                div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2") {
-                    busyStore.titleStore.data.renderText(this)
+        modalPanel("w-full fixed z-10 inset-0 overflow-y-auto") {
+            div("flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0") {
+                modalOverlay("fixed inset-0 bg-blueMuted-300 bg-opacity-75 transition-opacity") {
+                    transition(
+                        "ease-out duration-300",
+                        "opacity-0",
+                        "opacity-100",
+                        "ease-in duration-200",
+                        "opacity-100",
+                        "opacity-0"
+                    )
                 }
-            }
-            div("absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white h-96 w-96 p-5") {
-                transition(
-                    enter = "transition duration-100 ease-out",
-                    enterStart = "opacity-0 scale-95",
-                    enterEnd = "opacity-100 scale-100",
-                    leave = "transition duration-100 ease-in",
-                    leaveStart = "opacity-100 scale-100",
-                    leaveEnd = "opacity-0 scale-95"
-                )
-                // FIXME nice spinner thingy goes here
-                div("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ") {
-                    div("flex flex-col items-center") {
-                        para {
-                            busyStore.messageStore.data.renderText(this)
+                /* <!-- This element is to trick the browser into centering the modal contents. --> */
+                span("hidden sm:inline-block sm:align-middle sm:h-screen") {
+                    attr("aria-hidden", "true")
+                    +" "
+                }
+                div(
+                    """inline-block align-bottom sm:align-middle w-full sm:max-w-4xl px-6 py-5 sm:p-14 
+                    | bg-white rounded-lg
+                    | shadow-xl transform transition-all 
+                    | text-left overflow-hidden""".trimMargin()
+                ) {
+                    transition(
+                        "ease-out duration-300",
+                        "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+                        "opacity-100 translate-y-0 sm:scale-100",
+                        "ease-in duration-200",
+                        "opacity-100 translate-y-0 sm:scale-100",
+                        "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    )
+                    div("mt-3 text-center sm:mt-0 sm:text-left") {
+                        modalTitle("text-white bg-blueBright-700 p-2 items-center") {
+                            paraCentered {
+                                busyStore.titleStore.data.renderText(this)
+                            }
                         }
-                        div("inline-block h-20 w-20 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
-                            span("!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]") {
-                                +"..."
+                        div("mt-2") {
+                            div("flex flex-col items-center") {
+                                para {
+                                    busyStore.messageStore.data.renderText(this)
+                                }
+                                div("inline-block h-20 w-20 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]") {
+                                    span("!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]") {
+                                        +"..."
+                                    }
+                                }
                             }
                         }
                     }
@@ -113,7 +126,11 @@ class BusyStore : RootStore<Boolean>(false) {
         messageStore.update(initialMessage)
         update(true)
         handlerScope.launch {
-            val result = supplier.invoke()
+            val result = try {
+                supplier.invoke()
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
             result.fold({
                 processResult.invoke(it)
                 titleStore.update(successMessage)
