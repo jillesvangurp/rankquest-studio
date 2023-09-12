@@ -3,6 +3,7 @@ package components
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import dev.fritz2.core.*
+import dev.fritz2.headless.foundation.setInitialFocus
 import dev.fritz2.routing.encodeURIComponent
 import kotlinx.browser.document
 import kotlinx.serialization.KSerializer

@@ -125,7 +125,7 @@ private fun RenderContext.metricResult(
 
             val rss = ratedsearches?.associateBy { it.id }.orEmpty()
 
-            div("flex flex-col mx-10 my-3 hover:bg-blueBright-50 p-3 rounded-lg border-2 border-blueBright-400") {
+            div("flex flex-col mx-10 my-3 hover:bg-blueBright-50 p-2 rounded-lg border-2 border-blueBright-400") {
                 div("flex flex-row w-full align-middle justify-between") {
                     h2 {
                         +metricConfiguration.name

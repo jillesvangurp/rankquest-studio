@@ -16,7 +16,7 @@ suspend fun main() {
     koinInit()
     render("#target") { // using id selector here, leave blank to use document.body by default
         div("h-screen flex flex-col overflow-hidden") {
-            div("bg-blueBright-50 p-1.5 flex flex-col md:flex-row w-full align-middle justify-between") {
+            div("bg-blueBright-50 p-2 flex flex-col md:flex-row w-full align-middle justify-between") {
                 row {
                     rankQuestStudio()
                 }

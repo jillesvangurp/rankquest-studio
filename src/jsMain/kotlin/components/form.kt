@@ -63,7 +63,7 @@ fun RenderContext.textAreaField(
             textareaTextfield(
                 """w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 
                 |text-blueBright-900 text-sm rounded-lg focus:ring-blueBright-500 
-                |focus:border-blueBright-500 p-2.5""".trimMargin()
+                |focus:border-blueBright-500 p-2""".trimMargin()
             ) {
                 placeHolder?.let { pl ->
                     placeholder(pl)
@@ -182,7 +182,7 @@ fun RenderContext.selectBox(
             // using a loop is a typical pattern to create the options
             (listOfNotNull(emptyItem) + items).forEach { entry ->
                 listboxItem(entry) {
-                    span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2.5") { +entry }
+                    span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2") { +entry }
                 }
             }
         }
