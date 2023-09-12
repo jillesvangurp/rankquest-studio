@@ -113,8 +113,7 @@ fun RenderContext.pluginConfiguration() {
         val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
         val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
         activeSearchPluginConfigurationStore.data.render { activePluginConfig ->
-            val activeIsDemo = activePluginConfig?.id in demoSearchPlugins.map { it.id }
-            val showDemoContentStore = storeOf(activeIsDemo)
+            val showDemoContentStore = storeOf(false)
             if (activePluginConfig != null) {
                 para {
                     +"Current configuration: "
