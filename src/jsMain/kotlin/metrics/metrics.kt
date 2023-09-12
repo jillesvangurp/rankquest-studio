@@ -3,6 +3,7 @@ package metrics
 import Page
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.MetricResults
+import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
@@ -81,23 +82,15 @@ fun RenderContext.metrics() {
                             clicks handledBy metricsOutputStore.measure
                         }
                         jsonDownloadButton(
-                            metricsOutputStore,
-                            "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
-                            ListSerializer(MetricsOutput.serializer())
+                            contentStore = metricsOutputStore,
+                            fileName = "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
+                            serializer = ListSerializer(MetricsOutput.serializer())
                         )
-                        val textStore = storeOf("")
-                        textStore.data.render { text ->
-                            primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
-                                disabled(text.isBlank())
-                                clicks handledBy {
-                                    val decoded = DEFAULT_JSON.decodeFromString<List<MetricsOutput>>(text)
-                                    metricsOutputStore.update(decoded)
-                                }
-                            }
+
+                        jsonFileImport(ListSerializer(MetricsOutput.serializer())) { decoded ->
+                            metricsOutputStore.update(decoded)
                         }
-                        textFileInput(
-                            fileType = ".json", textStore = textStore
-                        )
+
                     }
 
                     metricsOutputStore.data.render { metrics ->

@@ -1,11 +1,9 @@
 package searchpluginconfig
 
-import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
-import com.jilesvangurp.rankquest.core.plugins.ElasticsearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.RenderContext
@@ -25,15 +23,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.SearchResultsStore
-import utils.md5Hash
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
-
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
@@ -239,28 +232,6 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
-//        row {
-//            BuiltinPlugins.entries.forEach { p ->
-//                primaryButton {
-//                    +"New ${p.name}"
-//                    clicks.map { p.name } handledBy selectedPluginTypeStore.update
-//                }
-//            }
-//            val textStore = storeOf("")
-//            textStore.data.render { text ->
-//                primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
-//                    disabled(text.isBlank())
-//                    clicks handledBy {
-//                        val decoded = DEFAULT_JSON.decodeFromString<SearchPluginConfiguration>(text)
-//                        pluginConfigurationStore.addOrReplace(decoded)
-//                    }
-//                }
-//            }
-//            textFileInput(
-//                fileType = ".json",
-//                textStore = textStore
-//            )
-//        }
         row {
             BuiltinPlugins.entries.forEach { p ->
                 primaryButton {
@@ -278,7 +249,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                 overlayLarge {
                     val configNameStore = storeOf(plugin.name)
 
-                    div("flex flex-col items-left space-y-1 w-3/6 items-center m-auto") {
+                    div("flex flex-col items-left space-y-1 w-5/6 items-center m-auto") {
                         h1 { +"New search configuration for $selectedPlugin" }
                         textField(
                             placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
@@ -294,213 +265,20 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                             )
 
                             BuiltinPlugins.JsonGetAPIPlugin -> {
-                                jsonGetEditor(
+                                httpGetPluginEditor(
                                     selectedPluginStore = selectedPluginTypeStore,
+                                    configNameStore = configNameStore,
                                     editConfigurationStore = editConfigurationStore
                                 )
                             }
 
-                            BuiltinPlugins.JsonPostAPIPlugin -> {
-                                jsonPostEditor(
-                                    selectedPluginStore = selectedPluginTypeStore,
-                                    editConfigurationStore = editConfigurationStore
-                                )
-                            }
+                            BuiltinPlugins.JsonPostAPIPlugin -> httpPostPluginEditor(
+                                selectedPluginStore = selectedPluginTypeStore,
+                                configNameStore = configNameStore,
+                                editConfigurationStore = editConfigurationStore
+                            )
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
-fun RenderContext.jsonGetEditor(
-    selectedPluginStore: Store<String>, editConfigurationStore: Store<SearchPluginConfiguration?>
-) {
-    editConfigurationStore.data.render { existing ->
-        p {
-            +"NOT IMPLEMENTED YET"
-        }
-        row {
-            secondaryButton {
-                +"Cancel"
-                clicks.map { "_" } handledBy selectedPluginStore.update
-            }
-            primaryButton {
-                if (existing == null) {
-                    +"Add Configuration"
-                } else {
-                    +"Save"
-                }
-                clicks handledBy {
-                    // hide the overlay
-                    selectedPluginStore.update("-")
-                    editConfigurationStore.update(null)
-                }
-            }
-        }
-    }
-}
-
-fun RenderContext.jsonPostEditor(
-    selectedPluginStore: Store<String>, editConfigurationStore: Store<SearchPluginConfiguration?>
-) {
-    editConfigurationStore.data.render { existing ->
-        p {
-            +"NOT IMPLEMENTED YET"
-        }
-        row {
-            secondaryButton {
-                +"Cancel"
-                clicks.map { "_" } handledBy selectedPluginStore.update
-            }
-            primaryButton {
-                if (existing == null) {
-                    +"Add Configuration"
-                } else {
-                    +"Save"
-                }
-                clicks handledBy {
-                    // hide the overlay
-                    selectedPluginStore.update("-")
-                    editConfigurationStore.update(null)
-                }
-            }
-        }
-    }
-}
-
-fun RenderContext.elasticsearchEditor(
-    selectedPluginStore: Store<String>,
-    configNameStore: Store<String>,
-    editConfigurationStore: Store<SearchPluginConfiguration?>
-) {
-    editConfigurationStore.data.render { existing ->
-        val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
-        val settings = existing?.pluginSettings?.let {
-            DEFAULT_JSON.decodeFromJsonElement(
-                ElasticsearchPluginConfiguration.serializer(), it
-            )
-        }
-
-        val queryTemplateStore = storeOf(
-            settings?.queryTemplate ?: """
-            {
-              "size": {{ size }}, 
-              "query": {
-                
-                "multi_match": {
-                  "query": "{{ text }}",
-                  "fields": ["title^2","description","ingredients","directions","author.name"],
-                  "fuzziness": "AUTO"
-                }
-              }
-            }
-        """.trimIndent()
-        )
-        val indexStore = storeOf(settings?.index ?: "")
-        val labelFieldsStore = storeOf(settings?.labelFields?.joinToString(", ") ?: "titel, author.name")
-        val hostStore = storeOf(settings?.host ?: "localhost")
-        val portStore = storeOf(settings?.port?.toString() ?: "")
-        val httpsStore = storeOf(settings?.https ?: false)
-        val userStore = storeOf(settings?.user ?: "")
-        val passwordStore = storeOf(settings?.password ?: "")
-        val loggingStore = storeOf(settings?.logging ?: false)
-
-        textField("myindex", "index", "Index or alias name that you want to query") {
-            value(indexStore)
-        }
-        textField(
-            "localhost", "host", ""
-        ) {
-            value(hostStore)
-        }
-        textField(
-            "9200", "port", ""
-        ) {
-            value(portStore)
-        }
-        switchField("Https", "Use https:// instead of http://") {
-            value(httpsStore)
-        }
-        switchField(
-            "Logging", "Turn on request logging in the client (use the browser console)."
-        ) {
-            value(loggingStore)
-        }
-
-        textField(
-            "elastic", "user", ""
-        ) {
-            value(userStore)
-        }
-        textField(
-            "secret", "password", ""
-        ) {
-            value(passwordStore)
-        }
-        textAreaField(
-            placeHolder = """
-            {
-              "query": {
-                "match": {
-                  "title": "{{ query }}"
-                }
-              }
-            }""".trimIndent(),
-            label = "Query Template",
-            description = "Paste a query and use variable names surrounded " + "by {{ myvariable }} where parameters from your search context will be substituted"
-        ) {
-            value(queryTemplateStore)
-        }
-        textField(
-            "title,author",
-            "Label fields",
-            "Comma separated list of fields that will be used to generate the labels for your search results"
-        ) {
-            value(labelFieldsStore)
-        }
-
-        val templateVariableStore = storeOf(existing?.fieldConfig.orEmpty())
-        templateVarEditor(templateVariableStore, queryTemplateStore)
-
-        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
-
-        row {
-            secondaryButton {
-                +"Cancel"
-                clicks.map { "_" } handledBy selectedPluginStore.update
-            }
-            primaryButton {
-                if (existing == null) {
-                    +"Add Configuration"
-                } else {
-                    +"Save"
-                }
-                clicks.map {
-                    SearchPluginConfiguration(
-                        id = existing?.id ?: md5Hash(Random.nextLong()),
-                        name = configNameStore.current,
-                        pluginType = BuiltinPlugins.ElasticSearch.name,
-                        fieldConfig = templateVariableStore.current,
-                        metrics = metricConfigurationsStore.current,
-                        pluginSettings = ElasticsearchPluginConfiguration(
-                            queryTemplate = queryTemplateStore.current,
-                            index = indexStore.current,
-                            labelFields = labelFieldsStore.current.split(',').map { it.trim() },
-                            host = hostStore.current,
-                            port = portStore.current.toIntOrNull() ?: 9200,
-                            https = httpsStore.current,
-                            user = userStore.current,
-                            password = passwordStore.current,
-                            logging = loggingStore.current
-                        ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement(it) }.jsonObject
-                    )
-                } handledBy pluginConfigurationStore.addOrReplace
-                clicks handledBy {
-                    // hide the overlay
-                    selectedPluginStore.update("")
-                    editConfigurationStore.update(null)
                 }
             }
         }
@@ -697,135 +475,6 @@ fun RenderContext.metricsEditor(
 }
 
 
-fun RenderContext.templateVarEditor(
-    templateVarStore: Store<List<SearchContextField>>, queryTemplateStore: Store<String>
-) {
-    queryTemplateStore.data handledBy {
-        // make sure any new variables from the template are added
-        val templateVarsRE = "\\{\\{\\s*(.*?)\\s*\\}\\}".toRegex(RegexOption.MULTILINE)
-        val newVars = templateVarsRE.findAll(queryTemplateStore.current).let { matchResult ->
-            matchResult.mapNotNull { m ->
-                m.groups[1]?.value?.let { field ->
-                    console.log(field)
-                    SearchContextField.StringField(field)
-                }
-            }
-        }.sortedBy { it.name }.distinctBy { it.name }.toList()
 
-        newVars.filter { newVar ->
-            console.log(newVar, templateVarStore.current.toString())
-            templateVarStore.current.firstOrNull { it.name == newVar.name } == null
-        }.takeIf { it.isNotEmpty() }?.let { fields ->
-            console.log(fields.toString())
-            templateVarStore.update((templateVarStore.current + fields).distinctBy { it.name })
-        }
-    }
-
-    h2 { +"Search Context Variables" }
-    templateVarStore.data.render { fields ->
-
-        fields.forEach { field ->
-            val nameStore = storeOf(field.name)
-            val typeStore = storeOf(field::class.simpleName!!)
-            val defaultValueStore = when (field) {
-                is SearchContextField.BoolField -> storeOf(field.defaultValue.toString())
-                is SearchContextField.IntField -> storeOf(field.defaultValue.toString())
-                is SearchContextField.StringField -> storeOf(field.defaultValue)
-            }
-            val placeHolderStore = when (field) {
-                is SearchContextField.BoolField -> storeOf("")
-                is SearchContextField.IntField -> storeOf(field.placeHolder)
-                is SearchContextField.StringField -> storeOf(field.placeHolder)
-            }
-
-            row {
-                textField("", "name") {
-                    value(nameStore)
-                }
-                defaultValueStore.data.render { defaultValue ->
-                    when (field) {
-                        is SearchContextField.BoolField -> {
-                            val boolStore = storeOf(defaultValue.toBoolean())
-                            boolStore.data handledBy {
-                                defaultValueStore.update(it.toString())
-                            }
-                            switchField {
-                                value(boolStore)
-                            }
-                        }
-
-                        else -> {
-                            textField("", "Default Value") {
-                                value(defaultValueStore)
-                            }
-                            textField("", "PlaceHolder") {
-                                value(placeHolderStore)
-                            }
-
-                        }
-                    }
-                }
-                primaryButton {
-                    +"OK"
-                    clicks handledBy {
-                        val updatedField = when (typeStore.current) {
-                            SearchContextField.BoolField::class.simpleName!! -> {
-                                SearchContextField.BoolField(
-                                    name = nameStore.current, defaultValue = defaultValueStore.current.toBoolean()
-                                )
-                            }
-
-                            SearchContextField.IntField::class.simpleName!! -> {
-                                SearchContextField.IntField(
-                                    name = nameStore.current,
-                                    defaultValue = defaultValueStore.current.toIntOrNull() ?: 0,
-                                    placeHolder = placeHolderStore.current,
-                                )
-
-                            }
-
-                            else -> {
-                                SearchContextField.StringField(
-                                    name = nameStore.current,
-                                    defaultValue = defaultValueStore.current,
-                                    placeHolder = placeHolderStore.current,
-                                )
-                            }
-                        }
-                        templateVarStore.update(templateVarStore.current.map {
-                            if (it.name == updatedField.name) {
-                                updatedField
-                            } else {
-                                it
-                            }
-                        })
-                    }
-                }
-            }
-
-            row {
-                typeStore.data.render { fieldType ->
-                    div {
-                        primaryButton {
-                            +"int"
-                            disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
-                            clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
-                        }
-                        primaryButton {
-                            +"bool"
-                            disabled(fieldType == SearchContextField.BoolField::class.simpleName!!)
-                            clicks.map { SearchContextField.BoolField::class.simpleName!! } handledBy typeStore.update
-                        }
-                        primaryButton {
-                            +"string"
-                            disabled(fieldType == SearchContextField.StringField::class.simpleName!!)
-                            clicks.map { SearchContextField.StringField::class.simpleName!! } handledBy typeStore.update
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 

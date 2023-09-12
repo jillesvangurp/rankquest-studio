@@ -20,7 +20,7 @@ fun RenderContext.primaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = """m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
+    baseClass = """my-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
         |focus:ring-button-300 focus:ring-4 font-medium rounded-lg 
         |text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
     id = id,
@@ -49,7 +49,7 @@ fun RenderContext.secondaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "m-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = "my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
     id = id,
     scope = scope,
     content = {
@@ -74,7 +74,7 @@ fun RenderContext.navButton(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "mb-2 w-fit text-white bg-blueGrayMuted-600 hover:bg-blueGrayMuted-700 focus:ring-buttonNav-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = "my-2 w-fit text-white bg-blueGrayMuted-600 hover:bg-blueGrayMuted-700 focus:ring-buttonNav-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
     id = id,
     scope = scope,
     content = content
@@ -85,7 +85,7 @@ fun RenderContext.activeNavButton(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "mb-2 w-fit text-white bg-blueGray-600 hover:bg-blueGray-700 focus:ring-buttonNavAct-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = "my-2 w-fit text-white bg-blueGray-600 hover:bg-blueGray-700 focus:ring-buttonNavAct-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
     id = id,
     scope = scope,
     content = content

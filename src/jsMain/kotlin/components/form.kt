@@ -131,10 +131,10 @@ fun RenderContext.switchField(
 
 // "m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 focus:ring-button-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none"
 fun RenderContext.textFileInput(
-    fileType: String,
     textStore: Store<String>,
+    fileType: String=".json",
     fileInputId:String = "file-input-${Random.nextULong()}",
-    baseClass: String? = "file:m-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 focus:file:outline-none hover:file:cursor-pointer"
+    baseClass: String? = "file:my-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 focus:file:outline-none hover:file:cursor-pointer"
 ) {
     input(baseClass = baseClass, id = fileInputId) {
         type("file")

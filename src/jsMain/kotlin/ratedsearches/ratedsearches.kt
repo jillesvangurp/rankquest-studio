@@ -1,7 +1,6 @@
 package ratedsearches
 
 import Page
-import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
@@ -117,21 +116,9 @@ fun RenderContext.ratedSearches() {
                         "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
                         ListSerializer(RatedSearch.serializer())
                     )
-                    val textStore = storeOf("")
-                    textStore.data.render { text ->
-                        primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
-                            disabled(text.isBlank())
-                            clicks handledBy {
-                                val decoded = DEFAULT_JSON.decodeFromString<List<RatedSearch>>(text)
-                                console.log(decoded)
-                                ratedSearchesStore.update(decoded)
-                            }
-                        }
+                    jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
+                        ratedSearchesStore.update(decoded)
                     }
-                    textFileInput(
-                        fileType = ".json",
-                        textStore = textStore
-                    )
 
                 }
 
