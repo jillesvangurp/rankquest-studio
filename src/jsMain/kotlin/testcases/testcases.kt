@@ -95,51 +95,61 @@ fun RenderContext.testCases() {
         val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
 
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
-        activeSearchPluginConfigurationStore.data.filterNotNull().render { searchPluginConfiguration ->
+        activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
+            if(searchPluginConfiguration==null) {
+                p {
+                    +"You don't have any search plugins configured yet. Go to the "
+                    pageLink(Page.Conf)
+                    +" to fix it."
+                }
+            } else {
+                ratedSearchesStore.data.render { ratedSearches ->
 
-
-            ratedSearchesStore.data.render { ratedSearches ->
-
-                row {
-                    primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
-                        disabled(ratedSearches.isNullOrEmpty())
-                        clicks handledBy {
-                            confirm(
-                                "Are you sure you want to do this?",
-                                "This remove all your rated searches. Make sure to download your rated searches first!"
-                            ) {
-                                ratedSearchesStore.update(listOf())
-                                toast("messages", duration = 3.seconds.inWholeMilliseconds) {
-                                    +"Cleared!"
+                    row {
+                        primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
+                            disabled(ratedSearches.isNullOrEmpty())
+                            clicks handledBy {
+                                confirm(
+                                    "Are you sure you want to do this?",
+                                    "This remove all your rated searches. Make sure to download your rated searches first!"
+                                ) {
+                                    ratedSearchesStore.update(listOf())
+                                    toast("messages", duration = 3.seconds.inWholeMilliseconds) {
+                                        +"Cleared!"
+                                    }
                                 }
                             }
                         }
-                    }
-                    jsonDownloadButton(
-                        ratedSearchesStore,
-                        "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
-                        ListSerializer(RatedSearch.serializer())
-                    )
-                    jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
-                        ratedSearchesStore.update(decoded)
-                    }
-                    showDemoContentStore.data.render {showDemo->
-                        if (showDemo) {
-                            primaryButton {
-                                +"Load Demo Movies Search Test Cases"
-                                clicks handledBy {
-                                    confirm("Are you sure?", "This will override your current test cases. Download them first!") {
-                                        http("movie-quotes-test-cases.json").get().body().let<String, List<RatedSearch>> { body ->
-                                            DEFAULT_JSON.decodeFromString(body)
-                                        }.let { testCases ->
-                                            ratedSearchesStore.update(testCases)
+                        jsonDownloadButton(
+                            ratedSearchesStore,
+                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+                            ListSerializer(RatedSearch.serializer())
+                        )
+                        jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
+                            ratedSearchesStore.update(decoded)
+                        }
+                        showDemoContentStore.data.render { showDemo ->
+                            if (showDemo) {
+                                primaryButton {
+                                    +"Load Demo Movies Search Test Cases"
+                                    clicks handledBy {
+                                        confirm(
+                                            "Are you sure?",
+                                            "This will override your current test cases. Download them first!"
+                                        ) {
+                                            http("movie-quotes-test-cases.json").get().body()
+                                                .let<String, List<RatedSearch>> { body ->
+                                                    DEFAULT_JSON.decodeFromString(body)
+                                                }.let { testCases ->
+                                                ratedSearchesStore.update(testCases)
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    infoModal("Creating Test Cases","""
+                        infoModal(
+                            "Creating Test Cases", """
                             This screen allows you to review and modify your test cases. When you create a test case
                             from the search screen, the results simply get rated in descending order. You can use this 
                             screen to change the ratings. 
@@ -180,18 +190,20 @@ fun RenderContext.testCases() {
                             You can download your test cases as a json file and later re-import them. You should use
                             this feature to store your ratings in a safe place. A good practice is to keep them in a git
                             repository. You can create specialized ratings files for different use cases, topics, etc. 
-                        """.trimIndent())
+                        """.trimIndent()
+                        )
 
-                }
-
-                if (ratedSearches.isNullOrEmpty()) {
-                    p {
-                        +"Create some test cases from the search screen. "
-                        pageLink(Page.Search)
                     }
-                } else {
-                    ratedSearches.forEach { rs ->
-                        testCase(showStore, rs)
+
+                    if (ratedSearches.isNullOrEmpty()) {
+                        p {
+                            +"Create some test cases from the search screen. "
+                            pageLink(Page.Search)
+                        }
+                    } else {
+                        ratedSearches.forEach { rs ->
+                            testCase(showStore, rs)
+                        }
                     }
                 }
             }
