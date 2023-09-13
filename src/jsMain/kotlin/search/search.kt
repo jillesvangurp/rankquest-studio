@@ -105,7 +105,8 @@ fun RenderContext.searchScreen() {
                                 stores.map { (f, s) -> f to s.current }.toMap()
                             } handledBy activeSearchPluginConfigurationStore.search
                         }
-                        infoModal("The Search Tool","""
+                        infoPopup(
+                            "The Search Tool", """
                             You can use the search tool to explore your search service and convert 
                             the searches you do into test cases.
                             
@@ -121,7 +122,8 @@ fun RenderContext.searchScreen() {
                             that means you already have a test case with the same search context. If so, you can
                             modify it in the test cases screen. The id of each test case is a content hash of the 
                             search context.
-                        """.trimIndent())
+                        """.trimIndent()
+                        )
 
                     }
                     searchResults()

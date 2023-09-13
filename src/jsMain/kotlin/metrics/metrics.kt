@@ -88,7 +88,8 @@ fun RenderContext.metrics() {
                         jsonFileImport(ListSerializer(MetricsOutput.serializer())) { decoded ->
                             metricsOutputStore.update(decoded)
                         }
-                        infoModal("Exploring Metrics","""
+                        infoPopup(
+                            "Exploring Metrics", """
                             The metrics screen is of course the whole point of this application. After you've configured your 
                             search plugin and created your test cases, you can run and explore metrics in this screen.
                             
@@ -121,7 +122,8 @@ fun RenderContext.metrics() {
                             You can download results in json format and re-import it to explore the metrics later.
                             
                             Note, future versions of this tool may add the ability to compare metrics as well.
-                        """.trimIndent())
+                        """.trimIndent()
+                        )
 
                     }
 
@@ -155,7 +157,7 @@ private fun RenderContext.metricResult(
                     h2 {
                         +metricConfiguration.name
                     }
-                    infoModal(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
+                    infoPopup(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
                 }
 
                 div { +"Metric: ${+metricResult.metric}" }

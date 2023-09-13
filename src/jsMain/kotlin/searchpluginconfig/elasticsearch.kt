@@ -128,7 +128,46 @@ fun RenderContext.elasticsearchEditor(
             settingsGenerator = settingsGenerator,
             editConfigurationStore = editConfigurationStore,
             queryTemplateStore = queryTemplateStore,
+            "Configuring thw Elasticsearch Plugin",
+            """
+                This plugin allows you to query Elasticsearch or Opensearch.
+                
+                ## CORS headers for ELasticsearch                             
+                
+                Important: **make sure your elasticsearch server is configured to send cors headers**. Without
+                 this your browser will not allow this application to send requests to Elasticsearch.
+                
+                If you use docker-compose, you can add these settings: 
+                
+                ```
+                http.cors.enabled: "true"
+                http.cors.allow-origin: |-
+                "*"
+                http.cors.allow-methods: "OPTIONS, HEAD, GET, POST, PUT, DELETE"
+                http.cors.allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+
+                ```
+                ## Search context & query 
+                
+                You can configure a templated string to use as the query. Just prototype your query in for example
+                the Kibana dev console and copy it over.
+                
+                Any variables, which you should surround with `{{ my_variable }}`, will be added to your
+                search context variables.                
+                
+                You can further tweak those and configure default values.
+                
+                To extract information from the response you need to provide json paths to construct a label. 
+                You can use multiple nested fields (relative to `_source`).
+                
+                ## Compatibility
+                
+                This plugin uses [kt-search](https://github.com/jillesvangurp/kt-search) and should work with 
+                Elasticsearch 7 or newer as well as Opensearch 1 or newer. 
+                
+            """.trimIndent()
         )
+
     }
 }
 

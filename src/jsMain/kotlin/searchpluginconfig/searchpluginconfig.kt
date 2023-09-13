@@ -10,10 +10,8 @@ import examples.quotesearch.movieQuotesSearchPluginConfig
 import koin
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
@@ -63,7 +61,7 @@ fun RenderContext.pluginConfiguration() {
                             )
                         }
                         val showMetricsEditor = storeOf(false)
-                        div("flex flex-row w-full place-items-center justify-between") {
+                        leftRightRow {
                             div {
                                 +pluginConfig.name
                             }
@@ -99,7 +97,7 @@ fun RenderContext.pluginConfiguration() {
                         }
                     }
                     div("w-full place-items-end mt-10") {
-                        div("flex flex-row w-full place-items-center justify-between") {
+                        leftRightRow {
 //                            switchField("Show Demo Plugins") {
 //                                value(showDemoContentStore)
 //                            }
@@ -167,7 +165,7 @@ fun RenderContext.pluginConfiguration() {
 }
 
 private fun HtmlTag<HTMLDivElement>.help() {
-    infoModal(
+    infoPopup(
         title = "Configuration Screen",
         markdown = """
             The configuration screen is where you can configure your search plugins and metrics. 
@@ -249,7 +247,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                 overlayLarge {
                     val configNameStore = storeOf(plugin.name)
 
-                    div("flex flex-col items-left space-y-1 w-5/6 items-center m-auto") {
+                    div("flex flex-col items-left gap-y-2 w-5/6 items-center m-auto") {
                         h1 { +"New search configuration for $selectedPlugin" }
                         textField(
                             placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"

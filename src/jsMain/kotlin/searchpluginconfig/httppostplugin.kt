@@ -92,6 +92,24 @@ fun RenderContext.httpPostPluginEditor(
             settingsGenerator = settingsGenerator,
             editConfigurationStore = editConfigurationStore,
             queryTemplateStore = bodyTemplateStore,
+            helpTitle = "Configuring a REST POST API",
+            helpText = """
+                           This plugin is intended for APIs that return a Json object with a list of hits 
+                           in response to an HTTP POST with a request payload. You can configure the URL 
+                           and specify headers. 
+                            
+                           You can configure a templated string to use as the payload. Any variables,
+                           which you should surround with `{{ my_variable }}`, will be added to your
+                           search context variables.
+                           
+                           You can further tweak those and configure default values.
+                           
+                           To extract information from the response you need to provide json paths:
+                           
+                           - The path to the list with hits.
+                           - The relative path to the id field. For example `documentId`
+                           - A relative path to field that may be used as a label. For example `author.name`.
+                        """.trimIndent()
         )
     }
 }

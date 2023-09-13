@@ -1,9 +1,6 @@
 package components
 
-import dev.fritz2.core.HtmlTag
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.storeOf
-import dev.fritz2.core.transition
+import dev.fritz2.core.*
 import dev.fritz2.headless.components.modal
 import dev.fritz2.headless.foundation.setInitialFocus
 import koin
@@ -12,19 +9,19 @@ import org.w3c.dom.HTMLDivElement
 
 
 fun RenderContext.overlay(
-    baseClass: String? = "absolute top-48 left-1/2 z-50 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",
+    baseClass: String? = "absolute top-48 left-1/2 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
-    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
+    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-20") {
         div(baseClass, content = content)
     }
 }
 
 fun RenderContext.overlayLarge(
-    baseClass: String? = "mx-auto z-50 bg-white h-screen w-5/6 p-5 flex flex-col overflow-y-auto",
+    baseClass: String? = "mx-auto bg-white h-screen w-5/6 p-5 flex flex-col overflow-y-auto",
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
-    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
+    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-20") {
         div(baseClass, content = content)
     }
 }
@@ -39,7 +36,7 @@ suspend fun confirm(
     val openStateStore = storeOf(true)
     modal {
         openState(openStateStore)
-        modalPanel("w-full fixed z-10 inset-0 overflow-y-auto") {
+        modalPanel("w-full fixed inset-0 overflow-y-auto") {
             div("flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0") {
                 modalOverlay("fixed inset-0 bg-blueMuted-300 bg-opacity-75 transition-opacity") {
                     transition(
@@ -105,68 +102,20 @@ suspend fun confirm(
 }
 
 
-fun RenderContext.infoModal(title: String = "Title TODO", markdown: String, close: String = "Close") {
-    val openStateStore = storeOf(false)
+fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String) {
+    val infoPopoverOpenStore = storeOf(false)
     secondaryButton {
-        +"?"
-        clicks.map { true } handledBy openStateStore.update
+        +"???"
+        clicks.map { true } handledBy infoPopoverOpenStore.update
     }
-    modal {
-        openState(openStateStore)
-        modalPanel("w-full fixed z-10 inset-0 overflow-y-auto") {
-            div("flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0") {
-                modalOverlay("fixed inset-0 bg-blueMuted-300 bg-opacity-75 transition-opacity") {
-                    transition(
-                        "ease-out duration-300",
-                        "opacity-0",
-                        "opacity-100",
-                        "ease-in duration-200",
-                        "opacity-100",
-                        "opacity-0"
-                    )
-                    clicks.map { false } handledBy openStateStore.update
-                }
-                /* <!-- This element is to trick the browser into centering the modal contents. --> */
-                span("hidden sm:inline-block sm:align-middle sm:h-screen") {
-                    attr("aria-hidden", "true")
-                    +" "
-                }
-                div(
-                    """inline-block align-bottom sm:align-middle w-full sm:max-w-4xl px-6 py-5 sm:p-14 
-                    | bg-white rounded-lg
-                    | shadow-xl transform transition-all 
-                    | text-left overflow-hidden""".trimMargin()
-                ) {
-                    transition(
-                        "ease-out duration-300",
-                        "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
-                        "opacity-100 translate-y-0 sm:scale-100",
-                        "ease-in duration-200",
-                        "opacity-100 translate-y-0 sm:scale-100",
-                        "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    )
-                    div("mt-3 text-center sm:mt-0 sm:text-left") {
-                        modalTitle("text-white bg-blueBright-700 p-2 items-center") {
-                            paraCentered {
-                                +title
-                                setInitialFocus()
-                            }
-                        }
-                        div("mt-2") {
-
-                            div {
-
-                            }.domNode.innerHTML = renderMarkdown(markdown)
-                            div("flex flex-row place-items-center mx-auto w-fit overflow-y-auto") {
-                                primaryButton {
-                                    +close
-                                    clicks handledBy {
-                                        openStateStore.update(false)
-                                    }
-                                }
-                            }
-                        }
-                    }
+    infoPopoverOpenStore.data.render {opened ->
+        if(opened) {
+            overlayLarge {
+                h1 { +title }
+                markdownDiv(markdown)
+                primaryButton {
+                    +"Close"
+                    clicks.map { false } handledBy infoPopoverOpenStore.update
                 }
             }
         }
@@ -177,7 +126,7 @@ fun busyPopupMountPoint() {
     val busyStore = koin.get<BusyStore>()
     modal {
         openState(busyStore)
-        modalPanel("w-full fixed z-10 inset-0 overflow-y-auto") {
+        modalPanel("w-full fixed z-50 inset-0 overflow-y-auto") {
             div("flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0") {
                 modalOverlay("fixed inset-0 bg-blueMuted-300 bg-opacity-75 transition-opacity") {
                     transition(

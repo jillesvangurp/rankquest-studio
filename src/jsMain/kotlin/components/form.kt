@@ -20,25 +20,29 @@ fun RenderContext.textField(
     scope: (ScopeContext.() -> Unit) = {},
     initialize: InputField<HTMLDivElement>.() -> Unit
 ) {
-    inputField("flex flex-col border p-2 items-center w-full", id = id, scope = scope) {
-        initialize(this)
-        div("flex flex-row items-center w-full") {
-            label?.let { l ->
-                inputLabel("italic mr-5 w-2/6 text-right") {
-                    +l
+    border {
+        inputField("flex flex-col items-center w-full", id = id, scope = scope) {
+            initialize(this)
+            div("flex flex-row items-center w-full") {
+                label?.let { l ->
+                    inputLabel("italic mr-5 w-2/6 text-right") {
+                        +l
+                    }
+                }
+                inputTextfield(
+                    """w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 text-blueBright-900 
+                |text-sm rounded-lg focus:ring-blueBright-500 focus:border-blueBright-500 p-2.5""".trimMargin()
+                ) {
+                    placeHolder?.let { pl ->
+                        placeholder(pl)
+                    }
                 }
             }
-            inputTextfield("""w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 text-blueBright-900 
-                |text-sm rounded-lg focus:ring-blueBright-500 focus:border-blueBright-500 p-2.5""".trimMargin()) {
-                placeHolder?.let { pl ->
-                    placeholder(pl)
-                }
-            }
-        }
-        description?.let {
-            inputDescription("block w-full") {
-                div {
-                    +description
+            description?.let {
+                inputDescription("block w-full") {
+                    div {
+                        +description
+                    }
                 }
             }
         }
@@ -53,28 +57,30 @@ fun RenderContext.textAreaField(
     scope: (ScopeContext.() -> Unit) = {},
     initialize: TextArea<HTMLDivElement>.() -> Unit
 ) {
-    textArea("flex flex-col border p-2 items-center w-full", id = id, scope = scope) {
-        initialize(this)
-        div("flex flex-row items-center w-full") {
-            label?.let { l ->
-                textareaLabel("italic mr-5 w-2/6 text-right") {
-                    +l
+    border {
+        textArea("flex flex-col items-center w-full", id = id, scope = scope) {
+            initialize(this)
+            div("flex flex-row items-center w-full") {
+                label?.let { l ->
+                    textareaLabel("italic mr-5 w-2/6 text-right") {
+                        +l
+                    }
                 }
-            }
-            textareaTextfield(
-                """w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 
+                textareaTextfield(
+                    """w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 
                 |text-blueBright-900 text-sm rounded-lg focus:ring-blueBright-500 
                 |focus:border-blueBright-500 p-2""".trimMargin()
-            ) {
-                placeHolder?.let { pl ->
-                    placeholder(pl)
+                ) {
+                    placeHolder?.let { pl ->
+                        placeholder(pl)
+                    }
                 }
             }
-        }
-        description?.let {
-            textareaDescription("block w-full") {
-                div {
-                    +description
+            description?.let {
+                textareaDescription("block w-full") {
+                    div {
+                        +description
+                    }
                 }
             }
         }
@@ -88,42 +94,44 @@ fun RenderContext.switchField(
     scope: (ScopeContext.() -> Unit) = {},
     initialize: SwitchWithLabel<HTMLDivElement>.() -> Unit
 ) {
-    switchWithLabel("flex flex-col items-center w-full", id = id, scope = scope) {
-        initialize(this)
+    border {
+        switchWithLabel("flex flex-col place-items-center w-full", id = id, scope = scope) {
+            initialize(this)
 
-        div("flex flex-row items-center w-full") {
-            label?.let {
-                switchLabel("italic mr-5 w-2/6 text-right") {
-                    +label
+            div("flex flex-row items-center w-full") {
+                label?.let {
+                    switchLabel("italic mr-5 w-2/6 text-right") {
+                        +label
+                    }
                 }
-            }
-            div("w-4/6") {
-                switchToggle(
-                    """relative inline-flex flex-shrink-0 h-6 w-11
+                div("w-4/6") {
+                    switchToggle(
+                        """relative inline-flex flex-shrink-0 h-6 w-11
                     | cursor-pointer rounded-full
                     | border-2 border-transparent ring-1 ring-blueBright-400  
                     | transition-colors ease-in-out duration-200 
                     | focus:outline-none focus:ring-4 focus:ring-blueBright-600""".trimMargin()
-                ) {
+                    ) {
 
-                    span("sr-only") { +"Use setting" }
-                    className(enabled.map { if (it) "bg-blueBright-800" else "bg-blueBright-200" })
-                    span(
-                        """inline-block h-5 w-5 
+                        span("sr-only") { +"Use setting" }
+                        className(enabled.map { if (it) "bg-blueBright-800" else "bg-blueBright-200" })
+                        span(
+                            """inline-block h-5 w-5 
                     | rounded-full bg-white shadow pointer-events-none 
                     | ring-0 
                     | transform transition ease-in-out duration-200""".trimMargin()
-                    ) {
-                        className(enabled.map { if (it) "translate-x-5" else "translate-x-0" })
-                        attr(Aria.hidden, "true")
+                        ) {
+                            className(enabled.map { if (it) "translate-x-5" else "translate-x-0" })
+                            attr(Aria.hidden, "true")
+                        }
                     }
                 }
             }
-        }
-        description?.let {
-            switchDescription("block w-full") {
-                div {
-                    +description
+            description?.let {
+                switchDescription("block w-full") {
+                    div {
+                        +description
+                    }
                 }
             }
         }

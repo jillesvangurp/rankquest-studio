@@ -21,7 +21,9 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     metricConfigurationsStore: Store<List<MetricConfiguration>>,
     settingsGenerator: () -> JsonObject,
     editConfigurationStore: Store<SearchPluginConfiguration?>,
-    queryTemplateStore: Store<String>?
+    queryTemplateStore: Store<String>?,
+    helpTitle:String,
+    helpText: String,
 ) {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
     val searchContextFieldsStore = SearchContextFieldsStore(existing?.fieldConfig.orEmpty())
@@ -54,6 +56,8 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
                 editConfigurationStore.update(null)
             }
         }
+        infoPopup(helpTitle,helpText)
+//        infoModal(helpTitle,helpText)
     }
 }
 
@@ -100,110 +104,125 @@ fun RenderContext.templateVarEditor(
                 is SearchContextField.StringField -> storeOf(field.placeHolder)
             }
 
-            row {
-                textField("", "name") {
-                    value(nameStore)
-                }
-                defaultValueStore.data.render { defaultValue ->
-                    when (field) {
-                        is SearchContextField.BoolField -> {
-                            val boolStore = storeOf(defaultValue.toBoolean())
-                            boolStore.data handledBy {
-                                defaultValueStore.update(it.toString())
-                            }
-                            switchField {
-                                value(boolStore)
-                            }
-                        }
 
-                        else -> {
-                            textField("", "Default Value") {
-                                value(defaultValueStore)
-                            }
-                            textField("", "PlaceHolder") {
-                                value(placeHolderStore)
-                            }
-
-                        }
+            border {
+                row {
+                    textField("", "name") {
+                        value(nameStore)
                     }
-                }
-                primaryButton {
-                    +"Change"
-                    clicks.map {
-                        when (typeStore.current) {
-                            SearchContextField.BoolField::class.simpleName!! -> {
-                                SearchContextField.BoolField(
-                                    name = nameStore.current, defaultValue = defaultValueStore.current.toBoolean()
-                                )
-                            }
-
-                            SearchContextField.IntField::class.simpleName!! -> {
-                                SearchContextField.IntField(
-                                    name = nameStore.current,
-                                    defaultValue = defaultValueStore.current.toIntOrNull() ?: 0,
-                                    placeHolder = placeHolderStore.current,
-                                )
-
+                    defaultValueStore.data.render { defaultValue ->
+                        when (field) {
+                            is SearchContextField.BoolField -> {
+                                val boolStore = storeOf(defaultValue.toBoolean())
+                                boolStore.data handledBy {
+                                    defaultValueStore.update(it.toString())
+                                }
+                                switchField {
+                                    value(boolStore)
+                                }
                             }
 
                             else -> {
-                                SearchContextField.StringField(
-                                    name = nameStore.current,
-                                    defaultValue = defaultValueStore.current,
-                                    placeHolder = placeHolderStore.current,
-                                )
-                            }
-                        }
-                    } handledBy { updatedField ->
-                        searchContextFieldsStore.update(searchContextFieldsStore.current.map {
-                            if (it.name == updatedField.name) {
-                                updatedField
-                            } else {
-                                it
-                            }
-                        })
-                    }
-                }
-                secondaryButton(iconSource = SvgIconSource.Cross) {
-                    clicks handledBy {
-                        searchContextFieldsStore.update(searchContextFieldsStore.current.filter { it.name != field.name })
-                    }
-                }
-            }
+                                textField("", "Default Value") {
+                                    value(defaultValueStore)
+                                }
+                                textField("", "PlaceHolder") {
+                                    value(placeHolderStore)
+                                }
 
-            row {
-                typeStore.data.render { fieldType ->
-                    div {
-                        primaryButton {
-                            +"int"
-                            disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
-                            clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
+                            }
                         }
-                        primaryButton {
-                            +"bool"
-                            disabled(fieldType == SearchContextField.BoolField::class.simpleName!!)
-                            clicks.map { SearchContextField.BoolField::class.simpleName!! } handledBy typeStore.update
+                    }
+                    primaryButton {
+                        +"Change"
+                        clicks.map {
+                            when (typeStore.current) {
+                                SearchContextField.BoolField::class.simpleName!! -> {
+                                    SearchContextField.BoolField(
+                                        name = nameStore.current, defaultValue = defaultValueStore.current.toBoolean()
+                                    )
+                                }
+
+                                SearchContextField.IntField::class.simpleName!! -> {
+                                    SearchContextField.IntField(
+                                        name = nameStore.current,
+                                        defaultValue = defaultValueStore.current.toIntOrNull() ?: 0,
+                                        placeHolder = placeHolderStore.current,
+                                    )
+
+                                }
+
+                                else -> {
+                                    SearchContextField.StringField(
+                                        name = nameStore.current,
+                                        defaultValue = defaultValueStore.current,
+                                        placeHolder = placeHolderStore.current,
+                                    )
+                                }
+                            }
+                        } handledBy { updatedField ->
+                            searchContextFieldsStore.update(searchContextFieldsStore.current.map {
+                                if (it.name == updatedField.name) {
+                                    updatedField
+                                } else {
+                                    it
+                                }
+                            })
                         }
-                        primaryButton {
-                            +"string"
-                            disabled(fieldType == SearchContextField.StringField::class.simpleName!!)
-                            clicks.map { SearchContextField.StringField::class.simpleName!! } handledBy typeStore.update
+                    }
+                    secondaryButton(iconSource = SvgIconSource.Cross) {
+                        clicks handledBy {
+                            searchContextFieldsStore.update(searchContextFieldsStore.current.filter { it.name != field.name })
+                        }
+                    }
+                }
+
+                div("w-full") {
+                    row {
+                        typeStore.data.render { fieldType ->
+                            leftRightRow {
+                                para {
+                                    +"Set Field Type:"
+                                }
+                                row {
+                                    primaryButton {
+                                        +"int"
+                                        disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
+                                        clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
+                                    }
+                                    primaryButton {
+                                        +"bool"
+                                        disabled(fieldType == SearchContextField.BoolField::class.simpleName!!)
+                                        clicks.map { SearchContextField.BoolField::class.simpleName!! } handledBy typeStore.update
+                                    }
+                                    primaryButton {
+                                        +"string"
+                                        disabled(fieldType == SearchContextField.StringField::class.simpleName!!)
+                                        clicks.map { SearchContextField.StringField::class.simpleName!! } handledBy typeStore.update
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        row {
-            val fieldNameStore = storeOf("")
-            textField("", "field") {
-                value(fieldNameStore)
+        leftRightRow {
+            para {
+                +"Add more search context fields"
             }
-            fieldNameStore.data.render { fn ->
-                primaryButton(iconSource = SvgIconSource.Plus) {
-                    disabled(fn.isBlank() || fn in fields.map { it.name })
-                    clicks handledBy {
-                        console.log("adding $fn")
-                        searchContextFieldsStore.update(fields + SearchContextField.StringField(fn, "", ""))
+            row {
+                val fieldNameStore = storeOf("")
+                textField("", "field") {
+                    value(fieldNameStore)
+                }
+                fieldNameStore.data.render { fn ->
+                    primaryButton(iconSource = SvgIconSource.Plus) {
+                        disabled(fn.isBlank() || fn in fields.map { it.name })
+                        clicks handledBy {
+                            console.log("adding $fn")
+                            searchContextFieldsStore.update(fields + SearchContextField.StringField(fn, "", ""))
+                        }
                     }
                 }
             }
@@ -213,7 +232,7 @@ fun RenderContext.templateVarEditor(
 }
 
 fun RenderContext.mapEditor(store: Store<Map<String, String>>) {
-    div("border-2 border-blueBright-300") {
+    border {
         val keyStore = storeOf("")
         val valueStore = storeOf("")
         store.data.render { headers ->
@@ -233,10 +252,10 @@ fun RenderContext.mapEditor(store: Store<Map<String, String>>) {
             }
         }
         row {
-            textField("", "Header Name") {
+            textField("", "Name") {
                 value(keyStore)
             }
-            textField("", "Header Name") {
+            textField("", "Value") {
                 value(valueStore)
             }
             keyStore.data.render { key ->

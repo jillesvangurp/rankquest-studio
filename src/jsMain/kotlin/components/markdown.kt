@@ -36,3 +36,9 @@ fun RenderContext.markdownFile(file:String, baseClass: String?=null) {
         }.domNode.innerHTML = renderMarkdown(it)
     }
 }
+
+fun RenderContext.markdownDiv(markdown:String, baseClass: String?=null) {
+    div(baseClass) {
+        // make sure we render lists with bullets, tailwind seems to not like this; so use css
+    }.domNode.innerHTML = renderMarkdown(markdown)
+}

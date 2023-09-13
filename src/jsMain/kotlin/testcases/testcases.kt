@@ -11,9 +11,7 @@ import dev.fritz2.core.disabled
 import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
-import examples.quotesearch.MovieQuote
 import koin
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
@@ -141,14 +139,14 @@ fun RenderContext.testCases() {
                                                 .let<String, List<RatedSearch>> { body ->
                                                     DEFAULT_JSON.decodeFromString(body)
                                                 }.let { testCases ->
-                                                ratedSearchesStore.update(testCases)
-                                            }
+                                                    ratedSearchesStore.update(testCases)
+                                                }
                                         }
                                     }
                                 }
                             }
                         }
-                        infoModal(
+                        infoPopup(
                             "Creating Test Cases", """
                             This screen allows you to review and modify your test cases. When you create a test case
                             from the search screen, the results simply get rated in descending order. You can use this 
