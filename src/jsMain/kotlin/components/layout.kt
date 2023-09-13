@@ -15,10 +15,10 @@ fun RenderContext.rowCemtered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
 fun RenderContext.centeredMainPanel(content: HtmlTag<HTMLDivElement>.() -> Unit) =
     div("flex flex-col grow items-left space-y-1 w-5/6 m-auto bg-white px-10 pt-5 pb-32 transition-opacity" ) {
         transition(
-            "ease-out duration-200",
+            "ease-out duration-100",
             "opacity-0",
             "opacity-100",
-            "ease-in duration-200",
+            "ease-in duration-100",
             "opacity-100",
             "opacity-0"
         )
