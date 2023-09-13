@@ -31,6 +31,9 @@ fun RenderContext.pluginConfiguration() {
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
     centeredMainPanel {
+
+        val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
+        createOrEditPlugin(editConfigurationStore)
         activeSearchPluginConfigurationStore.data.render { activePluginConfig ->
             if (activePluginConfig != null) {
                 para {
@@ -39,10 +42,7 @@ fun RenderContext.pluginConfiguration() {
                         +activePluginConfig.name
                     }
                 }
-            } else {
-                para { +"No active search plugin comfiguration" }
             }
-            val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
 
             showDemoContentStore.data.filterNotNull().render { showDemoContent ->
                 pluginConfigurationStore.data.filterNotNull().render { configurations ->
@@ -63,13 +63,18 @@ fun RenderContext.pluginConfiguration() {
                             )
                         }
                         val showMetricsEditor = storeOf(false)
-                        div("flex flex-row w-full items-center") {
-                            div("mr-5 w-2/6 text-right") {
+                        div("flex flex-row w-full place-items-center justify-between") {
+                            div {
                                 +pluginConfig.name
                             }
-                            div("w-4/6 place-items-center") {
+                            div("place-items-end") {
                                 row {
 
+                                    val inUse = activePluginConfig?.id == pluginConfig.id
+                                    primaryButton(text = if (inUse) "Current" else "Use") {
+                                        disabled(inUse)
+                                        clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                                    }
                                     secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
                                         // can't edit the demo plugins
                                         disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
@@ -87,38 +92,48 @@ fun RenderContext.pluginConfiguration() {
                                         "${pluginConfig.name}.json",
                                         SearchPluginConfiguration.serializer()
                                     )
-                                    val inUse = activePluginConfig?.id == pluginConfig.id
-                                    primaryButton(text = if (inUse) "Current" else "Use") {
-                                        disabled(inUse)
-                                        clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
-                                    }
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)
 
                         }
                     }
-                    listOf(movieQuotesSearchPluginConfig, movieQuotesNgramsSearchPluginConfig)
-
-                    switchField("Show Demo Plugins") {
-                        value(showDemoContentStore)
-                    }
-                    if (showDemoContent) {
-                        secondaryButton {
-                            +"Add Movie Quotes Search"
-                            clicks handledBy {
-                                val c = movieQuotesSearchPluginConfig
-                                if (pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
-                                    pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                    div("w-full place-items-end mt-10") {
+                        div("flex flex-row w-full place-items-center justify-between") {
+//                            switchField("Show Demo Plugins") {
+//                                value(showDemoContentStore)
+//                            }
+                            if (showDemoContent) {
+                                a {
+                                    +"Hide Demo Content"
+                                    clicks.map { false } handledBy showDemoContentStore.update
                                 }
-                            }
-                        }
-                        secondaryButton {
-                            +"Add Movie Quotes Search with n-grams"
-                            clicks handledBy {
-                                val c = movieQuotesNgramsSearchPluginConfig
-                                if (pluginConfigurationStore.current?.map { it.id }?.contains(c.id) != true) {
-                                    pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                row {
+                                    secondaryButton {
+                                        +"Add Movie Quotes Search"
+                                        clicks handledBy {
+                                            val c = movieQuotesSearchPluginConfig
+                                            if (pluginConfigurationStore.current?.map { it.id }
+                                                    ?.contains(c.id) != true) {
+                                                pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                            }
+                                        }
+                                    }
+                                    secondaryButton {
+                                        +"Add Movie Quotes Search with n-grams"
+                                        clicks handledBy {
+                                            val c = movieQuotesNgramsSearchPluginConfig
+                                            if (pluginConfigurationStore.current?.map { it.id }
+                                                    ?.contains(c.id) != true) {
+                                                pluginConfigurationStore.update((pluginConfigurationStore.current.orEmpty()) + c)
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                a {
+                                    +"Show Demo Content"
+                                    clicks.map { true } handledBy showDemoContentStore.update
                                 }
                             }
                         }
@@ -126,20 +141,24 @@ fun RenderContext.pluginConfiguration() {
                 }
             }
 
-            createOrEditPlugin(editConfigurationStore)
-
             if (activePluginConfig != null) {
                 val showStore = storeOf(false)
                 showStore.data.render { show ->
-                    a {
-                        +"Show json"
-                        clicks.map { showStore.current.not() } handledBy showStore.update
-                    }
                     if (show) {
+                        a {
+                            +"Hide configuration json"
+                            clicks.map { showStore.current.not() } handledBy showStore.update
+                        }
                         pre("overflow-auto w-full") {
                             console.log(DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig))
                             +DEFAULT_PRETTY_JSON.encodeToString(activePluginConfig)
                         }
+                    } else {
+                        a {
+                            +"Show configuration json for ${activePluginConfig.name}"
+                            clicks.map { showStore.current.not() } handledBy showStore.update
+                        }
+
                     }
                 }
             }
