@@ -49,7 +49,9 @@ fun RenderContext.secondaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = """my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 
+        |focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg 
+        |text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
     content = {
@@ -74,7 +76,8 @@ fun RenderContext.navButton(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "my-2 w-fit text-white bg-blueGrayMuted-600 hover:bg-blueGrayMuted-700 focus:ring-buttonNav-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = """my-2 w-fit text-white bg-blueGrayMuted-600 hover:bg-blueGrayMuted-700 focus:ring-buttonNav-300 
+        |focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
     content = content
@@ -85,7 +88,8 @@ fun RenderContext.activeNavButton(
     scope: (ScopeContext.() -> Unit) = {},
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = "my-2 w-fit text-white bg-blueGray-600 hover:bg-blueGray-700 focus:ring-buttonNavAct-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none",
+    baseClass = """my-2 w-fit text-white bg-blueGray-600 hover:bg-blueGray-700 focus:ring-buttonNavAct-300 focus:ring-4 
+        |font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
     content = content
@@ -186,5 +190,22 @@ fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, onImport: (T) -
             textStore = textStore,
             fileInputId = fileInputId
         )
+    }
+}
+
+fun RenderContext.iconButton(
+    svg: SvgIconSource,
+    title: String = "",
+    baseClass: String? = "w-5 h-5 fill-blueBright-500 hover:fill-blueBright-900",
+    block: (HtmlTag<HTMLButtonElement>.() -> Unit)? = null
+) {
+    button(baseClass) {
+        svg {
+            attr("viewBox",svg.viewBox)
+            content(svg.content)
+        }
+        title(title)
+
+        block?.invoke(this)
     }
 }

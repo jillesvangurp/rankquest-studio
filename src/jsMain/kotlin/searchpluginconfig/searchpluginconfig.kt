@@ -149,26 +149,31 @@ fun RenderContext.pluginConfiguration() {
                             div("mr-5 w-2/6 text-right") {
                                 +pluginConfig.name
                             }
-                            div("w-4/6 flex flex-row place-items-center") {
-                                secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
-                                    // can't edit the demo plugins
-                                    disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
-                                    clicks.map { pluginConfig } handledBy editConfigurationStore.update
-                                }
-                                secondaryButton(text = "Metrics", iconSource = SvgIconSource.Equalizer) {
-                                    clicks.map { true } handledBy showMetricsEditor.update
-                                }
+                            div("w-4/6 place-items-center") {
+                                row {
 
-                                secondaryButton(text = "Delete", iconSource = SvgIconSource.Cross) {
-                                    clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
-                                }
-                                jsonDownloadButton(
-                                    pluginConfig, "${pluginConfig.name}.json", SearchPluginConfiguration.serializer()
-                                )
-                                val inUse = activePluginConfig?.id == pluginConfig.id
-                                primaryButton(text = if (inUse) "Current" else "Use") {
-                                    disabled(inUse)
-                                    clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                                    secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
+                                        // can't edit the demo plugins
+                                        disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
+                                        clicks.map { pluginConfig } handledBy editConfigurationStore.update
+                                    }
+                                    secondaryButton(text = "Metrics", iconSource = SvgIconSource.Equalizer) {
+                                        clicks.map { true } handledBy showMetricsEditor.update
+                                    }
+
+                                    secondaryButton(text = "Delete", iconSource = SvgIconSource.Cross) {
+                                        clicks.map { pluginConfig.id } handledBy pluginConfigurationStore.remove
+                                    }
+                                    jsonDownloadButton(
+                                        pluginConfig,
+                                        "${pluginConfig.name}.json",
+                                        SearchPluginConfiguration.serializer()
+                                    )
+                                    val inUse = activePluginConfig?.id == pluginConfig.id
+                                    primaryButton(text = if (inUse) "Current" else "Use") {
+                                        disabled(inUse)
+                                        clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
+                                    }
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)

@@ -28,7 +28,8 @@ fun RenderContext.textField(
                     +l
                 }
             }
-            inputTextfield("w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 text-blueBright-900 text-sm rounded-lg focus:ring-blueBright-500 focus:border-blueBright-500 p-2.5") {
+            inputTextfield("""w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 text-blueBright-900 
+                |text-sm rounded-lg focus:ring-blueBright-500 focus:border-blueBright-500 p-2.5""".trimMargin()) {
                 placeHolder?.let { pl ->
                     placeholder(pl)
                 }
@@ -129,12 +130,13 @@ fun RenderContext.switchField(
     }
 }
 
-// "m-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 focus:ring-button-300 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none"
 fun RenderContext.textFileInput(
     textStore: Store<String>,
     fileType: String=".json",
     fileInputId:String = "file-input-${Random.nextULong()}",
-    baseClass: String? = "file:my-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 focus:file:outline-none hover:file:cursor-pointer"
+    baseClass: String? = """file:my-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 
+        |focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 
+        |focus:file:outline-none hover:file:cursor-pointer""".trimMargin()
 ) {
     input(baseClass = baseClass, id = fileInputId) {
         type("file")
@@ -165,7 +167,8 @@ fun RenderContext.selectBox(
 ) {
     listbox {
         value(selectedStore)
-        listboxButton("bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5") {
+        listboxButton("""bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg 
+            |focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5""".trimMargin()) {
             span { value.data.renderText() }
         }
         listboxItems("flex flex-col") {

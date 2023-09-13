@@ -45,18 +45,6 @@ enum class SvgIconSource(val content:String,val viewBox: String) {
     ),
 }
 
-fun RenderContext.iconButton(svg: SvgIconSource, title:String="",baseClass:String?="w-5 h-5 fill-blueBright-500 hover:fill-blueBright-900",block: (HtmlTag<HTMLButtonElement>.() -> Unit)?=null) {
-    button(baseClass) {
-        svg {
-            attr("viewBox",svg.viewBox)
-            content(svg.content)
-        }
-        title(title)
-
-        block?.invoke(this)
-    }
-}
-
 fun RenderContext.iconImage(svg: SvgIconSource, title: String="", baseClass: String?="w-30 h-30 m-2") {
     div {
         title(title)
