@@ -7,7 +7,7 @@ import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
 import metrics.metrics
-import ratedsearches.ratedSearches
+import testcases.testCases
 import search.searchScreen
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
@@ -57,7 +57,7 @@ private fun RenderContext.mainView() {
                         pluginConfiguration()
                     }
 
-                    Page.TestCases -> ratedSearches()
+                    Page.TestCases -> testCases()
                     Page.Metrics -> metrics()
                     Page.About -> about()
                     Page.Privacy -> privacy()

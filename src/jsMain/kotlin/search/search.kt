@@ -5,25 +5,17 @@ import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
-import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
-import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
-import handlerScope
 import koin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.nullable
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.w3c.dom.HTMLHeadingElement
 import pageLink
-import ratedsearches.RatedSearchesStore
+import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import utils.md5Hash
-import kotlin.time.Duration.Companion.milliseconds
 
 val searchModule = module {
     singleOf(::SearchResultsStore)
@@ -113,6 +105,23 @@ fun RenderContext.searchScreen() {
                                 stores.map { (f, s) -> f to s.current }.toMap()
                             } handledBy activeSearchPluginConfigurationStore.search
                         }
+                        infoModal("The Search Tool","""
+                            You can use the search tool to explore your search service and convert 
+                            the searches you do into test cases.
+                            
+                            ## The search context
+                            
+                            The search form allows you to fill in values for each of the parameters in your
+                            search context. You can customize the parameters and their default values
+                            in the configuration screen.
+                            
+                            ## Creating test cases from search
+                             
+                            To create a new test case, simply click the "Add Test Case" button. If it is greyed out,
+                            that means you already have a test case with the same search context. If so, you can
+                            modify it in the test cases screen. The id of each test case is a content hash of the 
+                            search context.
+                        """.trimIndent())
 
                     }
                     searchResults()

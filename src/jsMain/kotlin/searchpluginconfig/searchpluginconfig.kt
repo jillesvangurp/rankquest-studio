@@ -1,111 +1,23 @@
 package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
-import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
-import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.Store
-import dev.fritz2.core.disabled
-import dev.fritz2.core.storeOf
-import examples.quotesearch.demoSearchPlugins
+import dev.fritz2.core.*
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
-import handlerScope
 import koin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import search.SearchResultsStore
-import kotlin.time.Duration.Companion.milliseconds
+import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
     singleOf(::ActiveSearchPluginConfigurationStore)
-}
-
-class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfiguration>>(
-    listOf(), "plugin-configurations", ListSerializer(SearchPluginConfiguration.serializer())
-) {
-    private val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-
-    val addOrReplace = handle<SearchPluginConfiguration> { _, config ->
-        (current ?: listOf()).map {
-            if (it.id == config.id) {
-                config
-            } else {
-                it
-            }
-        }.let { configurations ->
-            if (configurations.firstOrNull { it.id == config.id } == null) {
-                configurations + config
-            } else {
-                configurations
-            }
-        }.also { newConfigs ->
-            val active = activeSearchPluginConfigurationStore.current
-            newConfigs.forEach {
-                if (it.id == active?.id) {
-                    activeSearchPluginConfigurationStore.update(it)
-                }
-            }
-        }
-    }
-    val remove = handle<String> { old, id ->
-        confirm {
-            update((current ?: listOf()).filter { it.id != id })
-            if (activeSearchPluginConfigurationStore.current?.id == id) {
-                activeSearchPluginConfigurationStore.update(null)
-            }
-        }
-        old
-    }
-}
-
-class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfiguration?>(
-    null, "active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable
-) {
-    // using get forces an early init ;-), fixes bug where first search is empty because it does not create the store until you use it
-    private val searchResultsStore = koin.get<SearchResultsStore>()
-    private val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
-
-    val search = handle<Map<String, String>> { config, query ->
-        busyResult({
-            var outcome: Result<SearchResults>? = null
-            coroutineScope {
-                launch {
-                    if (config != null) {
-                        val selectedPlugin = current
-                        if (selectedPlugin != null) {
-                            handlerScope.launch {
-                                console.log("SEARCH $query")
-                                val searchPlugin = pluginFactoryRegistry[config.pluginType]?.create(config)
-                                outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
-                            }
-                        } else {
-                            outcome = Result.failure(IllegalArgumentException("no plugin selected"))
-                        }
-                    }
-                }
-                // whichever takes longer; make sure the spinner doesn't flash in and out
-                launch {
-                    delay(200.milliseconds)
-                }
-            }.join()
-            searchResultsStore.update(outcome)
-            Result.success(true)
-        }, initialTitle = "Searching", initialMessage = "Query for $query")
-        config
-    }
 }
 
 fun RenderContext.pluginConfiguration() {
@@ -174,6 +86,7 @@ fun RenderContext.pluginConfiguration() {
                                         disabled(inUse)
                                         clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
                                     }
+                                    help()
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)
@@ -227,6 +140,64 @@ fun RenderContext.pluginConfiguration() {
             }
         }
     }
+}
+
+private fun HtmlTag<HTMLDivElement>.help() {
+    infoModal(
+        title = "Configuration Screen",
+        markdown = """
+            The configuration screen is where you can configure your search plugins and metrics. 
+            
+            ## Demo plugins
+            
+            If you want to play around a little bit, there are two demo plugins that you can add that implement
+            a simple movie search using an in memory search library that I wrote called 
+            [querylight](https://github.com/jillesvangurp/querylight). 
+            
+            While simple, it can be nice for simple search use cases when you don't want to use a server. 
+            It uses tf/idf for ranking and can perform well
+            on small data sets. Which makes it great for trying out Rankquest Studio.
+            
+            There are two plugins with slightly different analyzers. One of them uses ngrams and the other one uses a 
+            traditional analyzer. The ngrams based implementation of course performs a lot worse and this should show 
+            when you run the metrics.
+            
+            ## Plugin types
+            
+            Currently there are three built in plugins:
+            
+            - Elasticsearch - you can use this to run metrics for elasticsearch plugins.
+            - JsonGETApiPlugin - use this to configure search services that you cal call with an HTTP GET that return json
+            - JsonPOSTApiPlugin - use this to configure search services that you call with an HTTP POST that return json
+                        
+            ## Switching between plugins
+            
+            You can configure multiple plugins and then switch between them with the use button. 
+            The active configuration has a greyed out current button. 
+                       
+            ## Configuring metrics
+            
+            For each plugin configuration, you can define which metrics you want to evaluate and how to 
+            configure those metrics. For example, you might want to add a few variations of precision@k with different
+            k values.
+       
+            ## Import and export
+            
+            You can export your plugin configurations and re-import them. 
+            You should keep your configurations in a safe place. It is good practice to keep them in a git repository
+            together with your test cases.
+            
+            ## Writing your own plugins
+            
+            Writing your own plugins is possible of course. However, this will require modifying some source code. 
+            You can either modify this project or add it as a built in plugin in 
+            (rankquest-core)[https://github.com/jillesvangurp/rankquest-core]. If you do, also modify this project
+            to add a configuration UI for your plugin.
+                        
+            A future version of rank quest may add some features to allow you to more easily add your own plugin 
+            implementations via e.g. javascript.        
+        """.trimIndent()
+    )
 }
 
 fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginConfiguration?>) {
@@ -302,7 +273,7 @@ fun RenderContext.metricsEditor(
                 metricConfigurationsStore.data.render { mcs ->
                     h2 { +"Metric Configuration" }
                     mcs.forEach { mc ->
-                        div("flex flex-row place-items-center") {
+                        div("flex flex-row align-middle justify-between") {
                             div("flex flex-col") {
                                 div {
                                     +"${mc.name} (${mc.metric})"
@@ -311,17 +282,19 @@ fun RenderContext.metricsEditor(
                                     +mc.params.joinToString(", ") { "${it.name} = ${it.value}" }
                                 }
                             }
-                            secondaryButton {
-                                +"Delete"
-                                clicks handledBy {
-                                    confirm {
-                                        metricConfigurationsStore.update(metricConfigurationsStore.current.filter { it.name != mc.name })
+                            row {
+                                secondaryButton {
+                                    +"Delete"
+                                    clicks handledBy {
+                                        confirm {
+                                            metricConfigurationsStore.update(metricConfigurationsStore.current.filter { it.name != mc.name })
+                                        }
                                     }
                                 }
-                            }
-                            primaryButton {
-                                +"Edit"
-                                clicks.map { mc } handledBy editMetricStore.update
+                                primaryButton {
+                                    +"Edit"
+                                    clicks.map { mc } handledBy editMetricStore.update
+                                }
                             }
                         }
                         editMetricStore.data.render { editMetricConfiguration ->

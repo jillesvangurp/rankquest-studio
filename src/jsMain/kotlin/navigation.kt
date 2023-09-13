@@ -7,28 +7,29 @@ import kotlinx.coroutines.flow.map
 import org.koin.dsl.module
 
 val navigationModule = module {
-    single { routerOf(
-        mapOf("page" to "main")
-    ) }
+    single {
+        routerOf(
+            mapOf("page" to "main")
+        )
+    }
 }
+
 enum class Page(val title: String, val showInMenu: Boolean = true) {
-    Search("Search Tool"),
-    TestCases("Test Cases"),
-    Metrics("Metrics"),
-    Conf("Configuration"),
-    About("About"),
-    Privacy("Privacy Policy",false),
-    License("License", false),
-    Root("Not Found)",false)
-    ;
+    Search("Search"), TestCases("Test Cases"), Metrics("Metrics"), Conf("Configuration"), About("About"), Privacy(
+        "Privacy Policy",
+        false
+    ),
+    License("License", false), Root("Not Found)", false);
+
     companion object {
         fun resolve(value: String?, defaultPage: Page = Root): Page {
             return value.takeIf { !it.isNullOrBlank() }.let {
-                Page.entries.firstOrNull { it.name.equals(value,true) }
+                Page.entries.firstOrNull { it.name.equals(value, true) }
             } ?: defaultPage
         }
     }
 }
+
 val Page.route get() = mapOf("page" to name.lowercase())
 
 fun RenderContext.pageLink(page: Page) {
@@ -40,7 +41,6 @@ fun RenderContext.pageLink(page: Page) {
     }
 }
 
-
 fun RenderContext.menu() {
     val router = koin.get<MapRouter>()
     router.select(key = "page").render { (selected, _) ->
@@ -50,19 +50,17 @@ fun RenderContext.menu() {
     }
 }
 
-
-
 private fun RenderContext.menuButton(page: Page, active: Boolean = false) {
     val router = koin.get<MapRouter>()
 
-    if(active) {
+    if (active) {
         activeNavButton {
-            +(page.title )
+            +(page.title)
             clicks.map { page.route } handledBy router.navTo
         }
     } else {
         navButton {
-            +(page.title )
+            +(page.title)
             clicks.map { page.route } handledBy router.navTo
         }
     }

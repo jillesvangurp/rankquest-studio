@@ -1,9 +1,7 @@
 package metrics
 
 import Page
-import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.MetricResults
-import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
@@ -19,7 +17,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pageLink
-import ratedsearches.RatedSearchesStore
+import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 
 val metricsModule = module {
@@ -90,6 +88,34 @@ fun RenderContext.metrics() {
                         jsonFileImport(ListSerializer(MetricsOutput.serializer())) { decoded ->
                             metricsOutputStore.update(decoded)
                         }
+                        infoModal("Exploring Metrics","""
+                            The metrics screen is of course the whole point of this application. After you've configured your 
+                            search plugin and created your test cases, you can run and explore metrics in this screen.
+                            
+                            ## Running metrics
+                            
+                            Simply click the button and wait for the results to complete. A spinner 
+                            will show while this is happening. If you have a lot of test cases, this may take a while.
+                             
+                            ## Reviewing your metrics
+                            
+                            After it completes, it will show you the results for each metric. You can expand each metric
+                            with the plus button to dig into the details. 
+                            
+                            It will list for each test case the score for each rated result that appeared in the search
+                            results. 
+                            
+                            ## Adding unrated results to your test cases
+                            
+                            Sometimes, a test case and search plugin configuration will produce results that should be
+                            included in the test case. 
+                            
+                            ## Import and Export
+                            
+                            You can download results in json format and re-import it to explore the metrics later.
+                            
+                            Note, future versions of this tool may add the ability to compare metrics as well.
+                        """.trimIndent())
 
                     }
 
@@ -123,7 +149,7 @@ private fun RenderContext.metricResult(
                     h2 {
                         +metricConfiguration.name
                     }
-                    infoBubble(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
+                    infoModal(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
                 }
 
                 div { +"Metric: ${+metricResult.metric}" }

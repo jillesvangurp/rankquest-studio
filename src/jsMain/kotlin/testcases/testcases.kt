@@ -1,4 +1,4 @@
-package ratedsearches
+package testcases
 
 import Page
 import com.jilesvangurp.rankquest.core.RatedSearch
@@ -83,7 +83,7 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
     }
 }
 
-fun RenderContext.ratedSearches() {
+fun RenderContext.testCases() {
     centeredMainPanel {
 
         val ratedSearchesStore = koin.get<RatedSearchesStore>()
@@ -119,6 +119,41 @@ fun RenderContext.ratedSearches() {
                     jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
                         ratedSearchesStore.update(decoded)
                     }
+                    infoModal("Creating Test Cases","""
+                            This screen allows you to review and modify your test cases. When you create a test case
+                            from the search screen, the results simply get rated in descending order. You can use this 
+                            screen to change the ratings.
+                            
+                            Each test case has:
+                            
+                            - An id, which is a content hash of the search context
+                            - A search context with parameters to query your search service
+                            - A list of rated search results. 
+                            - A comment field that you can use to document your reasons for the rating or inclusion
+                            
+                            ## Ratings and their meaning
+                            
+                            A rating is a number of 0 or higher. How high your ratings should be is up to you. But for most
+                            metrics, something simple like a rating between 0 and 5 should be more than enough.
+                            
+                            A rating of zero means the document is not relevant. Higher ratings indicate a higher relevance.
+                            
+                            ## Adding results to a test case
+                            
+                            If you do a search in the search tool and then switch back to the test cases screen,
+                            you can add results from the search screen to any test case. This is a nice way to
+                            add documents that you know should be produced that the current search does not produce.
+                            
+                            A second way to add results to test cases is from the metrics screen. When you review
+                             the metrics, the the details for each test case will list any unrated results and give you
+                             the opportunity to add those to the test case.
+                            
+                            ## Importing and Exporting
+                            
+                            You can download your test cases as a json file and later re-import them. You should use
+                            this feature to store your ratings in a safe place. A good practice is to keep them in a git
+                            repository. You can create specialized ratings files for different use cases, topics, etc. 
+                        """.trimIndent())
 
                 }
 
@@ -129,7 +164,7 @@ fun RenderContext.ratedSearches() {
                     }
                 } else {
                     ratedSearches.forEach { rs ->
-                        ratedSearch(showStore, rs)
+                        testCase(showStore, rs)
                     }
                 }
             }
@@ -138,7 +173,7 @@ fun RenderContext.ratedSearches() {
 }
 
 
-fun RenderContext.ratedSearch(showStore: Store<Map<String, Boolean>>, ratedSearch: RatedSearch) {
+fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: RatedSearch) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
     div("flex flex-col mx-10 hover:bg-blueBright-50") {

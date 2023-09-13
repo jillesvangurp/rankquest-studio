@@ -105,7 +105,7 @@ suspend fun confirm(
 }
 
 
-fun RenderContext.infoBubble(title: String = "Are you sure?!", html: String, close: String = "Close") {
+fun RenderContext.infoModal(title: String = "Title TODO", markdown: String, close: String = "Close") {
     val openStateStore = storeOf(false)
     secondaryButton {
         +"?"
@@ -151,9 +151,10 @@ fun RenderContext.infoBubble(title: String = "Are you sure?!", html: String, clo
                             }
                         }
                         div("mt-2") {
+
                             div {
 
-                            }.domNode.innerHTML = html
+                            }.domNode.innerHTML = renderMarkdown(markdown)
                             div("flex flex-row place-items-center mx-auto w-fit overflow-y-auto") {
                                 primaryButton {
                                     +close

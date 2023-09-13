@@ -5,7 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import metrics.metricsModule
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
-import ratedsearches.ratedSearchesModule
+import testcases.ratedSearchesModule
 import search.searchModule
 import searchpluginconfig.configurationModule
 
