@@ -104,8 +104,7 @@ suspend fun confirm(
 
 fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String) {
     val infoPopoverOpenStore = storeOf(false)
-    secondaryButton {
-        +"???"
+    secondaryButton(iconSource = SvgIconSource.Question) {
         clicks.map { true } handledBy infoPopoverOpenStore.update
     }
     infoPopoverOpenStore.data.render {opened ->

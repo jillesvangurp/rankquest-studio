@@ -294,8 +294,6 @@ val Metric.explanation
     get() = renderMarkdown(
         when (this) {
             Metric.PrecisionAtK -> """
-                # Precision at K
-                
                 Precision at K is measures the proportion of relevant items or documents 
                 among the top K items that are returned for a given search query. The more relevant 
                 results, the higher the precision.
