@@ -22,7 +22,8 @@ fun RenderContext.primaryButton(
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
         |focus:ring-button-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
+        |text-sm px-5 py-2.5 focus:outline-none 
+        |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
     id = id,
     scope = scope,
     content = {
@@ -51,7 +52,8 @@ fun RenderContext.secondaryButton(
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 
         |focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
+        |text-sm px-5 py-2.5 focus:outline-none
+        |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
     id = id,
     scope = scope,
     content = {

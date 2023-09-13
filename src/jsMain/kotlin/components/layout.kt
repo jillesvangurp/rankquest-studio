@@ -13,7 +13,10 @@ fun RenderContext.rowCemtered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
 }
 
 fun RenderContext.centeredMainPanel(content: HtmlTag<HTMLDivElement>.() -> Unit) =
-    div("flex flex-col grow items-left space-y-1 w-5/6 m-auto bg-white px-10 pt-5 pb-32 transition-opacity" ) {
+    div("""flex flex-col grow items-left space-y-1 w-5/6 m-auto 
+        |bg-white px-10 pt-5 pb-32 transition-opacity
+        |drop-shadow-md border-bg-blueBright-200
+        |rounded-lg border-2 border-blueBright-100""".trimMargin()) {
         transition(
             "ease-out duration-100",
             "opacity-0",
