@@ -1,6 +1,7 @@
 package testcases
 
 import Page
+import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
@@ -9,12 +10,15 @@ import dev.fritz2.core.Store
 import dev.fritz2.core.disabled
 import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toast
+import dev.fritz2.remote.http
+import examples.quotesearch.MovieQuote
 import koin
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import pageLink
 import search.SearchResultsStore
@@ -88,7 +92,7 @@ fun RenderContext.testCases() {
 
         val ratedSearchesStore = koin.get<RatedSearchesStore>()
         val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-
+        val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
 
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
         activeSearchPluginConfigurationStore.data.filterNotNull().render { searchPluginConfiguration ->
@@ -119,12 +123,35 @@ fun RenderContext.testCases() {
                     jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
                         ratedSearchesStore.update(decoded)
                     }
+                    showDemoContentStore.data.render {showDemo->
+                        if (showDemo) {
+                            primaryButton {
+                                +"Load Demo Movies Search Test Cases"
+                                clicks handledBy {
+                                    confirm("Are you sure?", "This will override your current test cases. Download them first!") {
+                                        http("movie-quotes-test-cases.json").get().body().let<String, List<RatedSearch>> { body ->
+                                            DEFAULT_JSON.decodeFromString(body)
+                                        }.let { testCases ->
+                                            ratedSearchesStore.update(testCases)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     infoModal("Creating Test Cases","""
                             This screen allows you to review and modify your test cases. When you create a test case
                             from the search screen, the results simply get rated in descending order. You can use this 
-                            screen to change the ratings.
+                            screen to change the ratings. 
                             
-                            Each test case has:
+                            ## Demo content
+                            
+                            If you enable show demo content in the configuration screen and use one of the two demo
+                            plugins, you can load some sample test cases here and play with those. 
+                            
+                            ## What is a Test Case
+                            
+                            A test case is a rated search with:
                             
                             - An id, which is a content hash of the search context
                             - A search context with parameters to query your search service

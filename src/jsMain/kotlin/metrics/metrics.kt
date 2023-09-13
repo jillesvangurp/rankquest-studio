@@ -92,6 +92,12 @@ fun RenderContext.metrics() {
                             The metrics screen is of course the whole point of this application. After you've configured your 
                             search plugin and created your test cases, you can run and explore metrics in this screen.
                             
+                            ## Demo content
+                            
+                            If you enable show demo content in the configuration screen and use one of the two demo
+                            plugins, you can load some sample test cases in the test cases screen. And then you 
+                            can get some metrics here. 
+                            
                             ## Running metrics
                             
                             Simply click the button and wait for the results to complete. A spinner 

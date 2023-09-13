@@ -10,22 +10,28 @@ import examples.quotesearch.movieQuotesSearchPluginConfig
 import koin
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.StringQualifier
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
     singleOf(::ActiveSearchPluginConfigurationStore)
+    single<Store<Boolean>>(named("showDemo")) {
+        storeOf(false)
+    }
 }
 
 fun RenderContext.pluginConfiguration() {
+    val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+    val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
     centeredMainPanel {
-        val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
-        val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
         activeSearchPluginConfigurationStore.data.render { activePluginConfig ->
-            val showDemoContentStore = storeOf(false)
             if (activePluginConfig != null) {
                 para {
                     +"Current configuration: "

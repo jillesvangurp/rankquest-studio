@@ -1,0 +1,225 @@
+[
+    {
+        "id": "u7yAxLzIoAc/iZux848b3w==",
+        "searchContext": {
+            "q": "precious",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "292",
+                "rating": 1,
+                "label": "The Lord of the Rings: The Two Towers, 2002: My precious (1.1936949131693646)"
+            },
+            {
+                "documentId": "295",
+                "rating": 1,
+                "label": "The Lord of the Rings: The Two Towers, 2002: My precious... (1.1936949131693646)"
+            },
+            {
+                "documentId": "284",
+                "rating": 1,
+                "label": "The Lord of the Rings: The Two Towers, 2002: I don't like sand. It's all coarse, and rough, and irritating. And it gets everywhere. (0.15079300502320062)"
+            },
+            {
+                "documentId": "683",
+                "rating": 1,
+                "label": "A Beautiful Day in the Neighbourhood, 2019: I think the best thing we can do is to let people know that each one of them is precious. (0.11936949131693647)"
+            }
+        ]
+    },
+    {
+        "id": "0pB2mfj3DfHBlXzz55MhoQ==",
+        "searchContext": {
+            "q": "hasta",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "92",
+                "rating": 2,
+                "label": "The Terminator, 1984: Hasta la Vista, baby. (0.6408702713486026)",
+                "comment": "Arnie!"
+            },
+            {
+                "documentId": "136",
+                "rating": 1,
+                "label": "Terminator 2: Judgment Day, 1991: Hasta la vista, baby. (0.6408702713486026)",
+                "comment": "He did come back!"
+            }
+        ]
+    },
+    {
+        "id": "fNokV/J/J5S4wB0B5KMlVg==",
+        "searchContext": {
+            "q": "term",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "91",
+                "rating": 3,
+                "label": "The Terminator, 1984: I'll be back. (0.298200784199789)",
+                "comment": "Arnie!!!"
+            },
+            {
+                "documentId": "92",
+                "rating": 2,
+                "label": "The Terminator, 1984: Hasta la Vista, baby. (0.298200784199789)"
+            },
+            {
+                "documentId": "136",
+                "rating": 1,
+                "label": "Terminator 2: Judgment Day, 1991: Hasta la vista, baby. (0.19880052279985932)",
+                "comment": "comment"
+            }
+        ]
+    },
+    {
+        "id": "RHKDf9fmbHoMCkEzwmktKA==",
+        "searchContext": {
+            "q": "infinity",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "181",
+                "rating": 4,
+                "label": "Toy Story, 1995: To infinity and beyond! (0.716127770264598)"
+            },
+            {
+                "documentId": "655",
+                "rating": 2,
+                "label": "Avengers: Infinity War, 2018: The hardest choices require the strongest wills (0.19880052279985932)"
+            },
+            {
+                "documentId": "661",
+                "rating": 2,
+                "label": "Avengers : Infinity War, 2018: Whatever it takes! (0.19880052279985932)"
+            },
+            {
+                "documentId": "662",
+                "rating": 2,
+                "label": "Avengers: Infinity War, 2018: That does put a smile on my face. (0.19880052279985932)"
+            },
+            {
+                "documentId": "98",
+                "rating": 1,
+                "label": "Labyrinth, 1986: It's only forever, not long at all... (0.24517763675830603)"
+            }
+        ]
+    },
+    {
+        "id": "976WHLYixXqOm+i7qxDRlg==",
+        "searchContext": {
+            "q": "ni",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "54",
+                "rating": 5,
+                "label": "Monty Python and the Holy Grail, 1975: We are the Knights who say... Ni! (0.4092158687226274)"
+            },
+            {
+                "documentId": "363",
+                "rating": 1,
+                "label": "Taladega Nights, 2006: If you ain't first, you're last. (0.2704696904977445)"
+            },
+            {
+                "documentId": "615",
+                "rating": 1,
+                "label": "The Nice Guys, 2016: Marriage is buying a house for someone you hate (0.18031312699849633)"
+            },
+            {
+                "documentId": "632",
+                "rating": 1,
+                "label": "Transformers : The Light Night, 2017: When all seems lost, a few brave souls can save everything we've ever known. (0.13523484524887225)"
+            },
+            {
+                "documentId": "32",
+                "rating": 1,
+                "label": "In the Heat of the Night, 1967: They call me Mister Tibbs! (0.09015656349924817)"
+            }
+        ]
+    },
+    {
+        "id": "1fqf0O0Q23G1DIHglcwsZw==",
+        "searchContext": {
+            "q": "ho",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "488",
+                "rating": 5,
+                "label": "Game of Thrones, 2011: Hodor (1.0791812460476249)",
+                "comment": "clearly the winner"
+            },
+            {
+                "documentId": "135",
+                "rating": 4,
+                "label": "Hook, 1991: Hook, you let those kids out of that net in less than one minute or you better get an attorney and hope to God he's better than me. (0.4078422180670275)"
+            },
+            {
+                "documentId": "133",
+                "rating": 3,
+                "label": "Hook, 1991: You're a... you're a complex Freudian hallucination having something to do with my mother and I don't know why you have wings, but you have very lovely legs and you're a very nice tiny person and what am I saying? I don't know who my mother was. I'm an orphan and I've never taken drugs because I missed the sixties; I was an accountant. (0.37062907165159215)"
+            },
+            {
+                "documentId": "137",
+                "rating": 2,
+                "label": "Hook, 1991: And you'd better deliver, Miss Bell, or no amount of clapping will bring you back from where I will send you. (0.37062907165159215)"
+            },
+            {
+                "documentId": "499",
+                "rating": 1,
+                "label": "The Hobbit, 2012: Where there's life there's hope. (0.33948328526117105)"
+            },
+            {
+                "documentId": "290",
+                "rating": 1,
+                "label": "The Lord of the Rings: The Two Towers, 2002: There is always hope. (0.2697953115119062)"
+            },
+            {
+                "documentId": "603",
+                "rating": 1,
+                "label": "The Force Awakens, 2015: Chewie, we're home. (0.2697953115119062)"
+            }
+        ]
+    },
+    {
+        "id": "H8rpzLd1xqVvFs+UCCzoFQ==",
+        "searchContext": {
+            "q": "gone with",
+            "size": "5"
+        },
+        "ratings": [
+            {
+                "documentId": "7",
+                "rating": 5,
+                "label": "Gone With the Wind, 1939: After all, tomorrow is another day! (0.298200784199789)"
+            },
+            {
+                "documentId": "8",
+                "rating": 4,
+                "label": "Gone with the Wind, 1939: Frankly, my dear, I don't give a damn. (0.298200784199789)"
+            },
+            {
+                "documentId": "11",
+                "rating": 6,
+                "label": "Gone with the Wind, 1939: As God is my witness, I'll never be hungry again. (0.298200784199789)"
+            },
+            {
+                "documentId": "12",
+                "rating": 2,
+                "label": "Rebecca, 1940: It's gone forever, that funny young, lost look I loved won't ever come back. I killed that when I told you about Rebecca. It's gone. In a few hours, you've grown so much older. (0.1349200571260216)"
+            },
+            {
+                "documentId": "366",
+                "rating": 1,
+                "label": "Children Of Men, 2006: Y'know that ringing in your ears? That 'eeeeeeeeee'? That's the sound of the ear cells dying, like their swan song. Once it's gone you'll never hear that frequency again. Enjoy it while it lasts. (0.0674600285630108)"
+            }
+        ]
+    }
+]

@@ -2,19 +2,42 @@ package components
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import dev.fritz2.core.RootStore
+import dev.fritz2.core.Store
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 
 @Suppress("LeakingThis")
 open class LocalStoringStore<T>(
-    initialData: T?,
+    val initialData: T?,
     val key: String,
     val serializer: KSerializer<T>
 ) :
     RootStore<T?>(initialData) {
     private var latest: T? = null
     private var loaded=false
+
+    fun nonNullableStore(defaultValue: T): RootStore<T> {
+        val store = RootStore(defaultValue)
+        data handledBy {v->
+            if(v==null || v==initialData) {
+                store.update(defaultValue)
+            } else {
+                store.update(v)
+            }
+        }
+        return store
+    }
+
+    private val propagationHandler = handle<Pair<RootStore<T>,T>> {v,(s,defaultValue)->
+        if(v==null || v==initialData) {
+            s.update(defaultValue)
+        } else {
+            s.update(v)
+        }
+        v
+    }
 
     private val storeHandler = handle<T?> { old, v ->
         if (latest != v && loaded) {
@@ -30,6 +53,7 @@ open class LocalStoringStore<T>(
         }
         v
     }
+
     init {
         try {
             data.distinctUntilChanged() handledBy storeHandler
