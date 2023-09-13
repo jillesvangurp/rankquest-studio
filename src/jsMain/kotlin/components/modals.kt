@@ -124,6 +124,7 @@ fun RenderContext.infoModal(title: String = "Title TODO", markdown: String, clos
                         "opacity-100",
                         "opacity-0"
                     )
+                    clicks.map { false } handledBy openStateStore.update
                 }
                 /* <!-- This element is to trick the browser into centering the modal contents. --> */
                 span("hidden sm:inline-block sm:align-middle sm:h-screen") {
@@ -148,6 +149,7 @@ fun RenderContext.infoModal(title: String = "Title TODO", markdown: String, clos
                         modalTitle("text-white bg-blueBright-700 p-2 items-center") {
                             paraCentered {
                                 +title
+                                setInitialFocus()
                             }
                         }
                         div("mt-2") {
@@ -161,7 +163,6 @@ fun RenderContext.infoModal(title: String = "Title TODO", markdown: String, clos
                                     clicks handledBy {
                                         openStateStore.update(false)
                                     }
-                                    setInitialFocus()
                                 }
                             }
                         }

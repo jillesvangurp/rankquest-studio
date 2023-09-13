@@ -86,7 +86,6 @@ fun RenderContext.pluginConfiguration() {
                                         disabled(inUse)
                                         clicks.map { pluginConfig } handledBy activeSearchPluginConfigurationStore.update
                                     }
-                                    help()
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)
@@ -217,6 +216,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
             jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
                 pluginConfigurationStore.addOrReplace(decoded)
             }
+            help()
         }
 
         selectedPluginTypeStore.data.render { selectedPlugin ->
