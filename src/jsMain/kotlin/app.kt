@@ -3,18 +3,28 @@ import components.row
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
+import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
+import kotlinx.coroutines.delay
 import metrics.metrics
 import testcases.testCases
 import search.searchScreen
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
+import kotlin.time.Duration.Companion.milliseconds
 
 suspend fun main() {
     koinInit()
+    val cookiePermissionStore = koin.get<CookiePermissionStore>()
+    cookiePermissionStore.awaitLoaded()
+    // prevent issue with cookie screen briefly flashing on reload; init does it's thing quickly but not synchronously
+    delay(50.milliseconds)
     render("#target") { // using id selector here, leave blank to use document.body by default
+        busyPopupMountPoint()
+
+        cookiePopup()
         div("h-screen flex flex-col overflow-hidden") {
             div("bg-blueBright-50 p-2 flex flex-col md:flex-row w-full align-middle justify-between") {
                 row {
@@ -28,6 +38,11 @@ suspend fun main() {
                 mainView()
             }
         }
+        toastContainer(
+            "messages", // name
+            "absolute bottom-5 left-1/2 -translate-x-48 mx-auto flex flex-col gap-2 place-items-center w-96"
+        )
+        portalRoot()
     }
 }
 
@@ -42,8 +57,6 @@ private fun RenderContext.rankQuestStudio() {
 private fun RenderContext.mainView() {
     val router = koin.get<MapRouter>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-    busyPopupMountPoint()
-    cookiePopup()
     div {
         div("w-full") {
 
@@ -74,9 +87,4 @@ private fun RenderContext.mainView() {
             }
         }
     }
-    toastContainer(
-        "messages", // name
-        "absolute bottom-5 left-1/2 -translate-x-48 mx-auto flex flex-col gap-2 place-items-center w-96"
-    )
-    portalRoot()
 }

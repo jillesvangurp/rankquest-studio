@@ -4,9 +4,11 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.Store
 import kotlinx.browser.window
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("LeakingThis")
 open class LocalStoringStore<T>(
@@ -17,6 +19,10 @@ open class LocalStoringStore<T>(
     RootStore<T?>(initialData) {
     private var latest: T? = null
     private var loaded=false
+
+    suspend fun awaitLoaded() {
+        while(!loaded) delay(20.milliseconds)
+    }
 
     fun nonNullableStore(defaultValue: T): RootStore<T> {
         val store = RootStore(defaultValue)
