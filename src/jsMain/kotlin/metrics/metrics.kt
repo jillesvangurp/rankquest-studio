@@ -313,7 +313,7 @@ val Metric.explanation
 
             Metric.ExpectedReciprocalRank -> """
                 Expected reciprocal rank calculates the probability that each result is the one the 
-                user is looking for. If a documents with lowe rating appear before one with a higher
+                user is looking for. If a documents with lower rating appear before one with a higher
                 rating, the score is lower than if the better rated results appear first.
             """.trimIndent()
 
