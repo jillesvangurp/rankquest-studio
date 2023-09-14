@@ -8,21 +8,47 @@ import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 
 
+enum class ZPriority {
+    NORMAL,
+    PLUS,
+    TOP
+}
+
+fun RenderContext.zDiv(priority: ZPriority, content: HtmlTag<HTMLDivElement>.() -> Unit) {
+    when(priority) {
+        ZPriority.NORMAL -> div("z-5", content = content) // below fritz2 Modal (confirm dialog)
+        ZPriority.PLUS -> div("z-20", content = content)
+        ZPriority.TOP -> div("z-50", content = content)
+    }
+}
+
 fun RenderContext.overlay(
-    baseClass: String? = "absolute top-48 left-1/2 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",
+    baseClass: String? = "absolutetop-48 left-1/2 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",
+    priority: ZPriority = ZPriority.NORMAL,
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
-    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-20") {
-        div(baseClass, content = content)
+    zDiv(priority) {
+        div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 ") {
+            div(baseClass, content = content)
+        }
     }
 }
 
 fun RenderContext.overlayLarge(
     baseClass: String? = "mx-auto bg-white h-screen w-5/6 p-5 flex flex-col overflow-y-auto",
+    priority: ZPriority = ZPriority.NORMAL,
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
-    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-20") {
-        div(baseClass, content = content)
+    zDiv(priority) {
+        div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90") {
+            div(baseClass, content = content)
+        }
+    }
+}
+
+suspend fun RenderContext.modalMountPoint(id: String = "modal-mount-point") {
+    div(id = id) {
+
     }
 }
 
@@ -101,15 +127,14 @@ suspend fun confirm(
     }
 }
 
-
-fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String) {
+fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPriority: ZPriority = ZPriority.TOP) {
     val infoPopoverOpenStore = storeOf(false)
     secondaryButton(iconSource = SvgIconSource.Question) {
         clicks.map { true } handledBy infoPopoverOpenStore.update
     }
     infoPopoverOpenStore.data.render {opened ->
         if(opened) {
-            overlayLarge {
+            overlayLarge(priority = zPriority) {
                 h1 { +title }
                 markdownDiv(markdown)
                 primaryButton {

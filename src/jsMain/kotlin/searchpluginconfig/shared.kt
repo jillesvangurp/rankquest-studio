@@ -56,7 +56,7 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
                 editConfigurationStore.update(null)
             }
         }
-        infoPopup(helpTitle,helpText)
+        infoPopup(helpTitle, helpText)
 //        infoModal(helpTitle,helpText)
     }
 }

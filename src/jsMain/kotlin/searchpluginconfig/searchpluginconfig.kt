@@ -42,6 +42,8 @@ fun RenderContext.pluginConfiguration() {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
+    val showMetricsEditor = storeOf(false)
+
     centeredMainPanel {
 
         val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
@@ -74,7 +76,6 @@ fun RenderContext.pluginConfiguration() {
                                 )
                             )
                         }
-                        val showMetricsEditor = storeOf(false)
                         leftRightRow {
                             div {
                                 +pluginConfig.name
@@ -112,9 +113,6 @@ fun RenderContext.pluginConfiguration() {
                     }
                     div("w-full place-items-end mt-10") {
                         leftRightRow {
-//                            switchField("Show Demo Plugins") {
-//                                value(showDemoContentStore)
-//                            }
                             if (showDemoContent) {
                                 a {
                                     +"Hide Demo Content"
@@ -376,17 +374,13 @@ fun RenderContext.metricsEditor(
                                             }
                                             metricConfigurationsStore.update(metricConfigurationsStore.current.map {
                                                 if (it.name == mc.name) {
-                                                    it.copy(
+                                                    mc.copy(
                                                         name = nameStore.current, params = newValues
                                                     )
                                                 } else {
                                                     it
                                                 }
                                             })
-
-                                            editMetricStore.update(null)
-                                            showMetricsEditor.update(false)
-
                                         }
                                     }
                                 }
@@ -410,6 +404,12 @@ fun RenderContext.metricsEditor(
                                             }
                                         }
                                     }
+                                    primaryButton {
+                                        +"Cancel"
+                                        clicks handledBy {
+                                            showMetricsPickerStore.update(false)
+                                        }
+                                    }
                                 } else {
                                     h2 { +"Create new $selectedMetric metric" }
                                     val metricNameStore = storeOf(selectedMetric.name)
@@ -420,8 +420,8 @@ fun RenderContext.metricsEditor(
                                         secondaryButton {
                                             +"Cancel"
                                             clicks handledBy {
-                                                showMetricsPickerStore.update(false)
                                                 newMetricTypeStore.update(null)
+                                                showMetricsPickerStore.update(false)
                                             }
                                         }
 
@@ -432,7 +432,6 @@ fun RenderContext.metricsEditor(
                                             clicks handledBy {
                                                 showMetricsPickerStore.update(false)
                                                 newMetricTypeStore.update(null)
-//                                                showMetricsEditor.update(false)
                                                 val newConfig = MetricConfiguration(
                                                     metric = selectedMetric,
                                                     name = metricNameStore.current,
@@ -452,7 +451,7 @@ fun RenderContext.metricsEditor(
                                 if (currentMetric == null) {
                                     row {
                                         secondaryButton {
-                                            +"Cancel"
+                                            +"Close"
                                             clicks handledBy {
                                                 showMetricsPickerStore.update(false)
                                                 newMetricTypeStore.update(null)
