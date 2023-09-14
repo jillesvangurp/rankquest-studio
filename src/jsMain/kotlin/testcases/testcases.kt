@@ -102,95 +102,96 @@ fun RenderContext.testCases() {
                 }
             } else {
                 ratedSearchesStore.data.render { ratedSearches ->
-
-                    row {
-                        primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
-                            disabled(ratedSearches.isNullOrEmpty())
-                            clicks handledBy {
-                                confirm(
-                                    "Are you sure you want to do this?",
-                                    "This remove all your rated searches. Make sure to download your rated searches first!"
-                                ) {
-                                    ratedSearchesStore.update(listOf())
-                                    toast("messages", duration = 3.seconds.inWholeMilliseconds) {
-                                        +"Cleared!"
-                                    }
-                                }
-                            }
-                        }
-                        jsonDownloadButton(
-                            ratedSearchesStore,
-                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
-                            ListSerializer(RatedSearch.serializer())
-                        )
-                        jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
-                            ratedSearchesStore.update(decoded)
-                        }
-                        showDemoContentStore.data.render { showDemo ->
-                            if (showDemo) {
-                                primaryButton {
-                                    +"Load Demo Movies Search Test Cases"
-                                    clicks handledBy {
-                                        confirm(
-                                            "Are you sure?",
-                                            "This will override your current test cases. Download them first!"
-                                        ) {
-                                            http("movie-quotes-test-cases.json").get().body()
-                                                .let<String, List<RatedSearch>> { body ->
-                                                    DEFAULT_JSON.decodeFromString(body)
-                                                }.let { testCases ->
-                                                    ratedSearchesStore.update(testCases)
-                                                }
+                    leftRightRow {
+                        row {
+                            primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
+                                disabled(ratedSearches.isNullOrEmpty())
+                                clicks handledBy {
+                                    confirm(
+                                        "Are you sure you want to do this?",
+                                        "This remove all your rated searches. Make sure to download your rated searches first!"
+                                    ) {
+                                        ratedSearchesStore.update(listOf())
+                                        toast("messages", duration = 3.seconds.inWholeMilliseconds) {
+                                            +"Cleared!"
                                         }
                                     }
                                 }
                             }
+                            jsonDownloadButton(
+                                ratedSearchesStore,
+                                "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+                                ListSerializer(RatedSearch.serializer())
+                            )
+                            jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
+                                ratedSearchesStore.update(decoded)
+                            }
+                            showDemoContentStore.data.render { showDemo ->
+                                if (showDemo) {
+                                    primaryButton {
+                                        +"Load Demo Movies Search Test Cases"
+                                        clicks handledBy {
+                                            confirm(
+                                                "Are you sure?",
+                                                "This will override your current test cases. Download them first!"
+                                            ) {
+                                                http("movie-quotes-test-cases.json").get().body()
+                                                    .let<String, List<RatedSearch>> { body ->
+                                                        DEFAULT_JSON.decodeFromString(body)
+                                                    }.let { testCases ->
+                                                        ratedSearchesStore.update(testCases)
+                                                    }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                         }
                         infoPopup(
                             "Creating Test Cases", """
-                            This screen allows you to review and modify your test cases. When you create a test case
-                            from the search screen, the results simply get rated in descending order. You can use this 
-                            screen to change the ratings. 
-                            
-                            ## Demo content
-                            
-                            If you enable show demo content in the configuration screen and use one of the two demo
-                            plugins, you can load some sample test cases here and play with those. 
-                            
-                            ## What is a Test Case
-                            
-                            A test case is a rated search with:
-                            
-                            - An id, which is a content hash of the search context
-                            - A search context with parameters to query your search service
-                            - A list of rated search results. 
-                            - A comment field that you can use to document your reasons for the rating or inclusion
-                            
-                            ## Ratings and their meaning
-                            
-                            A rating is a number of 0 or higher. How high your ratings should be is up to you. But for most
-                            metrics, something simple like a rating between 0 and 5 should be more than enough.
-                            
-                            A rating of zero means the document is not relevant. Higher ratings indicate a higher relevance.
-                            
-                            ## Adding results to a test case
-                            
-                            If you do a search in the search tool and then switch back to the test cases screen,
-                            you can add results from the search screen to any test case. This is a nice way to
-                            add documents that you know should be produced that the current search does not produce.
-                            
-                            A second way to add results to test cases is from the metrics screen. When you review
-                             the metrics, the the details for each test case will list any unrated results and give you
-                             the opportunity to add those to the test case.
-                            
-                            ## Importing and Exporting
-                            
-                            You can download your test cases as a json file and later re-import them. You should use
-                            this feature to store your ratings in a safe place. A good practice is to keep them in a git
-                            repository. You can create specialized ratings files for different use cases, topics, etc. 
-                        """.trimIndent()
+                                This screen allows you to review and modify your test cases. When you create a test case
+                                from the search screen, the results simply get rated in descending order. You can use this 
+                                screen to change the ratings. 
+                                
+                                ## Demo content
+                                
+                                If you enable show demo content in the configuration screen and use one of the two demo
+                                plugins, you can load some sample test cases here and play with those. 
+                                
+                                ## What is a Test Case
+                                
+                                A test case is a rated search with:
+                                
+                                - An id, which is a content hash of the search context
+                                - A search context with parameters to query your search service
+                                - A list of rated search results. 
+                                - A comment field that you can use to document your reasons for the rating or inclusion
+                                
+                                ## Ratings and their meaning
+                                
+                                A rating is a number of 0 or higher. How high your ratings should be is up to you. But for most
+                                metrics, something simple like a rating between 0 and 5 should be more than enough.
+                                
+                                A rating of zero means the document is not relevant. Higher ratings indicate a higher relevance.
+                                
+                                ## Adding results to a test case
+                                
+                                If you do a search in the search tool and then switch back to the test cases screen,
+                                you can add results from the search screen to any test case. This is a nice way to
+                                add documents that you know should be produced that the current search does not produce.
+                                
+                                A second way to add results to test cases is from the metrics screen. When you review
+                                 the metrics, the the details for each test case will list any unrated results and give you
+                                 the opportunity to add those to the test case.
+                                
+                                ## Importing and Exporting
+                                
+                                You can download your test cases as a json file and later re-import them. You should use
+                                this feature to store your ratings in a safe place. A good practice is to keep them in a git
+                                repository. You can create specialized ratings files for different use cases, topics, etc. 
+                            """.trimIndent()
                         )
-
                     }
 
                     if (ratedSearches.isNullOrEmpty()) {

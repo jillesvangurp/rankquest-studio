@@ -176,7 +176,7 @@ fun RenderContext.pluginConfiguration() {
     }
 }
 
-private fun HtmlTag<HTMLDivElement>.help() {
+private fun RenderContext.help() {
     infoPopup(
         title = "Configuration Screen",
         markdown = """
@@ -241,18 +241,21 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
-        row {
-            BuiltinPlugins.entries.forEach { p ->
-                primaryButton {
-                    +"New ${p.name}"
-                    clicks.map { p.name } handledBy selectedPluginTypeStore.update
+        leftRightRow {
+            row {
+                BuiltinPlugins.entries.forEach { p ->
+                    primaryButton {
+                        +"New ${p.name}"
+                        clicks.map { p.name } handledBy selectedPluginTypeStore.update
+                    }
                 }
-            }
-            jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
-                pluginConfigurationStore.addOrReplace(decoded)
+                jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
+                    pluginConfigurationStore.addOrReplace(decoded)
+                }
             }
             help()
         }
+
 
         selectedPluginTypeStore.data.render { selectedPlugin ->
             BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->

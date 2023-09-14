@@ -23,19 +23,19 @@ fun RenderContext.zDiv(priority: ZPriority, content: HtmlTag<HTMLDivElement>.() 
 }
 
 fun RenderContext.overlay(
-    baseClass: String? = "absolutetop-48 left-1/2 bg-white min-h-48 w-96 p-5 flex flex-col justify-between over-flow-auto",
+    baseClass: String? = "mx-auto bg-white h-screen md:w-3/6 p-5 flex flex-col overflow-y-auto",
     priority: ZPriority = ZPriority.NORMAL,
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
     zDiv(priority) {
-        div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 ") {
+        div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90") {
             div(baseClass, content = content)
         }
     }
 }
 
 fun RenderContext.overlayLarge(
-    baseClass: String? = "mx-auto bg-white h-screen w-5/6 p-5 flex flex-col overflow-y-auto",
+    baseClass: String? = "mx-auto bg-white h-screen md:w-5/6 p-5 flex flex-col overflow-y-auto",
     priority: ZPriority = ZPriority.NORMAL,
     content: HtmlTag<HTMLDivElement>.() -> Unit
 ) {
@@ -134,7 +134,7 @@ fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPri
     }
     infoPopoverOpenStore.data.render {opened ->
         if(opened) {
-            overlayLarge(priority = zPriority) {
+            overlay(priority = zPriority) {
                 h1 { +title }
                 markdownDiv(markdown)
                 primaryButton {

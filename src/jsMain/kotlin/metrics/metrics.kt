@@ -75,18 +75,21 @@ fun RenderContext.metrics() {
                         }
 
                     }
-                    row {
-                        primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
-                            clicks handledBy metricsOutputStore.measure
-                        }
-                        jsonDownloadButton(
-                            contentStore = metricsOutputStore,
-                            fileName = "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
-                            serializer = ListSerializer(MetricsOutput.serializer())
-                        )
+                    leftRightRow {
+                        row {
+                            primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
+                                clicks handledBy metricsOutputStore.measure
+                            }
+                            jsonDownloadButton(
+                                contentStore = metricsOutputStore,
+                                fileName = "${searchPluginConfiguration.name} metrics ${Clock.System.now()}.json",
+                                serializer = ListSerializer(MetricsOutput.serializer())
+                            )
 
-                        jsonFileImport(ListSerializer(MetricsOutput.serializer())) { decoded ->
-                            metricsOutputStore.update(decoded)
+                            jsonFileImport(ListSerializer(MetricsOutput.serializer())) { decoded ->
+                                metricsOutputStore.update(decoded)
+                            }
+
                         }
                         infoPopup(
                             "Exploring Metrics", """
@@ -124,9 +127,7 @@ fun RenderContext.metrics() {
                             Note, future versions of this tool may add the ability to compare metrics as well.
                         """.trimIndent()
                         )
-
                     }
-
                     metricsOutputStore.data.render { metrics ->
                         div("w-full") {
                             metrics?.forEach { (_, metric, metricResult) ->
