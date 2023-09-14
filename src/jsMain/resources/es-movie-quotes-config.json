@@ -11,15 +11,99 @@
         },
         {
             "type": "str",
-            "name": "text",
+            "name": "q",
             "defaultValue": "",
             "placeHolder": ""
         }
     ],
     "metrics": [
+        {
+            "name": "PrecisionAtK",
+            "metric": "PrecisionAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "name": "RecallAtK",
+            "metric": "RecallAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "name": "MeanReciprocalRank",
+            "metric": "MeanReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "name": "ExpectedReciprocalRank",
+            "metric": "ExpectedReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "maxRelevance",
+                    "value": 5
+                }
+            ]
+        },
+        {
+            "name": "DiscountedCumulativeGain",
+            "metric": "DiscountedCumulativeGain",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "useLinearGains",
+                    "value": false
+                }
+            ]
+        },
+        {
+            "name": "NormalizedDiscountedCumulativeGain",
+            "metric": "NormalizedDiscountedCumulativeGain",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 5
+                },
+                {
+                    "name": "useLinearGains",
+                    "value": false
+                }
+            ]
+        }
     ],
     "pluginSettings": {
-        "queryTemplate": "{\n  \"size\": {{size}},\n  \"query\": {\n    \"bool\": {\n      \"should\": [\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"]\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"phrase_prefix\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"cross_fields\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"best_fields\",\n            \"boost\": 0.1,\n            \"fuzziness\": \"AUTO\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "queryTemplate": "{\n  \"size\": {{size}},\n  \"query\": {\n    \"bool\": {\n      \"should\": [\n        {\n          \"multi_match\": {\n            \"query\": \"{{q}}\",\n            \"fields\": [\"quote^2\",\"movie\"]\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{q}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"phrase_prefix\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{q}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"cross_fields\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{q}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"best_fields\",\n            \"boost\": 0.1,\n            \"fuzziness\": \"AUTO\"\n          }\n        }\n      ]\n    }\n  }\n}",
         "index": "",
         "labelFields": [
             "quote",
