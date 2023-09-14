@@ -209,54 +209,85 @@
         ]
     },
     {
-        "id": "+QmpiCGmc+PwtgHaYE4bcg==",
+        "id": "cW7paUweHYyLULhKKT9Biw==",
         "searchContext": {
             "size": "10",
-            "text": "the big le"
+            "q": "the big lebowski"
         },
         "ratings": [
             {
-                "documentId": "hOf4k4oB33WtPo2L9ezG",
-                "rating": 5,
-                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
-            }
-        ]
-    },
-    {
-        "id": "/iD24zoP2QESFiyAfpxsGw==",
-        "searchContext": {
-            "size": "10",
-            "text": "dudenezz"
-        },
-        "ratings": [
-            {
-                "documentId": "hOf4k4oB33WtPo2L9ezG",
-                "rating": 5,
-                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
-            }
-        ]
-    },
-    {
-        "id": "cCQfWO10EyAso09XVvkzPw==",
-        "searchContext": {
-            "size": "10",
-            "text": "el duderino"
-        },
-        "ratings": [
-            {
-                "documentId": "hOf4k4oB33WtPo2L9ezG",
+                "documentId": "202",
                 "rating": 5,
                 "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
             },
             {
-                "documentId": "Z-f5k4oB33WtPo2LBe7h",
-                "rating": 5,
-                "label": "You're really lucky, you know that? You didn't have to wait your whole life to do something special. | El Camino | 2019"
+                "documentId": "432",
+                "rating": 2,
+                "label": "I'm not a big fat panda. I'm THE big fat panda. | Kung Fu Panda | 2008"
             },
             {
-                "documentId": "eef5k4oB33WtPo2LBe7h",
+                "documentId": "19",
+                "rating": 2,
+                "label": "I am big! It's the pictures that got small. | Sunset Blvd. | 1950"
+            }
+        ]
+    },
+    {
+        "id": "rpxcWEewcRvxvuFQPHANMQ==",
+        "searchContext": {
+            "size": "10",
+            "q": "the big leb"
+        },
+        "ratings": [
+            {
+                "documentId": "432",
+                "rating": 1,
+                "label": "I'm not a big fat panda. I'm THE big fat panda. | Kung Fu Panda | 2008"
+            },
+            {
+                "documentId": "202",
                 "rating": 5,
-                "label": "Dude, you are on fire. | El Camino | 2019"
+                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
+            },
+            {
+                "documentId": "19",
+                "rating": 5,
+                "label": "I am big! It's the pictures that got small. | Sunset Blvd. | 1950"
+            },
+            {
+                "documentId": "645",
+                "rating": 5,
+                "label": "If you want to change things in a big way, then you gotta make some big changes. | Creed 2 | 2018"
+            },
+            {
+                "documentId": "242",
+                "rating": 5,
+                "label": "Your eyes are like two big blue eyes. | Flintstones in Viva Rock Vegas | 2000"
+            },
+            {
+                "documentId": "324",
+                "rating": 5,
+                "label": "That's why her hair is so big.  It's full of secrets. | Mean Girls | 2004"
+            },
+            {
+                "documentId": "629",
+                "rating": 5,
+                "label": "Life is a big trap, made up of little traps... If you listen hard... sometimes you could hear them snap shut. | Sense8 | 2017"
+            },
+            {
+                "documentId": "473",
+                "rating": 5,
+                "label": "Only he knew the price he paid, to become the greatest birder of all time. | The Big Year | 2011"
+            },
+            {
+                "documentId": "402",
+                "rating": 5,
+                "label": "Bazinga! | The Big Bang theory | 2007"
+            },
+            {
+                "documentId": "226",
+                "rating": 5,
+                "label": "Fear. Fear attracts the fearful… the strong… the weak… the innocent… the corrupt. Fear. Fear is my ally. | Star Wars: Episode I – The Phantom Menace | 1999"
             }
         ]
     }
