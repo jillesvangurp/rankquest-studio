@@ -9,7 +9,6 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
-import dev.fritz2.headless.components.tooltip
 import koin
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -37,24 +36,40 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
         runWithBusy({
             ratedSearchesStore.current?.let { ratedSearches ->
                 activeSearchPluginConfigurationStore.current?.let { config ->
-                    pluginFactoryRegistry.get(config.pluginType)?.let { pf ->
+                    val pluginFactory = pluginFactoryRegistry.get(config.pluginType)
+                    if(pluginFactory==null) {
+                        console.error("plugin not found for ${config.pluginType}")
+                    } else {
+                        console.log("Using ${pluginFactory::class.simpleName}")
+                    }
+                    pluginFactory?.let { pf ->
                         val plugin = pf.create(config)
+                        console.info("measuring")
                         coroutineScope {
                             config.metrics.map { metricConfiguration ->
+                                console.log(metricConfiguration)
                                 async {
-                                    MetricsOutput(
-                                        config.name, metricConfiguration, metricConfiguration.metric.run(
+                                    try {
+                                        val results = metricConfiguration.metric.run(
                                             plugin, ratedSearches, metricConfiguration.params
                                         )
-                                    )
+                                        MetricsOutput(
+                                            config.name, metricConfiguration, results
+                                        )
+                                    } catch (e: Exception) {
+                                        console.error(e)
+                                        null
+                                    }
                                 }
                             }.awaitAll()
-                        }
+                        }.also {
+                            console.log("Done")
+                        }.filterNotNull()
                     }
                 }
-            } ?: listOf()
-        }) {
-            update(it)
+            }
+        }) { results ->
+            update(results)
         }
         it
     }
