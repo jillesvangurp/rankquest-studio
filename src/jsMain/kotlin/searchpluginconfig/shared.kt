@@ -32,7 +32,10 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     row {
         secondaryButton {
             +"Cancel"
-            clicks.map { "_" } handledBy selectedPluginStore.update
+            clicks.handledBy {
+                selectedPluginStore.update("")
+                editConfigurationStore.update(null)
+            }
         }
         primaryButton {
             if (existing == null) {

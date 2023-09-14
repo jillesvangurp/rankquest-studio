@@ -488,7 +488,6 @@ fun RenderContext.metricsEditor(
                     clicks handledBy {
                         showMetricsEditor.update(false)
                         newMetricTypeStore.update(null)
-                        // FIXME does not save anything
                     }
                 }
             }
