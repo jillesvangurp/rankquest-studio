@@ -98,10 +98,9 @@ fun RenderContext.searchScreen() {
                                     clicks.map {
                                         val ratings = searchResultsStore.current?.let {
                                             it.getOrNull()?.let { searchResults ->
-                                                var rate = searchResults.searchResultList.size
                                                 searchResults.searchResultList.map {
                                                     SearchResultRating(
-                                                        it.id, label = it.label, rating = rate--
+                                                        it.id, label = it.label, rating = 5
                                                     )
                                                 }
                                             }
