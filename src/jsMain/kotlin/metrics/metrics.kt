@@ -198,81 +198,85 @@ private fun RenderContext.metricResult(
                 }
                 if (expanded) {
                     metricResult.details.forEach { metricResult ->
-                        div("w-full") {
-                            +metricResult.id
-                            +": "
-                            +rss[metricResult.id]!!.searchContext.toString()
-                        }
-                        div {
-                            +"${metricResult.metric}"
-                        }
-                        div("flex flex-row w-full hover:bg-blueBright-200") {
-                            div("w-full flex flax-col") {
-                                div("w-full") {
-                                    h2 { +"Rated results" }
-                                    div("ml-5 flex flex-row w-full bg-blueBright-200") {
-                                        div("w-1/6") {
-                                            +"Doc ID"
-                                        }
-                                        div("w-1/6") {
-                                            +"Rating"
-                                        }
-                                        div("w-3/6") {
-                                            +"Label"
-                                        }
-                                        div("w-1/6") {
-                                            +"Metric"
-                                        }
-                                    }
-                                    metricResult.hits.forEach { (doc, score) ->
-                                        div("ml-5 flex flex-row w-full") {
-                                            div("w-1/6") {
-                                                +doc.docId
-                                            }
-                                            div("w-1/6") {
-                                                +(rss[metricResult.id]?.ratings?.firstOrNull { it.documentId == doc.docId }?.rating?.toString()
-                                                    ?: "1")
-                                            }
+                        border {
 
-                                            div("w-3/6") {
-                                                +(doc.label ?: "-")
+
+                            div("w-full") {
+                                +metricResult.id
+                                +": "
+                                +rss[metricResult.id]!!.searchContext.toString()
+                            }
+                            div {
+                                +"${metricResult.metric}"
+                            }
+                            div("flex flex-row w-full hover:bg-blueBright-200") {
+                                div("w-full flex flax-col") {
+                                    div("w-full") {
+                                        h2 { +"Rated results" }
+                                        div("ml-5 flex flex-row w-full bg-blueBright-200") {
+                                            div("w-1/6") {
+                                                +"Doc ID"
                                             }
                                             div("w-1/6") {
-                                                +score.toString()
+                                                +"Rating"
+                                            }
+                                            div("w-3/6") {
+                                                +"Label"
+                                            }
+                                            div("w-1/6") {
+                                                +"Metric"
                                             }
                                         }
-                                    }
-                                    if (metricResult.unRated.isNotEmpty()) {
-                                        h2 { +"Unrated results" }
-                                        metricResult.unRated.forEach { doc ->
+                                        metricResult.hits.forEach { (doc, score) ->
                                             div("ml-5 flex flex-row w-full") {
                                                 div("w-1/6") {
                                                     +doc.docId
                                                 }
-                                                div("w-4/6") {
-                                                    +(doc.label ?: "-")
+                                                div("w-1/6") {
+                                                    +(rss[metricResult.id]?.ratings?.firstOrNull { it.documentId == doc.docId }?.rating?.toString()
+                                                        ?: "1")
                                                 }
 
-                                                rss[metricResult.id]?.let { ratedSearch ->
-                                                    if (ratedSearch.ratings.firstOrNull { it.documentId == doc.docId } == null) {
-                                                        iconButton(SvgIconSource.Plus) {
-                                                            clicks.mapNotNull {
-                                                                ratedSearch.copy(
-                                                                    ratings = ratedSearch.ratings + SearchResultRating(
-                                                                        documentId = doc.docId,
-                                                                        rating = 1,
-                                                                        label = doc.label
+                                                div("w-3/6") {
+                                                    +(doc.label ?: "-")
+                                                }
+                                                div("w-1/6") {
+                                                    +score.toString()
+                                                }
+                                            }
+                                        }
+                                        if (metricResult.unRated.isNotEmpty()) {
+                                            h2 { +"Unrated results" }
+                                            metricResult.unRated.forEach { doc ->
+                                                div("ml-5 flex flex-row w-full") {
+                                                    div("w-1/6") {
+                                                        +doc.docId
+                                                    }
+                                                    div("w-4/6") {
+                                                        +(doc.label ?: "-")
+                                                    }
+
+                                                    rss[metricResult.id]?.let { ratedSearch ->
+                                                        if (ratedSearch.ratings.firstOrNull { it.documentId == doc.docId } == null) {
+                                                            iconButton(SvgIconSource.Plus) {
+                                                                clicks.mapNotNull {
+                                                                    ratedSearch.copy(
+                                                                        ratings = ratedSearch.ratings + SearchResultRating(
+                                                                            documentId = doc.docId,
+                                                                            rating = 1,
+                                                                            label = doc.label
+                                                                        )
                                                                     )
-                                                                )
 
-                                                            } handledBy ratedSearchesStore.addOrReplace
-                                                        }
-                                                    } else {
-                                                        iconButton(SvgIconSource.Plus) {
-                                                            clicks.mapNotNull {
-                                                                ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != doc.docId })
+                                                                } handledBy ratedSearchesStore.addOrReplace
+                                                            }
+                                                        } else {
+                                                            iconButton(SvgIconSource.Plus) {
+                                                                clicks.mapNotNull {
+                                                                    ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != doc.docId })
 
-                                                            } handledBy ratedSearchesStore.addOrReplace
+                                                                } handledBy ratedSearchesStore.addOrReplace
+                                                            }
                                                         }
                                                     }
                                                 }
