@@ -260,36 +260,42 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
         selectedPluginTypeStore.data.render { selectedPlugin ->
             BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
                 overlayLarge {
-                    val configNameStore = storeOf(plugin.name)
+                    editConfigurationStore.data.render { existing ->
+                        val configNameStore = storeOf(existing?.name?:plugin.name)
 
-                    div("flex flex-col items-left gap-y-2 w-5/6 items-center m-auto") {
-                        h1 { +"New search configuration for $selectedPlugin" }
-                        textField(
-                            placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
-                        ) {
-                            value(configNameStore)
-                        }
-                        // plugin settings
-                        when (plugin) {
-                            BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
-                                selectedPluginStore = selectedPluginTypeStore,
-                                configNameStore = configNameStore,
-                                editConfigurationStore = editConfigurationStore
-                            )
+                        div("flex flex-col items-left gap-y-2 w-5/6 items-center m-auto") {
+                            if(existing==null) {
+                                h1 { +"New search configuration for $selectedPlugin" }
+                            } else {
+                                h1 { +"Edit ${existing.name}"}
+                            }
+                            textField(
+                                placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
+                            ) {
+                                value(configNameStore)
+                            }
+                            // plugin settings
+                            when (plugin) {
+                                BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
+                                    selectedPluginStore = selectedPluginTypeStore,
+                                    configNameStore = configNameStore,
+                                    editConfigurationStore = editConfigurationStore
+                                )
 
-                            BuiltinPlugins.JsonGetAPIPlugin -> {
-                                httpGetPluginEditor(
+                                BuiltinPlugins.JsonGetAPIPlugin -> {
+                                    httpGetPluginEditor(
+                                        selectedPluginStore = selectedPluginTypeStore,
+                                        configNameStore = configNameStore,
+                                        editConfigurationStore = editConfigurationStore
+                                    )
+                                }
+
+                                BuiltinPlugins.JsonPostAPIPlugin -> httpPostPluginEditor(
                                     selectedPluginStore = selectedPluginTypeStore,
                                     configNameStore = configNameStore,
                                     editConfigurationStore = editConfigurationStore
                                 )
                             }
-
-                            BuiltinPlugins.JsonPostAPIPlugin -> httpPostPluginEditor(
-                                selectedPluginStore = selectedPluginTypeStore,
-                                configNameStore = configNameStore,
-                                editConfigurationStore = editConfigurationStore
-                            )
                         }
                     }
                 }
