@@ -31,7 +31,7 @@ fun RenderContext.httpGetPluginEditor(
         val pathToHitsStore = storeOf(settings?.jsonPathToHits?.joinToString(".") ?: "")
         val pathToIdStore = storeOf(settings?.jsonPathToId?.joinToString(".") ?: "")
         val pathToLabelStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
-        val pathToSizeStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
+        val pathToSizeStore = storeOf(settings?.jsonPathToSize?.joinToString(".") ?: "")
         val searchContextParamsStore = storeOf(settings?.searchContextParams?: mapOf())
         val headersStore = storeOf(settings?.requestHeaders?: mapOf())
 
