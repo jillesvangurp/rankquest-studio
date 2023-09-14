@@ -268,7 +268,7 @@ private fun RenderContext.metricResult(
                                                             } handledBy ratedSearchesStore.addOrReplace
                                                         }
                                                     } else {
-                                                        iconButton(SvgIconSource.Minus) {
+                                                        iconButton(SvgIconSource.Plus) {
                                                             clicks.mapNotNull {
                                                                 ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != doc.docId })
 
