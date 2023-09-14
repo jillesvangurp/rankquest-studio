@@ -12,6 +12,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.js.*
 import io.ktor.client.plugins.logging.*
 import koin
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -32,7 +33,6 @@ fun RenderContext.pluginConfiguration() {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
-    val showMetricsEditor = storeOf(false)
 
     centeredMainPanel {
 
@@ -58,13 +58,17 @@ fun RenderContext.pluginConfiguration() {
                             }
                         }
                     }.forEach { pluginConfig ->
+                        val showMetricsEditor = storeOf(false)
                         val metricConfigurationsStore = storeOf(pluginConfig.metrics)
                         metricConfigurationsStore.data handledBy { newMetrics ->
-                            pluginConfigurationStore.addOrReplace(
-                                pluginConfig.copy(
-                                    metrics = newMetrics
+                            if(pluginConfig.metrics != newMetrics) {
+                                console.log("updating metrics for ${pluginConfig.name}")
+                                pluginConfigurationStore.addOrReplace(
+                                    pluginConfig.copy(
+                                        metrics = newMetrics
+                                    )
                                 )
-                            )
+                            }
                         }
                         leftRightRow {
                             div {
