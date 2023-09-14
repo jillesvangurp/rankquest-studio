@@ -41,7 +41,9 @@ fun RenderContext.centeredMainPanel(content: HtmlTag<HTMLDivElement>.() -> Unit)
 fun Tag<HTMLElement>.showTooltip(
     text: String
 ) {
-    tooltip("bg-blueBright-900 text-white p-2") {
-        +text
-    }
+    title(text)
+    // weird issue with resize Loop
+//    tooltip("bg-blueBright-900 text-white p-2") {
+//        +text
+//    }
 }
