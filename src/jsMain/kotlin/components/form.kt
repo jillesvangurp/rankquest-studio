@@ -69,7 +69,7 @@ fun RenderContext.textAreaField(
                 textareaTextfield(
                     """w-4/6 basis-160 bg-blueBright-100 border border-blueBright-300 
                 |text-blueBright-900 text-sm rounded-lg focus:ring-blueBright-500 
-                |focus:border-blueBright-500 p-2""".trimMargin()
+                |focus:border-blueBright-500 p-2 h-48""".trimMargin()
                 ) {
                     placeHolder?.let { pl ->
                         placeholder(pl)
