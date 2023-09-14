@@ -31,8 +31,8 @@ fun RenderContext.httpGetPluginEditor(
         val pathToHitsStore = storeOf(settings?.jsonPathToHits?.joinToString(".") ?: "")
         val pathToIdStore = storeOf(settings?.jsonPathToId?.joinToString(".") ?: "")
         val pathToLabelStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
-        val searchContextParamsStore = storeOf(mapOf<String,String>())
-        val headersStore = storeOf(mapOf<String,String>())
+        val searchContextParamsStore = storeOf(settings?.searchContextParams?: mapOf())
+        val headersStore = storeOf(settings?.requestHeaders?: mapOf())
 
         textField("https://mydomain.com/mysearch", "url", "Url to your API") {
             value(urlStore)
@@ -63,7 +63,8 @@ fun RenderContext.httpGetPluginEditor(
         val settingsGenerator = {
             JsonGetAPIPluginConfig(
                 searchUrl = urlStore.current,
-                requestHeaders = mapOf(),
+                requestHeaders = headersStore.current,
+                searchContextParams = searchContextParamsStore.current,
                 jsonPathToHits = pathToHitsStore.current.split('.'),
                 jsonPathToId = pathToIdStore.current.split('.'),
                 jsonPathToLabel = pathToLabelStore.current.split('.'),

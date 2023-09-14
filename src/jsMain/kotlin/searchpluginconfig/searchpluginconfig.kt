@@ -3,10 +3,14 @@ package searchpluginconfig
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
+import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
+import io.ktor.client.*
+import io.ktor.client.engine.js.*
+import io.ktor.client.plugins.logging.*
 import koin
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -17,6 +21,16 @@ import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
+    single {
+        PluginFactoryRegistry(
+            httpClient = HttpClient(Js) {
+                expectSuccess = true
+                install(Logging) {
+                    level = LogLevel.NONE
+                }
+            }
+        )
+    }
     singleOf(::PluginConfigurationsStore)
     singleOf(::ActiveSearchPluginConfigurationStore)
     single<Store<Boolean>>(named("showDemo")) {

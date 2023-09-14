@@ -1,16 +1,22 @@
 package searchpluginconfig
 
+import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.LocalStoringStore
 import components.busyResult
 import handlerScope
+import io.ktor.client.*
+import io.ktor.client.engine.js.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.websocket.*
 import koin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.encodeToString
 import search.SearchResultsStore
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -23,27 +29,24 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
 
     val search = handle<Map<String, String>> { config, query ->
         busyResult({
-            var outcome: Result<SearchResults>? = null
-            coroutineScope {
-                launch {
-                    if (config != null) {
-                        val selectedPlugin = current
-                        if (selectedPlugin != null) {
-                            handlerScope.launch {
-                                console.log("SEARCH $query")
-                                val searchPlugin = pluginFactoryRegistry[config.pluginType]?.create(config)
-                                outcome = searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
-                            }
-                        } else {
-                            outcome = Result.failure(IllegalArgumentException("no plugin selected"))
-                        }
-                    }
+
+            val outcome = if (config != null) {
+                val selectedPlugin = current
+                if (selectedPlugin != null) {
+                    console.log("SEARCH $query")
+                    val searchPlugin = pluginFactoryRegistry[config.pluginType]?.create(config)
+                    searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
+                        ?: Result.failure(IllegalArgumentException("search plugin not found"))
+                } else {
+                    Result.failure(IllegalArgumentException("no plugin selected"))
                 }
-                // whichever takes longer; make sure the spinner doesn't flash in and out
-                launch {
-                    delay(200.milliseconds)
-                }
-            }.join()
+            } else {
+                Result.failure(IllegalArgumentException("no plugin selected"))
+            }
+            console.log("success: " + outcome.isSuccess)
+            console.log(outcome.getOrNull()?.let {
+                DEFAULT_PRETTY_JSON.encodeToString(it)
+            })
             searchResultsStore.update(outcome)
             Result.success(true)
         }, initialTitle = "Searching", initialMessage = "Query for $query")

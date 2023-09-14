@@ -34,7 +34,7 @@ fun RenderContext.httpPostPluginEditor(
         val pathToHitsStore = storeOf(settings?.jsonPathToHits?.joinToString(".") ?: "")
         val pathToIdStore = storeOf(settings?.jsonPathToId?.joinToString(".") ?: "")
         val pathToLabelStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
-        val headersStore = storeOf(mapOf<String,String>())
+        val headersStore = storeOf(settings?.requestHeaders?: mapOf())
 
         textField("https://mydomain.com/mysearch", "url", "Url to your API") {
             value(urlStore)
@@ -69,14 +69,14 @@ fun RenderContext.httpPostPluginEditor(
         textField(
             "title", "label", ""
         ) {
-            value(pathToIdStore)
+            value(pathToLabelStore)
         }
 
         val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
         val settingsGenerator = {
             JsonPostAPIPluginConfig(
                 searchUrl = urlStore.current,
-                requestHeaders = mapOf(),
+                requestHeaders = headersStore.current,
                 requestBodyTemplate = bodyTemplateStore.current,
                 jsonPathToHits = pathToHitsStore.current.split('.'),
                 jsonPathToId = pathToIdStore.current.split('.'),
