@@ -10,6 +10,9 @@ import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
 import koin
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
@@ -35,12 +38,16 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
                 activeSearchPluginConfigurationStore.current?.let { config ->
                     pluginFactoryRegistry.get(config.pluginType)?.let { pf ->
                         val plugin = pf.create(config)
-                        config.metrics.map { metricConfiguration ->
-                            MetricsOutput(
-                                config.name, metricConfiguration, metricConfiguration.metric.run(
-                                    plugin, ratedSearches, metricConfiguration.params
-                                )
-                            )
+                        coroutineScope {
+                            config.metrics.map { metricConfiguration ->
+                                async {
+                                    MetricsOutput(
+                                        config.name, metricConfiguration, metricConfiguration.metric.run(
+                                            plugin, ratedSearches, metricConfiguration.params
+                                        )
+                                    )
+                                }
+                            }.awaitAll()
                         }
                     }
                 }
