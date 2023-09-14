@@ -46,23 +46,40 @@ fun RenderContext.searchScreen() {
                         it.name to when (it) {
                             is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
                             is SearchContextField.IntField -> storeOf("${it.defaultValue}")
-                            is SearchContextField.StringField -> storeOf("")
+                            is SearchContextField.StringField -> storeOf(it.defaultValue)
                         }
                     }
                     div {
                         for (field in config.fieldConfig) {
                             val fieldStore = stores[field.name]!!
                             when (field) {
-                                else -> {
+                                is SearchContextField.BoolField -> {
                                     textField(
-                                        placeHolder = "Type something to search for ..", label = field.name
+                                        placeHolder = "true", label = field.name
                                     ) {
                                         value(fieldStore)
-                                        changes.map {
-                                            stores.map { (f, s) -> f to s.current }.toMap()
-                                        } handledBy activeSearchPluginConfigurationStore.search
+//                                        changes.map {
+//                                            stores.map { (f, s) -> f to s.current }.toMap()
+//                                        } handledBy activeSearchPluginConfigurationStore.search
                                     }
                                 }
+
+                                is SearchContextField.IntField -> {
+                                    textField(
+                                        placeHolder = field.placeHolder, label = field.name
+                                    ) {
+                                        value(fieldStore)
+                                    }
+                                }
+
+                                is SearchContextField.StringField -> {
+                                    textField(
+                                        placeHolder = field.placeHolder, label = field.name
+                                    ) {
+                                        value(fieldStore)
+                                    }
+                                }
+
                             }
                         }
                     }
