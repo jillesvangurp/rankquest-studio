@@ -169,9 +169,9 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
                     "moviequotes",
                     MovieQuote.serializer()
                 )
-                repository.bulk {
+                repository.bulk(bulkSize = 500) {
                     current.forEach { m ->
-                        index(m)
+                        index(m, id=m.id)
                     }
                 }
             })
