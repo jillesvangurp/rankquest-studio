@@ -1,9 +1,10 @@
 package components
 
-import dev.fritz2.core.HtmlTag
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.transition
+import dev.fritz2.core.*
+import dev.fritz2.headless.components.Tooltip
+import dev.fritz2.headless.components.tooltip
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 
 fun RenderContext.row(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row gap-2 align-middle", content = content)
@@ -34,3 +35,13 @@ fun RenderContext.centeredMainPanel(content: HtmlTag<HTMLDivElement>.() -> Unit)
         )
         content.invoke(this)
     }
+
+
+
+fun Tag<HTMLElement>.showTooltip(
+    text: String
+) {
+    tooltip("bg-blueBright-900 text-white p-2") {
+        +text
+    }
+}

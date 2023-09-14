@@ -9,6 +9,7 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
+import dev.fritz2.headless.components.tooltip
 import koin
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -215,10 +216,10 @@ private fun RenderContext.metricResult(
                                         h2 { +"Rated results" }
                                         div("ml-5 flex flex-row w-full bg-blueBright-200") {
                                             div("w-1/6") {
-                                                +"Doc ID"
+                                                +"Rating"
                                             }
                                             div("w-1/6") {
-                                                +"Rating"
+                                                +"Doc ID"
                                             }
                                             div("w-3/6") {
                                                 +"Label"
@@ -230,18 +231,21 @@ private fun RenderContext.metricResult(
                                         metricResult.hits.forEach { (doc, score) ->
                                             div("ml-5 flex flex-row w-full") {
                                                 div("w-1/6") {
-                                                    +doc.docId
-                                                }
-                                                div("w-1/6") {
                                                     +(rss[metricResult.id]?.ratings?.firstOrNull { it.documentId == doc.docId }?.rating?.toString()
                                                         ?: "1")
                                                 }
-
-                                                div("w-3/6") {
-                                                    +(doc.label ?: "-")
+                                                div("w-1/6 overflow-hidden") {
+                                                    +doc.docId
+                                                    showTooltip(doc.docId)
                                                 }
-                                                div("w-1/6") {
+
+                                                div("w-3/6 overflow-hidden") {
+                                                    +(doc.label ?: "-")
+                                                    showTooltip(doc.label ?:"-")
+                                                }
+                                                div("w-1/6 overflow-hidden") {
                                                     +score.toString()
+                                                    showTooltip(score.toString())
                                                 }
                                             }
                                         }
