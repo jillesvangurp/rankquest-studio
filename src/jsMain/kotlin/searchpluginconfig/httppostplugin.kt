@@ -34,6 +34,7 @@ fun RenderContext.httpPostPluginEditor(
         val pathToHitsStore = storeOf(settings?.jsonPathToHits?.joinToString(".") ?: "")
         val pathToIdStore = storeOf(settings?.jsonPathToId?.joinToString(".") ?: "")
         val pathToLabelStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
+        val pathToSizeStore = storeOf(settings?.jsonPathToLabel?.joinToString(".") ?: "")
         val headersStore = storeOf(settings?.requestHeaders?: mapOf())
 
         textField("https://mydomain.com/mysearch", "url", "Url to your API") {
@@ -62,6 +63,11 @@ fun RenderContext.httpPostPluginEditor(
             value(pathToHitsStore)
         }
         textField(
+            "size", "pathToSize", ""
+        ) {
+            value(pathToSizeStore)
+        }
+        textField(
             "documentId", "id", ""
         ) {
             value(pathToIdStore)
@@ -81,6 +87,7 @@ fun RenderContext.httpPostPluginEditor(
                 jsonPathToHits = pathToHitsStore.current.split('.'),
                 jsonPathToId = pathToIdStore.current.split('.'),
                 jsonPathToLabel = pathToLabelStore.current.split('.'),
+                jsonPathToSize = pathToSizeStore.current.split('.'),
             ).let { DEFAULT_PRETTY_JSON.encodeToJsonElement<JsonPostAPIPluginConfig>(it) }.jsonObject
         }
 
