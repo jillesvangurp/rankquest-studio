@@ -4,6 +4,8 @@ Rankquest Studio is a tool that helps you assess how good your search service or
 querying your service and by providing rated search results. These rated search results are then used to 
 calculate **metrics**.
 
+[Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases)
+
 ## Getting started
 
 - Start by creating a **search plugin configuration**. You can also choose to play with one of the built in demo configurations. A search plugin configuration tells Rankquest studio how to fetch results from your search service. Results must be assigned an id and you can optionally extract a label from your results that is displayed. Additionally, you need to specify what parameters are needed to use your search service. Finally, you can specify a list of metric configurations that you want to measure. 
@@ -68,7 +70,7 @@ I've been working with search technology for over twenty years and with Elastics
 for the last decade. I've worked with small and big companies in various roles and still do 
 some consulting next to my main job as CTO of [FORMATION Gmbh](https://tryformation.com).
 
-If you need help with your search, want an outside opinion about your current setup, or are struggling with your search quality, I might be able to help you.
+If you need help with your search, want an outside opinion about your current setup, or are struggling with your search quality, **I might be able to help you**.
 
 As a **search consultant**, I have advised many clients over the years on how to architect and use search effectively. This usually involves both advising on query and mapping strategies, refining their product strategy, coming up with good ETL strategies, coming up with solutions for difficult problems, and educating people about all this. Unfortunately, I am not able to join your team for extended amounts of time. However, I can add a lot of value quickly and help set your team up for success. My preferred way of working is doing short, result driven products and coaching people how to do what they need to get done.
 

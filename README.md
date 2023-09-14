@@ -8,7 +8,7 @@ in your search APIs.
 - [What is Rankquest Studio](src/jsMain/resources/about.md)
 - [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases)
 - [rankquest-core](https://github.com/jillesvangurp/rankquest-core) - the search metrics implementation used by Rankquest Studio.
-- [MIT License](LICENSE)
+- [MIT License](LICENSE.md)
 
 ## Development and running Rankquest Studio locally
 
