@@ -21,16 +21,6 @@ import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
-    single {
-        PluginFactoryRegistry(
-            httpClient = HttpClient(Js) {
-                expectSuccess = true
-                install(Logging) {
-                    level = LogLevel.NONE
-                }
-            }
-        )
-    }
     singleOf(::PluginConfigurationsStore)
     singleOf(::ActiveSearchPluginConfigurationStore)
     single<Store<Boolean>>(named("showDemo")) {
