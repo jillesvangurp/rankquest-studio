@@ -1,0 +1,36 @@
+{
+    "id": "jroFLKxA4n4USrmt7IPEiQ==",
+    "name": "movies search with elastic",
+    "pluginType": "ElasticSearch",
+    "fieldConfig": [
+        {
+            "type": "int",
+            "name": "size",
+            "defaultValue": 10,
+            "placeHolder": ""
+        },
+        {
+            "type": "str",
+            "name": "text",
+            "defaultValue": "",
+            "placeHolder": ""
+        }
+    ],
+    "metrics": [
+    ],
+    "pluginSettings": {
+        "queryTemplate": "{\n  \"size\": {{size}},\n  \"query\": {\n    \"bool\": {\n      \"should\": [\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"]\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"phrase_prefix\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"cross_fields\",\n            \"boost\": 2.0\n          }\n        },\n        {\n          \"multi_match\": {\n            \"query\": \"{{text}}\",\n            \"fields\": [\"quote^2\",\"movie\"],\n            \"type\": \"best_fields\",\n            \"boost\": 0.1,\n            \"fuzziness\": \"AUTO\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "index": "",
+        "labelFields": [
+            "quote",
+            "movie",
+            "year"
+        ],
+        "host": "localhost",
+        "port": 9200,
+        "https": false,
+        "user": "",
+        "password": "",
+        "logging": false
+    }
+}

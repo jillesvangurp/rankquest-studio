@@ -9,8 +9,18 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactory
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
+import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.repository.repository
+import components.busyResult
+import components.confirm
+import components.runWithBusy
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
+import handlerScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -115,7 +125,7 @@ fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
                         should = listOf(
                             MatchQuery("quote", text, prefixMatch = true),
                             MatchQuery("movie", text, prefixMatch = true, boost = 0.25),
-                            )
+                        )
                     )
                 } else {
                     MatchAll()
@@ -138,6 +148,35 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
             // set the id property
             quotes.indices.map { i -> quotes[i].copy(id = "$i") }
         }
+    }
+    val delRecipesES = handle {
+        runWithBusy({
+            val client = SearchClient()
+            client.deleteIndex("moviequotes")
+        })
+        it
+    }
+
+    val indexEs = handle {
+        confirm(
+            "Write to localhost:9200?",
+            "This will attempt to write movies json to a locally running elasticsearch"
+        ) {
+
+            runWithBusy({
+                val client = SearchClient() // localhost:9200 is default
+                val repository = client.repository(
+                    "moviequotes",
+                    MovieQuote.serializer()
+                )
+                repository.bulk {
+                    current.forEach { m ->
+                        index(m)
+                    }
+                }
+            })
+        }
+        it
     }
 
     init {

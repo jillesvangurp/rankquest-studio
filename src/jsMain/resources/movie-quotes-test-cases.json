@@ -8,23 +8,24 @@
         "ratings": [
             {
                 "documentId": "292",
-                "rating": 1,
+                "rating": 3,
                 "label": "The Lord of the Rings: The Two Towers, 2002: My precious (1.1936949131693646)"
             },
             {
                 "documentId": "295",
-                "rating": 1,
-                "label": "The Lord of the Rings: The Two Towers, 2002: My precious... (1.1936949131693646)"
-            },
-            {
-                "documentId": "284",
-                "rating": 1,
-                "label": "The Lord of the Rings: The Two Towers, 2002: I don't like sand. It's all coarse, and rough, and irritating. And it gets everywhere. (0.15079300502320062)"
+                "rating": 3,
+                "label": "The Lord of the Rings: The Two Towers, 2002: My precious... (1.1936949131693646)",
+                "comment": "Duplicate, we don't care which"
             },
             {
                 "documentId": "683",
                 "rating": 1,
                 "label": "A Beautiful Day in the Neighbourhood, 2019: I think the best thing we can do is to let people know that each one of them is precious. (0.11936949131693647)"
+            },
+            {
+                "documentId": "284",
+                "rating": 0,
+                "label": "The Lord of the Rings: The Two Towers, 2002: I don't like sand. It's all coarse, and rough, and irritating. And it gets everywhere. (0.04814088229950173)"
             }
         ]
     },
@@ -101,11 +102,6 @@
                 "documentId": "662",
                 "rating": 2,
                 "label": "Avengers: Infinity War, 2018: That does put a smile on my face. (0.19880052279985932)"
-            },
-            {
-                "documentId": "98",
-                "rating": 1,
-                "label": "Labyrinth, 1986: It's only forever, not long at all... (0.24517763675830603)"
             }
         ]
     },
@@ -175,16 +171,6 @@
                 "documentId": "499",
                 "rating": 1,
                 "label": "The Hobbit, 2012: Where there's life there's hope. (0.33948328526117105)"
-            },
-            {
-                "documentId": "290",
-                "rating": 1,
-                "label": "The Lord of the Rings: The Two Towers, 2002: There is always hope. (0.2697953115119062)"
-            },
-            {
-                "documentId": "603",
-                "rating": 1,
-                "label": "The Force Awakens, 2015: Chewie, we're home. (0.2697953115119062)"
             }
         ]
     },
@@ -219,6 +205,58 @@
                 "documentId": "366",
                 "rating": 1,
                 "label": "Children Of Men, 2006: Y'know that ringing in your ears? That 'eeeeeeeeee'? That's the sound of the ear cells dying, like their swan song. Once it's gone you'll never hear that frequency again. Enjoy it while it lasts. (0.0674600285630108)"
+            }
+        ]
+    },
+    {
+        "id": "+QmpiCGmc+PwtgHaYE4bcg==",
+        "searchContext": {
+            "size": "10",
+            "text": "the big le"
+        },
+        "ratings": [
+            {
+                "documentId": "hOf4k4oB33WtPo2L9ezG",
+                "rating": 5,
+                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
+            }
+        ]
+    },
+    {
+        "id": "/iD24zoP2QESFiyAfpxsGw==",
+        "searchContext": {
+            "size": "10",
+            "text": "dudenezz"
+        },
+        "ratings": [
+            {
+                "documentId": "hOf4k4oB33WtPo2L9ezG",
+                "rating": 5,
+                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
+            }
+        ]
+    },
+    {
+        "id": "cCQfWO10EyAso09XVvkzPw==",
+        "searchContext": {
+            "size": "10",
+            "text": "el duderino"
+        },
+        "ratings": [
+            {
+                "documentId": "hOf4k4oB33WtPo2L9ezG",
+                "rating": 5,
+                "label": "I’m the Dude, so that’s what you call me. That or, uh His Dudeness, or uh Duder, or El Duderino, if you’re not into the whole brevity thing. | The Big Lebowski | 1998"
+            },
+            {
+                "documentId": "Z-f5k4oB33WtPo2LBe7h",
+                "rating": 5,
+                "label": "You're really lucky, you know that? You didn't have to wait your whole life to do something special. | El Camino | 2019"
+            },
+            {
+                "documentId": "eef5k4oB33WtPo2LBe7h",
+                "rating": 5,
+                "label": "Dude, you are on fire. | El Camino | 2019"
             }
         ]
     }

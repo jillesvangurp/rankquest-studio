@@ -1,11 +1,14 @@
 package searchpluginconfig
 
+import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
+import dev.fritz2.remote.http
+import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
 import io.ktor.client.*
@@ -33,7 +36,7 @@ fun RenderContext.pluginConfiguration() {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
-
+    val movieQuotesStore = koin.get<MovieQuotesStore>()
     centeredMainPanel {
 
         val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
@@ -133,6 +136,44 @@ fun RenderContext.pluginConfiguration() {
                                             }
                                         }
                                     }
+                                    secondaryButton {
+                                        +"ES Based moviesearch"
+                                        clicks handledBy {
+                                            val config = http("es-movie-quotes-config.json").get().body().let {
+                                                DEFAULT_JSON.decodeFromString<SearchPluginConfiguration>(it)
+                                            }
+                                            pluginConfigurationStore.addOrReplace(config)
+                                        }
+
+                                    }
+                                    secondaryButton {
+                                        +"Index movies into ES"
+                                        clicks handledBy movieQuotesStore.indexEs
+                                    }
+                                    secondaryButton {
+                                        +"Clean ES"
+                                        clicks handledBy movieQuotesStore.delRecipesES
+                                    }
+                                    infoPopup("Elasticsearch", """
+                                        This indexes the demo movie quote content into Elasticsearch.
+                                        
+                                        Make sure it is running on localhost and port 9200
+                                                                                
+                                        Important: **make sure your elasticsearch server is configured to send cors headers**. Without
+                                         this your browser will not allow this application to send requests to Elasticsearch.
+                                        
+                                        If you use docker-compose, you can add these settings: 
+                                        
+                                        ```
+                                        http.cors.enabled: "true"
+                                        http.cors.allow-origin: |-
+                                        "*"
+                                        http.cors.allow-methods: "OPTIONS, HEAD, GET, POST, PUT, DELETE"
+                                        http.cors.allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+                    
+                                    ```
+                                        
+                                    """.trimIndent())
                                 }
                             } else {
                                 a {
