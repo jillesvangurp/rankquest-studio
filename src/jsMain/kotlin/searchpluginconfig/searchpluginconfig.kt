@@ -260,7 +260,7 @@ private fun RenderContext.help() {
             
             Writing your own plugins is possible of course. However, this will require modifying some source code. 
             You can either modify this project or add it as a built in plugin in 
-            (rankquest-core)[https://github.com/jillesvangurp/rankquest-core]. If you do, also modify this project
+            [rankquest-core](https://github.com/jillesvangurp/rankquest-core). If you do, also modify this project
             to add a configuration UI for your plugin.
                         
             A future version of rank quest may add some features to allow you to more easily add your own plugin 
