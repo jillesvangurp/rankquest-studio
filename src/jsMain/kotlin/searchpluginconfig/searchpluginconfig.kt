@@ -154,26 +154,7 @@ fun RenderContext.pluginConfiguration() {
                                         +"Clean ES"
                                         clicks handledBy movieQuotesStore.delRecipesES
                                     }
-                                    infoPopup("Elasticsearch", """
-                                        This indexes the demo movie quote content into Elasticsearch.
-                                        
-                                        Make sure it is running on localhost and port 9200
-                                                                                
-                                        Important: **make sure your elasticsearch server is configured to send cors headers**. Without
-                                         this your browser will not allow this application to send requests to Elasticsearch.
-                                        
-                                        If you use docker-compose, you can add these settings: 
-                                        
-                                        ```
-                                        http.cors.enabled: "true"
-                                        http.cors.allow-origin: |-
-                                        "*"
-                                        http.cors.allow-methods: "OPTIONS, HEAD, GET, POST, PUT, DELETE"
-                                        http.cors.allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
-                    
-                                    ```
-                                        
-                                    """.trimIndent())
+                                    infoPopupFile("demo.md")
                                 }
                             } else {
                                 a {

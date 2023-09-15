@@ -315,47 +315,50 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                     }
                     addMoreStore.data.render { show ->
                         if (show) {
-                            overlay("absolute top-48 left-1/2 -translate-x-1/2 z-50 bg-white h-96 w-200 p-5 flex flex-col justify-between overflow-auto") {
-                                val searchResultsStore = koin.get<SearchResultsStore>()
-                                searchResultsStore.data.render { rs ->
-                                    when (rs) {
-                                        null -> {
-                                            para { +"Do a search in the search screen and then come back here" }
-                                        }
+                            overlay(
+                                "absolute top-48 left-1/2 -translate-x-1/2 z-50 bg-white h-96 w-200 p-5 flex flex-col justify-between overflow-auto",
+                                content = {
+                                    val searchResultsStore = koin.get<SearchResultsStore>()
+                                    searchResultsStore.data.render { rs ->
+                                        when (rs) {
+                                            null -> {
+                                                para { +"Do a search in the search screen and then come back here" }
+                                            }
 
-                                        else -> {
-                                            if (rs.isFailure) {
-                                                para { +"Oopsie ${rs.exceptionOrNull()}" }
-                                            } else {
-                                                val results = rs.getOrThrow()
-                                                p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
+                                            else -> {
+                                                if (rs.isFailure) {
+                                                    para { +"Oopsie ${rs.exceptionOrNull()}" }
+                                                } else {
+                                                    val results = rs.getOrThrow()
+                                                    p("mb-2") { +"Found ${results.total} results in ${results.responseTime}" }
 
-                                                ul("list-disc") {
-                                                    results.searchResultList.forEach { result ->
-                                                        li("ml-5") {
-                                                            +"${result.id}${result.label?.let { l -> ": $l" } ?: ""} "
-                                                            if (ratedSearch.ratings.firstOrNull { it.documentId == result.id } == null) {
-                                                                a {
-                                                                    +"Add to rated search"
-                                                                    clicks.map {
-                                                                        ratedSearch.copy(
-                                                                            ratings = ratedSearch.ratings + SearchResultRating(
-                                                                                result.id,
-                                                                                1,
-                                                                                result.label
+                                                    ul("list-disc") {
+                                                        results.searchResultList.forEach { result ->
+                                                            li("ml-5") {
+                                                                +"${result.id}${result.label?.let { l -> ": $l" } ?: ""} "
+                                                                if (ratedSearch.ratings.firstOrNull { it.documentId == result.id } == null) {
+                                                                    a {
+                                                                        +"Add to rated search"
+                                                                        clicks.map {
+                                                                            ratedSearch.copy(
+                                                                                ratings = ratedSearch.ratings + SearchResultRating(
+                                                                                    result.id,
+                                                                                    1,
+                                                                                    result.label
+                                                                                )
                                                                             )
-                                                                        )
-                                                                    } handledBy ratedSearchesStore.addOrReplace
-                                                                }
-                                                            } else {
-                                                                p { +"Already rated" }
-                                                                a {
-                                                                    +"Remove from rated search"
-                                                                    clicks.map {
-                                                                        ratedSearch.copy(
-                                                                            ratings = ratedSearch.ratings.filter { it.documentId != result.id }
-                                                                        )
-                                                                    } handledBy ratedSearchesStore.addOrReplace
+                                                                        } handledBy ratedSearchesStore.addOrReplace
+                                                                    }
+                                                                } else {
+                                                                    p { +"Already rated" }
+                                                                    a {
+                                                                        +"Remove from rated search"
+                                                                        clicks.map {
+                                                                            ratedSearch.copy(
+                                                                                ratings = ratedSearch.ratings.filter { it.documentId != result.id }
+                                                                            )
+                                                                        } handledBy ratedSearchesStore.addOrReplace
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -364,14 +367,15 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                                             }
                                         }
                                     }
-                                }
-                                div("flex flex=row") {
-                                    secondaryButton {
-                                        +"Done"
-                                        clicks.map { false } handledBy addMoreStore.update
+                                    div("flex flex=row") {
+                                        secondaryButton {
+                                            +"Done"
+                                            clicks.map { false } handledBy addMoreStore.update
+                                        }
                                     }
-                                }
-                            }
+                                },
+                                closeHandler = null
+                            )
                         }
                     }
                 }
@@ -389,7 +393,7 @@ private fun RenderContext.modalFieldEditor(
 ) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 //    div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90 z-40") {
-    overlay {
+    overlay(content = {
         textField {
             value(fieldStore)
         }
@@ -406,6 +410,6 @@ private fun RenderContext.modalFieldEditor(
                 clicks.map { false } handledBy editingStore.update
             }
         }
-//        }
-    }
+    //        }
+    }, closeHandler = null)
 }

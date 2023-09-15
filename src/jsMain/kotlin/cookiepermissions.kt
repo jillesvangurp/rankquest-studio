@@ -20,14 +20,14 @@ fun RenderContext.cookiePopup() {
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
     cookiePermissionStore.data.render { permissions ->
         if (permissions?.ok != true) {
-            overlay {
+            overlay(content = {
                 h1 { +"Cookies and permissions" }
                 para {
                     +"""
-            This website uses browser local storage to store json content 
-            that you create in the app. This information is never shared elsewhere.
-            In order to use this app, you have to agree to the usage of local storage. 
-            """.trimIndent()
+                        This website uses browser local storage to store json content 
+                        that you create in the app. This information is never shared elsewhere.
+                        In order to use this app, you have to agree to the usage of local storage. 
+                        """.trimIndent()
                 }
                 primaryButton {
                     +"Agreed"
@@ -37,7 +37,7 @@ fun RenderContext.cookiePopup() {
                     } handledBy cookiePermissionStore.update
                     clicks handledBy {infoBubble("Welcome to Rankquest Query!")}
                 }
-            }
+            }, closeHandler = null)
         }
     }
 }

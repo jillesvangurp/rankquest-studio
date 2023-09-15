@@ -25,11 +25,18 @@ fun RenderContext.zDiv(priority: ZPriority, content: HtmlTag<HTMLDivElement>.() 
 fun RenderContext.overlay(
     baseClass: String? = "mx-auto bg-white h-screen md:w-3/6 p-5 flex flex-col overflow-y-auto",
     priority: ZPriority = ZPriority.NORMAL,
-    content: HtmlTag<HTMLDivElement>.() -> Unit
+    closeHandler: (()-> Unit)?=null,
+    content: HtmlTag<HTMLDivElement>.() -> Unit,
 ) {
     zDiv(priority) {
+        closeHandler?.let {
+            clicks handledBy {
+                closeHandler.invoke()
+            }
+        }
         div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90") {
             div(baseClass, content = content)
+
         }
     }
 }
@@ -127,6 +134,25 @@ suspend fun confirm(
     }
 }
 
+fun RenderContext.infoPopupFile(markdownFile: String, zPriority: ZPriority = ZPriority.TOP) {
+    val infoPopoverOpenStore = storeOf(false)
+    secondaryButton(iconSource = SvgIconSource.Question) {
+        clicks.map { true } handledBy infoPopoverOpenStore.update
+    }
+    infoPopoverOpenStore.data.render {opened ->
+        if(opened) {
+            overlay(priority = zPriority, closeHandler={infoPopoverOpenStore.update(false)}) {
+                markdownFile(markdownFile)
+                primaryButton {
+                    +"Close"
+                    clicks.map { false } handledBy infoPopoverOpenStore.update
+                }
+            }
+        }
+    }
+}
+
+
 fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPriority: ZPriority = ZPriority.TOP) {
     val infoPopoverOpenStore = storeOf(false)
     secondaryButton(iconSource = SvgIconSource.Question) {
@@ -134,14 +160,14 @@ fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPri
     }
     infoPopoverOpenStore.data.render {opened ->
         if(opened) {
-            overlay(priority = zPriority) {
+            overlay(priority = zPriority, content = {
                 h1 { +title }
                 markdownDiv(markdown)
                 primaryButton {
                     +"Close"
                     clicks.map { false } handledBy infoPopoverOpenStore.update
                 }
-            }
+            }, closeHandler = null)
         }
     }
 }

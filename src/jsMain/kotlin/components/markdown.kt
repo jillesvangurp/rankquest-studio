@@ -20,13 +20,14 @@ fun renderMarkdown(md: String): String {
 
 private class MarkdownStore(file: String): RootStore<String>("") {
     val load = handle<String> { _, path ->
-        http(path).get().body()
+        loadTextFile(path)
     }
 
     init {
         load(file)
     }
 }
+suspend fun loadTextFile(path: String) = http(path).get().body()
 
 fun RenderContext.markdownFile(file:String, baseClass: String?=null) {
     val mdStore =MarkdownStore(file)
