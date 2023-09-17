@@ -22,7 +22,7 @@ fun RenderContext.primaryButton(
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
         |focus:ring-button-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-5 py-2.5 focus:outline-none 
+        |text-sm px-6 py-2 focus:outline-none 
         |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
     id = id,
     scope = scope,
@@ -52,7 +52,7 @@ fun RenderContext.secondaryButton(
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 
         |focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-5 py-2.5 focus:outline-none
+        |text-sm px-6 py-2 focus:outline-none
         |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
     id = id,
     scope = scope,
@@ -79,7 +79,7 @@ fun RenderContext.navButton(
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueGrayMuted-600 hover:bg-blueGrayMuted-700 focus:ring-buttonNav-300 
-        |focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
+        |focus:ring-4 font-medium rounded-lg text-sm px-6 py-2 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
     content = content
@@ -91,7 +91,7 @@ fun RenderContext.activeNavButton(
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
     baseClass = """my-2 w-fit text-white bg-blueGray-600 hover:bg-blueGray-700 focus:ring-buttonNavAct-300 focus:ring-4 
-        |font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none""".trimMargin(),
+        |font-medium rounded-lg text-sm px-6 py-2 focus:outline-none""".trimMargin(),
     id = id,
     scope = scope,
     content = content

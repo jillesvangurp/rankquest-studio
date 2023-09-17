@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("LeakingThis")
 open class LocalStoringStore<T>(
     val initialData: T?,
     val key: String,
@@ -22,18 +21,6 @@ open class LocalStoringStore<T>(
 
     suspend fun awaitLoaded() {
         while(!loaded) delay(20.milliseconds)
-    }
-
-    fun nonNullableStore(defaultValue: T): RootStore<T> {
-        val store = RootStore(defaultValue)
-        data handledBy {v->
-            if(v==null || v==initialData) {
-                store.update(defaultValue)
-            } else {
-                store.update(v)
-            }
-        }
-        return store
     }
 
     private val propagationHandler = handle<Pair<RootStore<T>,T>> {v,(s,defaultValue)->
@@ -70,7 +57,9 @@ open class LocalStoringStore<T>(
                 }
             }
             if (item != null) {
-                update(item)
+                // leaking this error, so call handle directly?!
+                 update(item)
+//                handle { item}
             }
             loaded = true
         } catch (e: Exception) {

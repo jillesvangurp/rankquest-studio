@@ -1,11 +1,11 @@
 package metrics
 
 import Page
-import com.jilesvangurp.rankquest.core.MetricResults
-import com.jilesvangurp.rankquest.core.SearchResultRating
+import com.jilesvangurp.rankquest.core.*
 import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
+import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
@@ -37,7 +37,7 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
             ratedSearchesStore.current?.let { ratedSearches ->
                 activeSearchPluginConfigurationStore.current?.let { config ->
                     val pluginFactory = pluginFactoryRegistry.get(config.pluginType)
-                    if(pluginFactory==null) {
+                    if (pluginFactory == null) {
                         console.error("plugin not found for ${config.pluginType}")
                     } else {
                         console.log("Using ${pluginFactory::class.simpleName}")
@@ -45,31 +45,19 @@ class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
                     pluginFactory?.let { pf ->
                         val plugin = pf.create(config)
                         console.info("measuring")
-                        coroutineScope {
-                            config.metrics.map { metricConfiguration ->
-                                console.log(metricConfiguration)
-                                async {
-                                    try {
-                                        val results = metricConfiguration.metric.run(
-                                            plugin, ratedSearches, metricConfiguration.params
-                                        )
-                                        MetricsOutput(
-                                            config.name, metricConfiguration, results
-                                        )
-                                    } catch (e: Exception) {
-                                        console.error(e)
-                                        null
-                                    }
-                                }
-                            }.awaitAll()
-                        }.also {
-                            console.log("Done")
-                        }.filterNotNull()
+                        plugin.runMetrics(config, ratedSearches)
                     }
                 }
             }
         }) { results ->
-            update(results)
+            update(results?.mapNotNull { r ->
+                if(r.isFailure) {
+                    console.error(r.exceptionOrNull())
+                    null
+                } else {
+                    r.getOrThrow()
+                }
+            })
         }
         it
     }
@@ -256,7 +244,7 @@ private fun RenderContext.metricResult(
 
                                                 div("w-3/6 overflow-hidden") {
                                                     +(doc.label ?: "-")
-                                                    showTooltip(doc.label ?:"-")
+                                                    showTooltip(doc.label ?: "-")
                                                 }
                                                 div("w-1/6 overflow-hidden") {
                                                     +score.toString()
