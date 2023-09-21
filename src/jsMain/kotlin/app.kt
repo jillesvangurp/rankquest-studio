@@ -7,15 +7,23 @@ import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
+import kotlinx.browser.window
 import kotlinx.coroutines.delay
 import metrics.metrics
 import testcases.testCases
 import search.searchScreen
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
+import utils.JsLogLevel
+import utils.setJsLogLevel
+import kotlin.js.Console
 import kotlin.time.Duration.Companion.milliseconds
 
+
+
 suspend fun main() {
+    setJsLogLevel(JsLogLevel.DEBUG)
+    console.info("dfsdf")
     koinInit()
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
     cookiePermissionStore.awaitLoaded()

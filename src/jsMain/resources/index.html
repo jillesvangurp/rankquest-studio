@@ -4,25 +4,51 @@
     <title>Rankquest Studio</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-<!--        html {-->
-<!--            /* DONOT ever set 100% : https://stackoverflow.com/questions/37112218/css3-100vh-not-constant-in-mobile-browser*/-->
-<!--            height: 100vh;  max-height: -webkit-fill-available;-->
-<!--        }-->
-<!--        body {-->
-<!--            /* DONOT ever set 100% */-->
-<!--            height: 100vh;  max-height: -webkit-fill-available;-->
-<!--        }-->
-
-<!--        #target {-->
-<!--            width: 100%;-->
-<!--            height: 100%;-->
-<!--        }-->
-    </style>
-
 </head>
 <body>
 <div id="target"></div>
+<script>
+    window.console = (function (origConsole) {
+
+    if (!window.console || !origConsole) {
+        origConsole = {};
+    }
+
+    // 0=OFF,1=ERROR,2=WARN,3=INFO,4=DEBUG
+    var logLevel = 3;
+
+    return {
+        dir: function () {
+            origConsole.dir.apply(origConsole, arguments);
+        },
+        debug: function () {
+            logLevel >= 4 && origConsole.debug && origConsole.debug.apply(origConsole, arguments);
+        },
+        info: function () {
+            logLevel >= 3 && origConsole.info && origConsole.info.apply(origConsole, arguments);
+        },
+        log: function () {
+            logLevel >= 3 && origConsole.log && origConsole.log.apply(origConsole, arguments);
+        },
+        warn: function () {
+            logLevel >= 2 && origConsole.warn && origConsole.warn.apply(origConsole, arguments);
+        },
+        error: function () {
+            logLevel >= 1 && origConsole.error && origConsole.error.apply(origConsole, arguments);
+        },
+        level: function(lvl) {
+            logLevel = lvl
+        },
+        logLevel: logLevel
+    };
+
+}(window.console));
+
+// so we can define a kotlin external function for this
+var setLogLevel = function (lvl) {
+    console.level(lvl);
+}
+</script>
 <script src="rankquest-studio.js"></script>
 </body>
 </html>
