@@ -4,10 +4,16 @@
     <title>Rankquest Studio</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="Rankquest Studio" />
+    <meta property="og:description" content="Rankquest Studio is a web based tool that you can use to benchmark search query metrics for your search APIs." />
+    <meta property="og:image" content="https://rankquest.jillesvangurp.com/rankquest_logo.png" />
+    <meta property="og:url" content="https://rankquest.jillesvangurp.com" />
+    <meta property="og:type" content="website" />
 </head>
 <body>
 <div id="target"></div>
 <script>
+    // redefine window.console to shut up the ktor client trace logging
     window.console = (function (origConsole) {
 
     if (!window.console || !origConsole) {
