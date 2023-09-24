@@ -5,10 +5,7 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.RatedSearch
 import com.jilesvangurp.rankquest.core.SearchResultRating
 import components.*
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.Store
-import dev.fritz2.core.disabled
-import dev.fritz2.core.storeOf
+import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
@@ -18,6 +15,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.w3c.dom.HTMLDivElement
 import pageLink
 import search.SearchResultsStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
@@ -94,7 +92,7 @@ fun RenderContext.testCases() {
 
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
         activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
-            if(searchPluginConfiguration==null) {
+            if (searchPluginConfiguration == null) {
                 p {
                     +"You don't have any search plugins configured yet. Go to the "
                     pageLink(Page.Conf)
@@ -213,7 +211,6 @@ fun RenderContext.testCases() {
     }
 }
 
-
 fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: RatedSearch) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
 
@@ -260,9 +257,12 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                             div("w-1/12 bg-blueBright-50") {
                                 iconButton(SvgIconSource.Delete, title = "Remove this result") {
                                     clicks.map {
-                                        ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != searchResultRating.documentId  })
+                                        ratedSearch.copy(ratings = ratedSearch.ratings.filter { it.documentId != searchResultRating.documentId })
                                     } handledBy { modified ->
-                                        confirm("Remove this result?",description = "Remove ${searchResultRating.documentId} | ${searchResultRating.label}") {
+                                        confirm(
+                                            "Remove this result?",
+                                            description = "Remove ${searchResultRating.documentId} | ${searchResultRating.label}"
+                                        ) {
                                             ratedSearchesStore.addOrReplace(modified)
                                         }
                                     }
@@ -273,19 +273,24 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                             div("w-1/12 bg-blueBright-50 hover:bg-blueBright-200") {
                                 val editingStore = storeOf(false)
                                 editingStore.data.render { editing ->
-                                    if (editing) {
-                                        modalFieldEditor(
-                                            editingStore,
-                                            ratedSearch.id,
-                                            storeOf(searchResultRating.rating.toString())
-
-                                        ) { s -> searchResultRating.copy(rating = s.toInt()) }
-                                    } else {
-                                        div {
-                                            +searchResultRating.rating.toString()
-                                            clicks.map { !editingStore.current } handledBy editingStore.update
-                                        }
-                                    }
+                                    val ratingStore = storeOf(searchResultRating.rating)
+                                    starRating(ratingStore)
+                                    ratingStore.data.map { stars ->
+                                        ratedSearch.id to searchResultRating.copy(rating = stars)
+                                    } handledBy ratedSearchesStore.updateSearchResultRating
+//                                    if (editing) {
+//                                        modalFieldEditor(
+//                                            editingStore,
+//                                            ratedSearch.id,
+//                                            storeOf(searchResultRating.rating.toString())
+//
+//                                        ) { s -> searchResultRating.copy(rating = s.toInt()) }
+//                                    } else {
+//                                        div {
+//                                            +searchResultRating.rating.toString()
+//                                            clicks.map { !editingStore.current } handledBy editingStore.update
+//                                        }
+//                                    }
                                 }
                             }
 
@@ -413,6 +418,45 @@ private fun RenderContext.modalFieldEditor(
                 clicks.map { false } handledBy editingStore.update
             }
         }
-    //        }
+        //        }
     }, closeHandler = null)
+}
+
+fun RenderContext.starRating(store: Store<Int>) {
+    store.data.render { stars ->
+
+        div("flex flex-row gap-1 align-middle", content = fun HtmlTag<HTMLDivElement>.() {
+            iconButton(SvgIconSource.Cross) {
+                disabled(stars == 0)
+                clicks handledBy {
+                    store.update(0)
+                }
+            }
+            (1..5).forEach {
+                starButton(stars, it, store)
+            }
+        })
+    }
+}
+
+private fun HtmlTag<HTMLDivElement>.starButton(
+    stars: Int,
+    number: Int,
+    store: Store<Int>,
+) {
+    if (number > stars) {
+        iconButton(SvgIconSource.Star, baseClass = "w-6 h-6 fill-blueBright-100 hover:fill-blueBright-600") {
+            disabled(stars == number)
+            clicks handledBy {
+                store.update(number)
+            }
+        }
+    } else {
+        iconButton(SvgIconSource.Star, baseClass = "w-6 h-6 fill-blueBright-600 hover:fill-blueBright-100") {
+            disabled(stars == number)
+            clicks handledBy {
+                store.update(number)
+            }
+        }
+    }
 }
