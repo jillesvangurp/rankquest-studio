@@ -9,11 +9,10 @@ test configurations to explore the Rankquest Studio UI.
 For this we use a small data set of 732 quotes from famous movies and three
 different configurations that allow you to explore this:
 
-- Movie quotes search: uses the querylight library with a simple tf/idf index.
+- Movie quotes search: uses the [querylight](https://github.com/jillesvangurp/querylight) library with a simple tf/idf index.
 - Movie quotes with ngrams: similar but it uses ngrams instead of terms. The 
 metrics for this are a bit less iteresting.
-- ES based movie search. Relies on an external elasticsearch that you have 
-to run locally
+- ES based movie search. Relies on an external elasticsearch. 
 
 ## Loading the test case
 
@@ -26,16 +25,16 @@ explore some metrics.
 
 ## Using Elasticsearch
 
-The ES based movie search of course requires elasticsearch. Two buttons are provided,
-that create the index and remove it again.
-
-Unlike the two querylight demos, the elasticsearch one uses a plugin configuration that you can modify and tweak.
+The ES based movie search of course requires elasticsearch. Unlike the two querylight demos, the elasticsearch demo uses a plugin configuration that you can modify and tweak.
 
 This is great for getting started!
 
-Make sure elasticsearch is running on localhost and port 9200. If you use docker,
-you can use this [docker-compose](docker-compose.yml) file to start elasticsearch
-and kibana by downloading it and running `docker compose up -d`
+Two buttons are provided. These buttons create and delete an index called `moviequotes`.
+If you are not running elasticsearch on localhost and port 9200, simply load the configuration, 
+and edit the configuration before using these buttons.
+
+If you use docker, you can use this [docker-compose](docker-compose.yml) file to start elasticsearch
+and kibana by downloading it and running `docker compose up -d`. 
                                         
 Important: **make sure your elasticsearch server is configured to send CORS headers**. Without
  this your browser will not allow requests to Elasticsearch.

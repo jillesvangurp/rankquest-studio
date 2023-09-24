@@ -23,8 +23,10 @@ You can also produce metrics from your builds by using the **command line** vers
 ## Links
 
 - [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework.
+- [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) A command line tool that you can use to use exported search configurations and test cases to run metrics from the command line or in your CI build.
 - [rankquest-core](https://github.com/jillesvangurp/rankquest-core) A Kotlin multiplatform kotlin library that implements the metrics and search plugins used in Rankquest Studio.
-- [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch.
+- [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch. This library is used to implement the Elasticsearch searchplugin and also used for the movie quotes demo.
+- [querylight](https://github.com/jillesvangurp/querylight) An in memory search library that is used for the movie quotes demos. 
 
 ## Why another tool?
 
@@ -44,15 +46,15 @@ or Elasticsearch. You use these tools to test specific queries. While this is of
 this amounts to a form of whitebox testing where you make various assumptions about the
 internals of your product. In my view, search quality testing should be 
 a blackbox test that runs directly against your API without making any assumptions about what 
-it uses internally. This allows you to radically change your implementation and compare 
+it uses internally or how it is implemented. This allows you to radically change your implementation and compare 
 the before and after metrics. 
 
-Rankquest studio aims to address all these issues by providing a responsive and very usable UI 
+Rankquest studio aims to address all these issues by providing a simple but usable UI 
 that allows people to simply get started by simply opening the app. There is **no installation
-process**. Rankquest Studio is a web application.
+process**. Rankquest Studio is a web site that you open and use.
 
 There is no server either (other than the simple web server that hosts the application). 
-It does not require a server or a database. Everything happens
+It does not require an application server or a database. Everything happens
 in the browser. All the data it manipulates is stored in the browser. You can easily import and export
 ratings, configurations, and metrics reports in json format. The only network 
 traffic that rank quest studio makes is to your own search service.
@@ -60,23 +62,23 @@ traffic that rank quest studio makes is to your own search service.
 It makes no assumptions about how your search API works. It uses an extensible plugin model to talk to 
 your search service. The only assumption it makes is that whatever you have can return a list of results with ids for a given search context (your search parameters).
 
-## Support & Getting help with improving your ranking further
+## Support & Getting help taking your search to the next level
 
-Please provide feedback via the [Github Issue Tracker](https://github.com/jillesvangurp/rankquest-studio/issues)
+Please provide feedback via the [Github Issue Tracker](https://github.com/jillesvangurp/rankquest-studio/issues).
 
-This tool was created by me to help me evaluate our search quality in a few of my own projects and after years of observing my clients mostly ignoring search quality. With some notable exceptions, most companies don't employ search relevance experts, and have no good way to benchmark their search quality beyond manual testing.
+I created Rankquest to help me evaluate our search quality in a few of my own projects and after years of observing my clients mostly ignoring search quality. With some notable exceptions, most companies don't employ search relevance experts, and have no good way to benchmark their search quality beyond manual testing. After looking at existing tools, I chose the more difficult but satisfying path of building yet another tool to address some of their limitations.
 
 I've been working with search technology for over twenty years and with Elasticsearch and Opensearch 
-for the last decade. I've worked with small and big companies in various roles and still do 
+for the last decade. I've worked with small and big companies in various roles and still occasionally do 
 some consulting next to my main job as CTO of [FORMATION Gmbh](https://tryformation.com).
 
-If you need help with your search, want an outside opinion about your current setup, or are struggling with your search quality, **I might be able to help you**.
+If you need help with your search, want an outside opinion about your current setup, or are struggling with your search quality, **I might be able to help you**. And if not, I can connect you with people that can.
 
-As a **search consultant**, I have advised many clients over the years on how to architect and use search effectively. This usually involves both advising on query and mapping strategies, refining their product strategy, coming up with good ETL strategies, coming up with solutions for difficult problems, and educating people about all this. Unfortunately, I am not able to join your team for extended amounts of time. However, I can add a lot of value quickly and help set your team up for success. My preferred way of working is doing short, result driven products and coaching people how to do what they need to get done.
+As a **search consultant**, I have advised many clients over the years on how to architect and use search effectively. This usually involves both advising on query and mapping strategies, refining their product strategy, coming up with good ETL strategies, coming up with solutions for ranking challenges, and educating people about all this. Unfortunately, my main job as a CTO prevents me from joining your team for extended periods of time or on a full time basis. However, I can add a lot of value quickly and help set your company up for success. My preferred way of working is doing short, result driven products and coaching people how to do what they need to get done. The ideal outcome of a project for me is a happy customer that no longer needs my services because they are fully equipped to take the next steps.
 
 ## Showing your appreciation
 
-This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), etc.
+This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), etc. And consider engaging my services as a search consultant.
 
 ## Jilles van Gurp
 

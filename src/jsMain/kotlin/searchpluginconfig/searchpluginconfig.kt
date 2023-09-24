@@ -237,6 +237,8 @@ private fun RenderContext.help() {
             You should keep your configurations in a safe place. It is good practice to keep them in a git repository
             together with your test cases.
             
+            You also need to do this if you want to use [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
+            
             ## Writing your own plugins
             
             Writing your own plugins is possible of course. However, this will require modifying some source code. 

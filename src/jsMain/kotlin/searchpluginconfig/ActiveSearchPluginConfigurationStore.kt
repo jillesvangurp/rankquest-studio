@@ -29,7 +29,6 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
 
     val search = handle<Map<String, String>> { config, query ->
         busyResult({
-
             val outcome = if (config != null) {
                 val selectedPlugin = current
                 if (selectedPlugin != null) {

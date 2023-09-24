@@ -7,26 +7,28 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
+import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
+import com.jilesvangurp.rankquest.core.plugins.ElasticsearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactory
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
+import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.deleteIndex
 import com.jillesvangurp.ktsearch.index
 import com.jillesvangurp.ktsearch.repository.repository
-import components.busyResult
 import components.confirm
 import components.runWithBusy
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
-import handlerScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import koin
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.decodeFromJsonElement
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.*
+import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -141,6 +143,21 @@ fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
 }
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+
+    fun searchClient(): SearchClient {
+        val config = activeSearchPluginConfigurationStore.current
+        return if (config != null && config.pluginType == BuiltinPlugins.ElasticSearch.name) {
+            config.pluginSettings?.let {
+                val esConfig = DEFAULT_JSON.decodeFromJsonElement<ElasticsearchPluginConfiguration>(it)
+                val ktc = KtorRestClient(esConfig.host, esConfig.port, esConfig.https, esConfig.user, esConfig.password)
+                SearchClient(ktc)
+            }
+        } else {
+            null
+        } ?: SearchClient()
+    }
+
     val load = handle<String> { _, path ->
         http(path).get().body().let<String, List<MovieQuote>> { body ->
             DEFAULT_JSON.decodeFromString(body)
@@ -151,7 +168,7 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
     }
     val delRecipesES = handle {
         runWithBusy({
-            val client = SearchClient()
+            val client = searchClient()
             client.deleteIndex("moviequotes")
         })
         it
@@ -164,14 +181,14 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
         ) {
 
             runWithBusy({
-                val client = SearchClient() // localhost:9200 is default
+                val client = searchClient()
                 val repository = client.repository(
                     "moviequotes",
                     MovieQuote.serializer()
                 )
                 repository.bulk(bulkSize = 500) {
                     current.forEach { m ->
-                        index(m, id=m.id)
+                        index(m, id = m.id)
                     }
                 }
             })

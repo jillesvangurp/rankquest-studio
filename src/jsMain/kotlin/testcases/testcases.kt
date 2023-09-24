@@ -151,7 +151,8 @@ fun RenderContext.testCases() {
                         infoPopup(
                             "Creating Test Cases", """
                                 This screen allows you to review and modify your test cases. When you create a test case
-                                from the search screen, the results simply get rated in descending order. You can use this 
+                                from the search screen. Simply do a search and then click the "Add Testcase" button.
+                                The results simply get rated in descending order. You can then use this 
                                 screen to change the ratings. 
                                 
                                 ## Demo content
@@ -175,13 +176,13 @@ fun RenderContext.testCases() {
                                 
                                 A rating of zero means the document is not relevant. Higher ratings indicate a higher relevance.
                                 
-                                ## Adding results to a test case
+                                ## Adding more results to a test case
                                 
-                                If you do a search in the search tool and then switch back to the test cases screen,
+                                If you do another search in the search tool and then switch back to the test cases screen,
                                 you can add results from the search screen to any test case. This is a nice way to
                                 add documents that you know should be produced that the current search does not produce.
                                 
-                                A second way to add results to test cases is from the metrics screen. When you review
+                                Another way to add results to test cases is from the metrics screen. When you review
                                  the metrics, the the details for each test case will list any unrated results and give you
                                  the opportunity to add those to the test case.
                                 
@@ -190,6 +191,8 @@ fun RenderContext.testCases() {
                                 You can download your test cases as a json file and later re-import them. You should use
                                 this feature to store your ratings in a safe place. A good practice is to keep them in a git
                                 repository. You can create specialized ratings files for different use cases, topics, etc. 
+                                
+                                You also need to do this if you want to use [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
                             """.trimIndent()
                         )
                     }
