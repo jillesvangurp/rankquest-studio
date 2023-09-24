@@ -229,16 +229,20 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                     } handledBy showStore.update
                 }
                 div("mx-3 grow") {
-                    +"${
-                        ratedSearch.searchContext.map { (k, v) -> "$k: $v" }.joinToString(", ")
-                    } rated results: ${ratedSearch.ratings.size} "
+                    ratedSearch.searchContext.forEach { (k, v) ->
+                        +"$k: "
+                        b {
+                            +v
+                            +" "
+                        }
+                    }
+                    +"- Rated results: ${ratedSearch.ratings.size} "
                 }
                 iconButton(SvgIconSource.Delete, "Delete rated search") {
                     clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
                 }
             }
             if (show) {
-
                 div("") {
                     p { +"RsId: ${ratedSearch.id} Rated documents" }
                     div("flex flex-row w-full gap-2 items-center") {
@@ -390,7 +394,6 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
             }
         }
     }
-
 }
 
 private fun RenderContext.modalFieldEditor(
