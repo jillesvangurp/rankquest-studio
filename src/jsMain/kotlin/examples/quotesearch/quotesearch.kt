@@ -143,7 +143,8 @@ fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
 }
 
 class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
-    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+    // use inject here to dodge circular dependency
+    val activeSearchPluginConfigurationStore by koin.inject<ActiveSearchPluginConfigurationStore>()
 
     fun searchClient(): SearchClient {
         val config = activeSearchPluginConfigurationStore.current

@@ -4,25 +4,22 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
-import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
-import dev.fritz2.core.*
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.Store
+import dev.fritz2.core.disabled
+import dev.fritz2.core.storeOf
 import dev.fritz2.remote.http
 import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
-import io.ktor.client.*
-import io.ktor.client.engine.js.*
-import io.ktor.client.plugins.logging.*
 import koin
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
