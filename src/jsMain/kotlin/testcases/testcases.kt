@@ -428,8 +428,8 @@ private fun RenderContext.modalFieldEditor(
 fun RenderContext.starRating(store: Store<Int>) {
     store.data.render { stars ->
 
-        div("flex flex-row gap-1 align-middle", content = fun HtmlTag<HTMLDivElement>.() {
-            iconButton(SvgIconSource.Cross) {
+        div("flex flex-row align-middle mx-3", content = fun HtmlTag<HTMLDivElement>.() {
+            iconButton(SvgIconSource.Cross, baseClass = "w-6 h-6 fill-blueBright-400 hover:fill-blueBright-800") {
                 disabled(stars == 0)
                 clicks handledBy {
                     store.update(0)
@@ -448,7 +448,7 @@ private fun HtmlTag<HTMLDivElement>.starButton(
     store: Store<Int>,
 ) {
     if (number > stars) {
-        iconButton(SvgIconSource.Star, baseClass = "w-6 h-6 fill-blueBright-100 hover:fill-blueBright-600") {
+        iconButton(SvgIconSource.Star, baseClass = "w-6 h-6 fill-blueBright-200 hover:fill-blueBright-600") {
             disabled(stars == number)
             clicks handledBy {
                 store.update(number)
