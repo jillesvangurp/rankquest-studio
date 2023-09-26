@@ -45,6 +45,8 @@ suspend fun main() {
                 mainView()
             }
         }
+        // FIXME there's a .portal-container style rule that interferes with this working correctly
+        // https://github.com/jwstegemann/fritz2/issues/802
         toastContainer(
             "messages", // name
             "absolute bottom-5 left-1/2 -translate-x-48 mx-auto flex flex-col gap-2 place-items-center w-96"
