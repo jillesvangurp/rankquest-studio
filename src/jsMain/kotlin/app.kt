@@ -22,8 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 suspend fun main() {
-    setJsLogLevel(JsLogLevel.DEBUG)
-    console.info("dfsdf")
+    setJsLogLevel(JsLogLevel.INFO)
     koinInit()
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
     cookiePermissionStore.awaitLoaded()

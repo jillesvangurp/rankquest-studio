@@ -28,19 +28,19 @@
             origConsole.dir.apply(origConsole, arguments);
         },
         debug: function () {
-            logLevel >= 4 && origConsole.debug && origConsole.debug.apply(origConsole, arguments);
+            logLevel == 1 && origConsole.debug && origConsole.debug.apply(origConsole, arguments);
         },
         info: function () {
-            logLevel >= 3 && origConsole.info && origConsole.info.apply(origConsole, arguments);
+            logLevel >= 1 && logLevel <= 2 && origConsole.info && origConsole.info.apply(origConsole, arguments);
         },
         log: function () {
-            logLevel >= 3 && origConsole.log && origConsole.log.apply(origConsole, arguments);
+            logLevel >= 1 && logLevel <= 2 && origConsole.log && origConsole.log.apply(origConsole, arguments);
         },
         warn: function () {
-            logLevel >= 2 && origConsole.warn && origConsole.warn.apply(origConsole, arguments);
+            logLevel >= 1 && logLevel <= 3 && origConsole.warn && origConsole.warn.apply(origConsole, arguments);
         },
         error: function () {
-            logLevel >= 1 && origConsole.error && origConsole.error.apply(origConsole, arguments);
+            logLevel >= 1 && logLevel <= 4 && origConsole.error && origConsole.error.apply(origConsole, arguments);
         },
         level: function(lvl) {
             logLevel = lvl

@@ -11,5 +11,6 @@ enum class JsLogLevel {
 }
 
 fun setJsLogLevel(level: JsLogLevel) {
+    console.log(level, level.ordinal)
     setLogLevel(level.ordinal)
 }
