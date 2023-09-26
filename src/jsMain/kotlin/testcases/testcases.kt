@@ -9,7 +9,9 @@ import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
@@ -34,8 +36,10 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
     val addOrReplace = handle<RatedSearch> { current, rs ->
         val ratedSearches = current.orEmpty()
         if (ratedSearches.firstOrNull() { it.id == rs.id } == null) {
+            infoBubble("Adding ${rs.id} with ${rs.ratings.size} ratings")
             ratedSearches + rs
         } else {
+            infoBubble("Updating ${rs.id}")
             ratedSearches.map {
                 if (it.id == rs.id) {
                     rs
@@ -44,6 +48,7 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
                 }
             }
         }
+
     }
 
     val updateSearchResultRating = handle<Pair<String, SearchResultRating>> { current, (id, srr) ->
@@ -88,7 +93,7 @@ fun RenderContext.testCases() {
 
         val ratedSearchesStore = koin.get<RatedSearchesStore>()
         val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-        val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
+        val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo"))
 
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
         activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
@@ -99,9 +104,9 @@ fun RenderContext.testCases() {
                     +" to fix it."
                 }
             } else {
-                ratedSearchesStore.data.render { ratedSearches ->
-                    leftRightRow {
-                        row {
+                leftRightRow {
+                    row {
+                        ratedSearchesStore.data.render { ratedSearches ->
                             primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
                                 disabled(ratedSearches.isNullOrEmpty())
                                 clicks handledBy {
@@ -116,38 +121,39 @@ fun RenderContext.testCases() {
                                     }
                                 }
                             }
-                            jsonDownloadButton(
-                                ratedSearchesStore,
-                                "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
-                                ListSerializer(RatedSearch.serializer())
-                            )
-                            jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
-                                ratedSearchesStore.update(decoded)
-                            }
-                            showDemoContentStore.data.render { showDemo ->
-                                if (showDemo) {
-                                    primaryButton {
-                                        +"Load Demo Movies Search Test Cases"
-                                        clicks handledBy {
-                                            confirm(
-                                                "Are you sure?",
-                                                "This will override your current test cases. Download them first!"
-                                            ) {
-                                                http("movie-quotes-test-cases.json").get().body()
-                                                    .let<String, List<RatedSearch>> { body ->
-                                                        DEFAULT_JSON.decodeFromString(body)
-                                                    }.let { testCases ->
-                                                        ratedSearchesStore.update(testCases)
-                                                    }
-                                            }
+                        }
+                        jsonDownloadButton(
+                            ratedSearchesStore,
+                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+                            ListSerializer(RatedSearch.serializer())
+                        )
+                        jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
+                            ratedSearchesStore.update(decoded)
+                        }
+                        showDemoContentStore.data.render { showDemo ->
+                            if (showDemo) {
+                                primaryButton {
+                                    +"Load Demo Movies Search Test Cases"
+                                    clicks handledBy {
+                                        confirm(
+                                            "Are you sure?",
+                                            "This will override your current test cases. Download them first!"
+                                        ) {
+                                            http("movie-quotes-test-cases.json").get().body()
+                                                .let<String, List<RatedSearch>> { body ->
+                                                    DEFAULT_JSON.decodeFromString(body)
+                                                }.let { testCases ->
+                                                    ratedSearchesStore.update(testCases)
+                                                }
                                         }
                                     }
                                 }
                             }
-
                         }
-                        infoPopup(
-                            "Creating Test Cases", """
+
+                    }
+                    infoPopup(
+                        "Creating Test Cases", """
                                 This screen allows you to review and modify your test cases. When you create a test case
                                 from the search screen. Simply do a search and then click the "Add Testcase" button.
                                 The results simply get rated in descending order. You can then use this 
@@ -192,24 +198,25 @@ fun RenderContext.testCases() {
                                 
                                 You also need to do this if you want to use [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
                             """.trimIndent()
-                        )
-                    }
+                    )
+                }
 
-                    if (ratedSearches.isNullOrEmpty()) {
-                        p {
-                            +"Create some test cases from the search screen. "
-                            pageLink(Page.Search)
-                        }
-                    } else {
-                        ratedSearches.forEach { rs ->
-                            testCase(showStore, rs)
-                        }
+                ratedSearchesStore.data.renderIf({it==null}) {
+                    p {
+                        +"Create some test cases from the search screen."
+                    }
+                }
+
+                ratedSearchesStore.data.filterNotNull().renderEach { rs ->
+                    div {
+                        testCase(showStore, rs)
                     }
                 }
             }
         }
     }
 }
+
 
 fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: RatedSearch) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
@@ -256,7 +263,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                         div("w-7/12 bg-blueMuted-200") { +"Label" }
                         div("w-3/12 bg-blueMuted-200") { +"Comment" }
                     }
-                    ratedSearch.ratings.sortedByDescending { it.rating }.forEach { searchResultRating ->
+                    ratedSearch.ratings.forEach { searchResultRating ->
                         div("flex flex-row w-full gap-2 border-t border-blueMuted-200") {
                             div("w-1/12 bg-blueBright-50") {
                                 iconButton(SvgIconSource.Delete, title = "Remove this result") {
@@ -282,19 +289,6 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, ratedSearch: 
                                     ratingStore.data.map { stars ->
                                         ratedSearch.id to searchResultRating.copy(rating = stars)
                                     } handledBy ratedSearchesStore.updateSearchResultRating
-//                                    if (editing) {
-//                                        modalFieldEditor(
-//                                            editingStore,
-//                                            ratedSearch.id,
-//                                            storeOf(searchResultRating.rating.toString())
-//
-//                                        ) { s -> searchResultRating.copy(rating = s.toInt()) }
-//                                    } else {
-//                                        div {
-//                                            +searchResultRating.rating.toString()
-//                                            clicks.map { !editingStore.current } handledBy editingStore.update
-//                                        }
-//                                    }
                                 }
                             }
 
