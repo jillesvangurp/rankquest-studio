@@ -18,15 +18,13 @@ calculate **metrics**.
 
 You should **export and backup** your configuration, test cases, and metrics. A good suggestion is to store them in a git repository or some other safe place.
 
-You can also produce metrics from your builds by using the **command line** version of Rankquest (*coming soon*).
+You can use the exported configuration and testcases on the **command line** using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli). A build of this is available via docker hub and you can invoke it like this:
 
-## Links
+```bash
+docker run -it --network host -v $(pwd):/rankquest jillesvangurp/rankquest-cli -c my-config.json -t my-testcases.json -v -f
+```
 
-- [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework.
-- [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) A command line tool that you can use to use exported search configurations and test cases to run metrics from the command line or in your CI build.
-- [rankquest-core](https://github.com/jillesvangurp/rankquest-core) A Kotlin multiplatform kotlin library that implements the metrics and search plugins used in Rankquest Studio.
-- [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch. This library is used to implement the Elasticsearch searchplugin and also used for the movie quotes demo.
-- [querylight](https://github.com/jillesvangurp/querylight) An in memory search library that is used for the movie quotes demos. 
+For more information on this, see the rankquest-cli project.
 
 ## Why another tool?
 
@@ -62,6 +60,14 @@ traffic that rank quest studio makes is to your own search service.
 It makes no assumptions about how your search API works. It uses an extensible plugin model to talk to 
 your search service. The only assumption it makes is that whatever you have can return a list of results with ids for a given search context (your search parameters).
 
+## Links
+
+- [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework.
+- [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) A command line tool that you can use to use exported search configurations and test cases to run metrics from the command line or in your CI build.
+- [rankquest-core](https://github.com/jillesvangurp/rankquest-core) A Kotlin multiplatform kotlin library that implements the metrics and search plugins used in Rankquest Studio.
+- [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch. This library is used to implement the Elasticsearch searchplugin and also used for the movie quotes demo.
+- [querylight](https://github.com/jillesvangurp/querylight) An in memory search library that is used for the movie quotes demos.
+
 ## Support & Getting help taking your search to the next level
 
 Please provide feedback via the [Github Issue Tracker](https://github.com/jillesvangurp/rankquest-studio/issues).
@@ -79,6 +85,7 @@ As a **search consultant**, I have advised many clients over the years on how to
 ## Showing your appreciation
 
 This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), etc. And consider engaging my services as a search consultant.
+
 
 ## Jilles van Gurp
 
