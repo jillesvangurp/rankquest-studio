@@ -1,5 +1,15 @@
 Rankquest Studio is a web based tool that you can use to benchmark search query metrics for your search APIs. You can try the [latest version here](https://rankquest.jillesvangurp.com).
 
+## Rankquest Cli is Easy
+
+**Start optimizing your search ranking today**
+
+- Open [Rankquest Studio](https://rankquest.jillesvangurp.com). There is no installation or signup process, all the data is stored in your browser. Of course, you can also self host rankquest Studio. All you need is a simple web server.
+- Create a search plugin configuration for your search API or play with the demo configurations
+- Use the search tool to create some test cases.
+- Run and explore metrics for your test cases.
+- Export your configuration and testcases and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
+
 ## More about Rankquest Studio
 
 - [What is Rankquest Studio](src/jsMain/resources/about.md) - An introduction to the features of Rankquest Studio
