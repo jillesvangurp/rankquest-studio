@@ -61,7 +61,7 @@ fun RenderContext.pluginConfiguration() {
                         val showMetricsEditor = storeOf(false)
                         val metricConfigurationsStore = storeOf(pluginConfig.metrics)
                         metricConfigurationsStore.data handledBy { newMetrics ->
-                            if(pluginConfig.metrics != newMetrics) {
+                            if (pluginConfig.metrics != newMetrics) {
                                 console.log("updating metrics for ${pluginConfig.name}")
                                 pluginConfigurationStore.addOrReplace(
                                     pluginConfig.copy(
@@ -276,13 +276,13 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
             BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
                 overlayLarge {
                     editConfigurationStore.data.render { existing ->
-                        val configNameStore = storeOf(existing?.name?:plugin.name)
+                        val configNameStore = storeOf(existing?.name ?: plugin.name)
 
                         div("flex flex-col items-left gap-y-2 w-5/6 items-center m-auto") {
-                            if(existing==null) {
+                            if (existing == null) {
                                 h1 { +"New search configuration for $selectedPlugin" }
                             } else {
-                                h1 { +"Edit ${existing.name}"}
+                                h1 { +"Edit ${existing.name}" }
                             }
                             textField(
                                 placeHolder = selectedPlugin, "Name", "A descriptive name for your configuration"
@@ -360,9 +360,15 @@ fun RenderContext.metricsEditor(
                             val paramMap = mc.params.associate { it.name to storeOf(it.value.content) }
                             if (editMetricConfiguration?.name == mc.name) {
                                 val nameStore = storeOf(mc.name)
-                                textField("", "name") {
+                                val expectedStore = storeOf(mc.expected?.toString() ?: "0.75")
+                                textField("", "Name") {
                                     value(nameStore)
                                 }
+
+                                textField("", "Failure Threshold Score") {
+                                    value(expectedStore)
+                                }
+
                                 mc.params.forEach { p ->
                                     textField("", p.name) {
                                         value(paramMap[p.name]!!)
@@ -399,8 +405,11 @@ fun RenderContext.metricsEditor(
                                             metricConfigurationsStore.update(metricConfigurationsStore.current.map {
                                                 if (it.name == mc.name) {
                                                     mc.copy(
-                                                        name = nameStore.current, params = newValues
+                                                        name = nameStore.current,
+                                                        expected = expectedStore.current.toDoubleOrNull(),
+                                                        params = newValues
                                                     )
+
                                                 } else {
                                                     it
                                                 }

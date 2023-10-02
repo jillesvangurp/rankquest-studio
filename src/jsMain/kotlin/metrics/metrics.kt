@@ -172,7 +172,10 @@ private fun RenderContext.metricResult(
                     infoPopup(metricConfiguration.metric.title, metricConfiguration.metric.explanation)
                 }
 
-                div { +"Metric: ${+metricResult.metric}" }
+                div {
+                    +"Metric: "
+                    renderMetricsScore(metricResult.metric, metricConfiguration.expected?:0.75)
+                }
                 para { +"SearchConfiguration: ${metricConfiguration.name}" }
                 div("flex flex-row w-full") {
                     iconButton(
@@ -211,7 +214,7 @@ private fun RenderContext.metricResult(
                                 +rss[metricResult.id]!!.searchContext.toString()
                             }
                             div {
-                                +"${metricResult.metric}"
+                                renderMetricsScore(metricResult.metric, metricConfiguration.expected?:0.75)
                             }
                             div("flex flex-row w-full hover:bg-blueBright-200") {
                                 div("w-full flex flax-col") {
@@ -247,8 +250,7 @@ private fun RenderContext.metricResult(
                                                     showTooltip(doc.label ?: "-")
                                                 }
                                                 div("w-1/6 overflow-hidden") {
-                                                    +score.toString()
-                                                    showTooltip(score.toString())
+                                                    renderMetricsScore(score, metricConfiguration.expected?:0.75)
                                                 }
                                             }
                                         }
@@ -299,6 +301,7 @@ private fun RenderContext.metricResult(
         }
     }
 }
+
 
 val Metric.title
     get() = when (this) {
@@ -354,3 +357,10 @@ val Metric.explanation
 
 
 
+fun RenderContext.renderMetricsScore(actual:Double, threshold: Double) {
+    if(actual < threshold) {
+        span("text-red-600") { +actual.toString() }
+    } else {
+        span("text-green-600") { +actual.toString()  }
+    }
+}
