@@ -5,7 +5,7 @@ import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
 fun RenderContext.row(content: HtmlTag<HTMLDivElement>.() -> Unit) {
-    div("flex flex-row gap-2 align-middle", content = content)
+    div("flex flex-row gap-2 align-middle place-items-center", content = content)
 }
 fun RenderContext.rowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row gap-2 align-middle place-items-center mx-auto w-fit", content = content)

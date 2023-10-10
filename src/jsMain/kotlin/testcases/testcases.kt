@@ -235,9 +235,9 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                             leftRightRow {
                                 val showTagEditorStore = storeOf(false)
                                 row {
-                                    tagsStore.data.renderIf({it.isNotEmpty()}) {
-                                        div { +"Tags:" }
-                                    }
+
+                                    div { +"Tags:" }
+
                                     tagsStore.data.renderEach {tag ->
                                         secondaryButton(text = tag) {
 
