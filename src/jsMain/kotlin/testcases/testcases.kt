@@ -201,25 +201,6 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                         }
                         +"- Rated results: ${ratedSearch.ratings.size} "
                     }
-                    div("mx-3") {
-                        val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s -> ratedSearch.copy(comment = s) })
-                        rsCommentStore.data.render { comment ->
-                            val commentEditingStore = storeOf(false)
-                            commentEditingStore.data.render { editing ->
-                                if (editing) {
-                                    modalFieldEditor(
-                                        commentEditingStore,
-                                        rsCommentStore
-                                    )
-                                } else {
-                                    div("w-full") {
-                                        +(comment ?: "_")
-                                        clicks.map { !commentEditingStore.current } handledBy commentEditingStore.update
-                                    }
-                                }
-                            }
-                        }
-                    }
                     iconButton(SvgIconSource.Delete, "Delete rated search") {
                         clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
                     }
@@ -227,6 +208,27 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                 if (show) {
                     div("") {
                         p { +"RsId: ${ratedSearch.id} Rated documents" }
+                        p {
+                            val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s -> ratedSearch.copy(comment = s) })
+                            rsCommentStore.data.render { comment ->
+                                val commentEditingStore = storeOf(false)
+                                commentEditingStore.data.render { editing ->
+                                    if (editing) {
+                                        modalFieldEditor(
+                                            "Comment",
+                                            commentEditingStore,
+                                            rsCommentStore
+                                        )
+                                    } else {
+                                        div("w-full cursor-pointer hover:bg-blueBright-200") {
+                                            +(comment ?: "_")
+                                            clicks.map { !commentEditingStore.current } handledBy commentEditingStore.update
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         div("flex flex-row w-full gap-2 items-center") {
                             div("w-1/12 bg-blueMuted-200") {
                                 +"Doc Id"
@@ -269,7 +271,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                 }
 
                                 div("w-7/12") { +(searchResultRating.label ?: "-") }
-                                div("w-3/12 bg-blueBright-50 hover:bg-blueBright-200") {
+                                div("w-3/12 bg-blueBright-50 hover:bg-blueBright-200 cursor-pointer") {
                                     val sRRCommentStore = searchRatingStore.map(SearchResultRating::comment.propertyLens { ratedSearch, comment ->
                                         ratedSearch.copy(
                                             comment = comment
@@ -281,6 +283,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                         commentEditingStore.data.render { editing ->
                                             if (editing) {
                                                 modalFieldEditor(
+                                                    "Comment",
                                                     commentEditingStore,
                                                     sRRCommentStore
                                                 )
@@ -375,11 +378,15 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
 }
 
 private fun RenderContext.modalFieldEditor(
+    title: String,
     editingStore: Store<Boolean>,
     store: Store<String?>,
 ) {
     val fieldStore = storeOf(store.current?:"-")
     overlay(content = {
+        h1 {
+            +title
+        }
         textField {
             value(fieldStore)
         }
