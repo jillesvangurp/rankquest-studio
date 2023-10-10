@@ -60,8 +60,10 @@ enum class SvgIconSource(val content:String,val viewBox: String) {
 }
 
 fun RenderContext.iconImage(svg: SvgIconSource, title: String="", baseClass: String?="w-30 h-30 m-2") {
-    div {
-        title(title)
+    div("w-min") {
+        if(title.isNotBlank()) {
+            title(title)
+        }
         svg(baseClass) {
             attr("viewBox",svg.viewBox)
             content(svg.content)

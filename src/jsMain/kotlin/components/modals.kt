@@ -110,7 +110,7 @@ suspend fun confirm(
                             paraCentered {
                                 +description
                             }
-                            rowCemtered {
+                            rowCentered {
                                 secondaryButton {
                                     +no
                                     clicks handledBy {

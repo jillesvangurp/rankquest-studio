@@ -206,7 +206,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                     }
                 }
                 if (show) {
-                    div("") {
+                    div {
                         p { +"RsId: ${ratedSearch.id} Rated documents" }
                         p {
                             val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s -> ratedSearch.copy(comment = s) })
@@ -223,6 +223,79 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                         div("w-full cursor-pointer hover:bg-blueBright-200") {
                                             +(comment ?: "_")
                                             clicks.map { !commentEditingStore.current } handledBy commentEditingStore.update
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        div {
+                            val tagsStore = rsStore.map(RatedSearch::tags.propertyLens {o,ts ->o.copy(tags = ts)}).mapNull(
+                                listOf()
+                            )
+                            leftRightRow {
+                                val showTagEditorStore = storeOf(false)
+                                row {
+                                    tagsStore.data.renderIf({it.isNotEmpty()}) {
+                                        div { +"Tags:" }
+                                    }
+                                    tagsStore.data.renderEach {tag ->
+                                        secondaryButton(text = tag) {
+
+                                        }
+                                    }
+                                }
+                                primaryButton(iconSource = SvgIconSource.Edit, text = "Edit Tags") {
+                                    clicks.map { true } handledBy showTagEditorStore.update
+                                }
+
+                                showTagEditorStore.data.render {show ->
+                                    if(show) {
+                                        overlay(closeHandler = null) {
+                                            val tagsEditStore = storeOf(tagsStore.current)
+                                            val newTagStore = storeOf("")
+                                            col {
+                                                div("mb-6") {
+
+                                                    row {
+                                                        textField(placeHolder = "MyKeyword") {
+                                                            value(newTagStore)
+                                                        }
+                                                        newTagStore.data.render { newTag ->
+                                                            primaryButton(iconSource = SvgIconSource.Plus) {
+                                                                disabled(newTag.isBlank())
+                                                                clicks handledBy {
+                                                                    tagsEditStore.update((tagsEditStore.current + newTag).distinct())
+                                                                    newTagStore.update("")
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    tagsEditStore.data.renderIf({ it.isNotEmpty() }) {
+                                                        p {
+                                                            +"Current tags:"
+                                                        }
+                                                        row {
+                                                            tagsEditStore.data.renderEach { tag ->
+                                                                primaryButton(
+                                                                    iconSource = SvgIconSource.Cross,
+                                                                    text = tag
+                                                                ) {
+                                                                    clicks.map { tagsEditStore.current - tag } handledBy tagsEditStore.update
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                rowCentered {
+                                                    secondaryButton(iconSource = SvgIconSource.Cross, text = "Cancel") {
+                                                        clicks.map { false } handledBy showTagEditorStore.update
+                                                    }
+                                                    primaryButton(text = "OK") {
+                                                        clicks.map { tagsEditStore.current } handledBy tagsStore.update
+                                                        clicks.map { false } handledBy showTagEditorStore.update
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -383,7 +456,7 @@ private fun RenderContext.modalFieldEditor(
     store: Store<String?>,
 ) {
     val fieldStore = storeOf(store.current?:"-")
-    overlay(content = {
+    overlay(closeHandler = null) {
         h1 {
             +title
         }
@@ -403,7 +476,7 @@ private fun RenderContext.modalFieldEditor(
                 clicks.map { false } handledBy editingStore.update
             }
         }
-    }, closeHandler = null)
+    }
 }
 
 fun RenderContext.starRating(store: Store<Int>) {

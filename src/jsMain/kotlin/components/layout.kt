@@ -1,15 +1,13 @@
 package components
 
 import dev.fritz2.core.*
-import dev.fritz2.headless.components.Tooltip
-import dev.fritz2.headless.components.tooltip
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
 fun RenderContext.row(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row gap-2 align-middle", content = content)
 }
-fun RenderContext.rowCemtered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.rowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row gap-2 align-middle place-items-center mx-auto w-fit", content = content)
 }
 fun RenderContext.leftRightRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {

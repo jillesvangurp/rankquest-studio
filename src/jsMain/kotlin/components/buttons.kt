@@ -28,12 +28,12 @@ fun RenderContext.primaryButton(
     scope = scope,
     content = {
         if (iconSource != null || text != null) {
-            div("flex flex-row gap-2 place-items-center") {
+            div("flex flex-row gap-2 flex-nowrap align-middle") {
                 iconSource?.let {
                     iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
                 }
                 text?.let {
-                    span {
+                    div {
                         +text
                     }
                 }
