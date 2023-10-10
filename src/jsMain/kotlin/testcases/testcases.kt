@@ -201,6 +201,25 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                         }
                         +"- Rated results: ${ratedSearch.ratings.size} "
                     }
+                    div("mx-3") {
+                        val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s -> ratedSearch.copy(comment = s) })
+                        rsCommentStore.data.render { comment ->
+                            val commentEditingStore = storeOf(false)
+                            commentEditingStore.data.render { editing ->
+                                if (editing) {
+                                    modalFieldEditor(
+                                        commentEditingStore,
+                                        rsCommentStore
+                                    )
+                                } else {
+                                    div("w-full") {
+                                        +(comment ?: "_")
+                                        clicks.map { !commentEditingStore.current } handledBy commentEditingStore.update
+                                    }
+                                }
+                            }
+                        }
+                    }
                     iconButton(SvgIconSource.Delete, "Delete rated search") {
                         clicks.map { ratedSearch.id } handledBy ratedSearchesStore.deleteById
                     }
@@ -244,7 +263,6 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                 div("w-1/12 bg-blueBright-50 hover:bg-blueBright-200") {
                                     val editingStore = storeOf(false)
                                     editingStore.data.render { editing ->
-
                                         val ratingStore = searchRatingStore.map(SearchResultRating::rating.propertyLens { o, v->o.copy(rating = v)})
                                         starRating(ratingStore)
                                     }
