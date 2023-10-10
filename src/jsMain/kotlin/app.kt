@@ -3,11 +3,9 @@ import components.row
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
-import dev.fritz2.core.storeOf
 import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
-import kotlinx.browser.window
 import kotlinx.coroutines.delay
 import metrics.metrics
 import testcases.testCases
@@ -16,7 +14,6 @@ import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
 import utils.JsLogLevel
 import utils.setJsLogLevel
-import kotlin.js.Console
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -35,7 +32,7 @@ suspend fun main() {
         div("h-screen flex flex-col overflow-hidden") {
             div("bg-blueBright-50 p-2 flex flex-col md:flex-row w-full align-middle justify-between") {
                 row {
-                    rankQuestStudio()
+                    rankQuestStudioLogo()
                 }
                 div("flex flex-col md:flex-row gap-2 overflow-auto") {
                     menu()
@@ -56,7 +53,7 @@ suspend fun main() {
 }
 
 
-private fun RenderContext.rankQuestStudio() {
+private fun RenderContext.rankQuestStudioLogo() {
     img("w-8 h-8") {
         src("rankquest_logo.png")
     }
