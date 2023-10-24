@@ -6,13 +6,14 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfigura
 import components.*
 import dev.fritz2.core.*
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.JsonObject
 import utils.md5Hash
 import kotlin.random.Random
 
 
-class SearchContextFieldsStore(fields: List<SearchContextField>) : RootStore<List<SearchContextField>>(fields)
+class SearchContextFieldsStore(fields: List<SearchContextField>) : RootStore<List<SearchContextField>>(fields, Job())
 
 fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     selectedPluginStore: Store<String>,

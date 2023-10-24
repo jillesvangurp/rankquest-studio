@@ -6,7 +6,6 @@ buildscript {
 
 repositories {
     mavenCentral()
-//        maven("https://jitpack.io")
     maven("https://maven.tryformation.com/releases") {
         content {
             includeGroup("com.jillesvangurp")
@@ -33,7 +32,7 @@ kotlin {
                 optIn("kotlin.ExperimentalStdlibApi")
             }
         }
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation("com.tryformation.fritz2:core:_")
                 implementation("com.tryformation.fritz2:headless:_")
@@ -45,7 +44,7 @@ kotlin {
                 implementation(Koin.core)
             }
         }
-        val jsMain by getting {
+        jsMain {
             dependencies {
                 // tailwind
                 implementation(npm("tailwindcss", "_"))

@@ -3,15 +3,12 @@ package searchpluginconfig
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
-import com.jilesvangurp.rankquest.core.plugins.ElasticsearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.JsonGetAPIPluginConfig
-import com.jilesvangurp.rankquest.core.plugins.JsonPostAPIPluginConfig
-import components.*
+import components.para
+import components.textField
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.Store
-import dev.fritz2.core.handledBy
 import dev.fritz2.core.storeOf
-import koin
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 

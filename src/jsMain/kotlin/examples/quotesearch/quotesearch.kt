@@ -21,6 +21,7 @@ import components.runWithBusy
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -142,7 +143,7 @@ fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
     }
 }
 
-class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf()) {
+class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf(), Job()) {
     // use inject here to dodge circular dependency
     val activeSearchPluginConfigurationStore by koin.inject<ActiveSearchPluginConfigurationStore>()
 

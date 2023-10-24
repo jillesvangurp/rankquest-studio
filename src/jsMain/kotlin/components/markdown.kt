@@ -3,6 +3,7 @@ package components
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
+import kotlinx.coroutines.Job
 import org.intellij.markdown.IElementType
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
@@ -18,7 +19,7 @@ fun renderMarkdown(md: String): String {
         .replace("<ul", """<ul style="margin-left:5px;"""")
 }
 
-private class MarkdownStore(file: String): RootStore<String>("") {
+private class MarkdownStore(file: String): RootStore<String>("", Job()) {
     val load = handle<String> { _, path ->
         loadTextFile(path)
     }

@@ -1,6 +1,6 @@
 Rankquest Studio is a web based tool that you can use to benchmark search query metrics for your search APIs. You can try the [latest version here](https://rankquest.jillesvangurp.com).
 
-## Rankquest Cli is Easy
+## Rankquest Studio is Easy
 
 **Start optimizing your search ranking today**
 

@@ -14,6 +14,7 @@ import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -25,7 +26,7 @@ val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
     singleOf(::ActiveSearchPluginConfigurationStore)
     single<Store<Boolean>>(named("showDemo")) {
-        storeOf(false)
+        storeOf(false, Job())
     }
 }
 

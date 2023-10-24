@@ -4,6 +4,7 @@ import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.Store
 import kotlinx.browser.window
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -15,7 +16,7 @@ open class LocalStoringStore<T>(
     val key: String,
     val serializer: KSerializer<T>
 ) :
-    RootStore<T?>(initialData) {
+    RootStore<T?>(initialData, Job()) {
     private var latest: T? = null
     private var loaded=false
 

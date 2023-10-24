@@ -4,6 +4,7 @@ import dev.fritz2.core.*
 import dev.fritz2.headless.components.modal
 import dev.fritz2.headless.foundation.setInitialFocus
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 
@@ -66,7 +67,7 @@ suspend fun confirm(
     no: String = "No get me out of here",
     conditionalBlock: suspend () -> Unit
 ) {
-    val openStateStore = storeOf(true)
+    val openStateStore = storeOf(true, Job())
     modal {
         openState(openStateStore)
         modalPanel("w-full fixed inset-0 overflow-y-auto") {

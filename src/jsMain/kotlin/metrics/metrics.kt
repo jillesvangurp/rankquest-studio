@@ -10,6 +10,7 @@ import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -37,7 +38,7 @@ fun Double.round(decimals:Int): Double {
     return (this * factor).roundToLong() / factor
 }
 
-class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null) {
+class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null, Job()) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
     val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
