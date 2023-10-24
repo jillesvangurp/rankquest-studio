@@ -1,5 +1,7 @@
 import components.*
 import dev.fritz2.core.RenderContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -14,11 +16,11 @@ val cookiePermissionModule = module {
 @Serializable
 data class CookiePermission(val ok: Boolean = true, val dateAgreed: Instant = Clock.System.now())
 
-class CookiePermissionStore : LocalStoringStore<CookiePermission>(null, "permissions", CookiePermission.serializer())
+class CookiePermissionStore() : LocalStoringStore<CookiePermission>(null, "permissions", CookiePermission.serializer())
 
 fun RenderContext.cookiePopup() {
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
-    cookiePermissionStore.data.render { permissions ->
+    cookiePermissionStore.data.distinctUntilChanged().render { permissions ->
         if (permissions?.ok != true) {
             overlay(content = {
                 h1 { +"Cookies and permissions" }

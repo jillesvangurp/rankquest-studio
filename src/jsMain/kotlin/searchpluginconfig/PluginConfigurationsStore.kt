@@ -4,6 +4,7 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfigura
 import components.LocalStoringStore
 import components.confirm
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.serialization.builtins.ListSerializer
 
 class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfiguration>>(
@@ -34,7 +35,7 @@ class PluginConfigurationsStore : LocalStoringStore<List<SearchPluginConfigurati
         }
     }
     val remove = handle<String> { old, id ->
-        confirm {
+        confirm(job=job) {
             update((current ?: listOf()).filter { it.id != id })
             if (activeSearchPluginConfigurationStore.current?.id == id) {
                 activeSearchPluginConfigurationStore.update(null)

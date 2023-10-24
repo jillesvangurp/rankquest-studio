@@ -21,7 +21,6 @@ import components.runWithBusy
 import dev.fritz2.core.RootStore
 import dev.fritz2.remote.http
 import koin
-import kotlinx.coroutines.Job
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -30,6 +29,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import search.*
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
+import kotlinx.coroutines.Job
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -143,7 +143,7 @@ fun List<MovieQuote>.searchPlugin(nice: Boolean = true): SearchPlugin {
     }
 }
 
-class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf(), Job()) {
+class MovieQuotesStore() : RootStore<List<MovieQuote>>(listOf(), Job()) {
     // use inject here to dodge circular dependency
     val activeSearchPluginConfigurationStore by koin.inject<ActiveSearchPluginConfigurationStore>()
 
@@ -179,7 +179,8 @@ class MovieQuotesStore : RootStore<List<MovieQuote>>(listOf(), Job()) {
     val indexEs = handle {
         confirm(
             "Write to localhost:9200?",
-            "This will attempt to write movies json to a locally running elasticsearch"
+            "This will attempt to write movies json to a locally running elasticsearch",
+            job=job
         ) {
 
             runWithBusy({

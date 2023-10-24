@@ -2,17 +2,14 @@ package components
 
 import dev.fritz2.core.RootStore
 import dev.fritz2.core.storeOf
-import dev.fritz2.core.transition
-import dev.fritz2.headless.components.modal
-import dev.fritz2.headless.foundation.setInitialFocus
 import handlerScope
 import koin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import kotlinx.coroutines.Job
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -49,9 +46,9 @@ suspend fun <R> busyResult(
     busyStore.withBusyState(supplier, successMessage, initialTitle, initialMessage, errorResult, processResult)
 }
 
-class BusyStore : RootStore<Boolean>(false, Job()) {
-    val titleStore = storeOf("",Job())
-    val messageStore = storeOf("",Job())
+class BusyStore() : RootStore<Boolean>(false, Job()) {
+    val titleStore = storeOf("",job)
+    val messageStore = storeOf("",job)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun <T> withBusyState(

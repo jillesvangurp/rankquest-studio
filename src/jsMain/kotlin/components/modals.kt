@@ -65,9 +65,10 @@ suspend fun confirm(
     description: String = "If you click yes, the action will be completed",
     yes: String = "Yes!",
     no: String = "No get me out of here",
-    conditionalBlock: suspend () -> Unit
+    job: Job,
+    conditionalBlock: suspend () -> Unit,
 ) {
-    val openStateStore = storeOf(true, Job())
+    val openStateStore = storeOf(true, job)
     modal {
         openState(openStateStore)
         modalPanel("w-full fixed inset-0 overflow-y-auto") {

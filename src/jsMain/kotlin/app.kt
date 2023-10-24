@@ -22,9 +22,7 @@ suspend fun main() {
     setJsLogLevel(JsLogLevel.INFO)
     koinInit()
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
-    cookiePermissionStore.awaitLoaded()
-    // prevent issue with cookie screen briefly flashing on reload; init does it's thing quickly but not synchronously
-    delay(50.milliseconds)
+    cookiePermissionStore.awaitLoaded() // prevents flashing the cookie screen before we load the settings from local storage
     render("#target") { // using id selector here, leave blank to use document.body by default
         busyPopupMountPoint()
 

@@ -5,15 +5,10 @@ import com.jilesvangurp.rankquest.core.*
 import com.jilesvangurp.rankquest.core.pluginconfiguration.Metric
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricConfiguration
 import com.jilesvangurp.rankquest.core.pluginconfiguration.MetricsOutput
-import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.*
 import dev.fritz2.core.*
 import koin
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
@@ -23,6 +18,7 @@ import org.koin.dsl.module
 import pageLink
 import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
+import kotlinx.coroutines.Job
 import kotlin.math.pow
 import kotlin.math.roundToLong
 
@@ -38,7 +34,7 @@ fun Double.round(decimals:Int): Double {
     return (this * factor).roundToLong() / factor
 }
 
-class MetricsOutputStore : RootStore<List<MetricsOutput>?>(null, Job()) {
+class MetricsOutputStore() : RootStore<List<MetricsOutput>?>(null, Job()) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
     val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()

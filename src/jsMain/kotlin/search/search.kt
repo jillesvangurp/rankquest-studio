@@ -8,7 +8,6 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
 import components.*
 import dev.fritz2.core.*
 import koin
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -16,13 +15,14 @@ import org.w3c.dom.HTMLHeadingElement
 import pageLink
 import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
+import kotlinx.coroutines.Job
 import utils.md5Hash
 
 val searchModule = module {
     singleOf(::SearchResultsStore)
 }
 
-class SearchResultsStore : RootStore<Result<SearchResults>?>(null, Job())
+class SearchResultsStore() : RootStore<Result<SearchResults>?>(null, Job())
 
 
 fun RenderContext.searchScreen() {

@@ -19,7 +19,7 @@ fun renderMarkdown(md: String): String {
         .replace("<ul", """<ul style="margin-left:5px;"""")
 }
 
-private class MarkdownStore(file: String): RootStore<String>("", Job()) {
+private class MarkdownStore(file: String,job: Job): RootStore<String>("", job) {
     val load = handle<String> { _, path ->
         loadTextFile(path)
     }
@@ -31,7 +31,7 @@ private class MarkdownStore(file: String): RootStore<String>("", Job()) {
 suspend fun loadTextFile(path: String) = http(path).get().body()
 
 fun RenderContext.markdownFile(file:String, baseClass: String?=null) {
-    val mdStore =MarkdownStore(file)
+    val mdStore =MarkdownStore(file, job)
     mdStore.data.render {
         div(baseClass) {
             // make sure we render lists with bullets, tailwind seems to not like this; so use css

@@ -14,13 +14,13 @@ import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
 import examples.quotesearch.movieQuotesSearchPluginConfig
 import koin
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlinx.coroutines.Job
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
@@ -346,7 +346,7 @@ fun RenderContext.metricsEditor(
                                 secondaryButton {
                                     +"Delete"
                                     clicks handledBy {
-                                        confirm {
+                                        confirm(job = job) {
                                             metricConfigurationsStore.update(metricConfigurationsStore.current.filter { it.name != mc.name })
                                         }
                                     }

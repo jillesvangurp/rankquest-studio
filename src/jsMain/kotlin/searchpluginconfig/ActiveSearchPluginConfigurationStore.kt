@@ -1,24 +1,14 @@
 package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
-import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import com.jilesvangurp.rankquest.core.plugins.PluginFactoryRegistry
 import components.LocalStoringStore
 import components.busyResult
-import handlerScope
-import io.ktor.client.*
-import io.ktor.client.engine.js.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.plugins.websocket.*
 import koin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.encodeToString
 import search.SearchResultsStore
-import kotlin.time.Duration.Companion.milliseconds
 
 class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfiguration?>(
     null, "active-search-plugin-configuration", SearchPluginConfiguration.serializer().nullable

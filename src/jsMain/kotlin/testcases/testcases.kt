@@ -9,6 +9,7 @@ import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
@@ -26,7 +27,7 @@ val ratedSearchesModule = module {
     singleOf(::RatedSearchesStore)
 }
 
-class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
+class RatedSearchesStore() : LocalStoringStore<List<RatedSearch>>(
     listOf(),
     key = "rated-searches",
     serializer = ListSerializer(RatedSearch.serializer())
@@ -78,7 +79,8 @@ class RatedSearchesStore : LocalStoringStore<List<RatedSearch>>(
             question = "Are you sure you want to delete $id?",
             description = "Deleting a rated search cannot be undone.",
             yes = "Delete it",
-            no = "Cancel"
+            no = "Cancel",
+            job = job
         ) {
             val updated = (current.orEmpty()).filter { it.id != id }
             update(updated)
@@ -110,7 +112,8 @@ fun RenderContext.testCases() {
                                 clicks handledBy {
                                     confirm(
                                         "Are you sure you want to do this?",
-                                        "This remove all your rated searches. Make sure to download your rated searches first!"
+                                        "This remove all your rated searches. Make sure to download your rated searches first!",
+                                        job=job
                                     ) {
                                         ratedSearchesStore.update(listOf())
                                         toast("messages", duration = 3.seconds.inWholeMilliseconds) {
@@ -135,7 +138,8 @@ fun RenderContext.testCases() {
                                     clicks handledBy {
                                         confirm(
                                             "Are you sure?",
-                                            "This will override your current test cases. Download them first!"
+                                            "This will override your current test cases. Download them first!",
+                                            job = job
                                         ) {
                                             http("movie-quotes-test-cases.json").get().body()
                                                 .let<String, List<RatedSearch>> { body ->
@@ -326,7 +330,8 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                         } handledBy { modified ->
                                             confirm(
                                                 "Remove this result?",
-                                                description = "Remove ${searchResultRating.documentId} | ${searchResultRating.label}"
+                                                description = "Remove ${searchResultRating.documentId} | ${searchResultRating.label}",
+                                                job = job
                                             ) {
                                                 rsStore.update(modified)
                                             }

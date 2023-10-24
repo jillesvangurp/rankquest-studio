@@ -13,7 +13,7 @@ import utils.md5Hash
 import kotlin.random.Random
 
 
-class SearchContextFieldsStore(fields: List<SearchContextField>) : RootStore<List<SearchContextField>>(fields, Job())
+class SearchContextFieldsStore(fields: List<SearchContextField>, job: Job) : RootStore<List<SearchContextField>>(fields, job)
 
 fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     selectedPluginStore: Store<String>,
@@ -27,7 +27,7 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     helpText: String,
 ) {
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
-    val searchContextFieldsStore = SearchContextFieldsStore(existing?.fieldConfig.orEmpty())
+    val searchContextFieldsStore = SearchContextFieldsStore(existing?.fieldConfig.orEmpty(), job)
     templateVarEditor(searchContextFieldsStore, queryTemplateStore)
 
     row {
