@@ -9,7 +9,6 @@ import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
@@ -19,7 +18,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.events.Event
-import org.w3c.dom.events.InputEvent
 import pageLink
 import search.SearchResultsStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
@@ -114,6 +112,7 @@ fun RenderContext.testCases() {
         val ratedSearchesStore = koin.get<RatedSearchesStore>()
         val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
         val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo"))
+        val testCaseSearchFilterStore = koin.get<TestCaseSearchFilterStore>()
 
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
         activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
@@ -184,17 +183,11 @@ fun RenderContext.testCases() {
                     }
                 }
 
-                val testCaseSearchFilterStore = koin.get<TestCaseSearchFilterStore>()
+                tagFilterEditor()
                 testCaseSearchFilterStore.data.filterNotNull().render { filter ->
-                    row {
-                        filter.tags.forEach { tag ->
-                            secondaryButton(iconSource = SvgIconSource.Delete, text = tag) {
-                                clicks.map { tag } handledBy testCaseSearchFilterStore.removeTag
-                            }
-                        }
-                    }
+
                     ratedSearchesStore.data.filterNotNull().map {
-                        if(filter.tags.isEmpty()) {
+                        if (filter.tags.isEmpty()) {
                             it
                         } else {
                             it.filter { it.tags?.containsAll(filter.tags) == true }
@@ -210,7 +203,6 @@ fun RenderContext.testCases() {
         }
     }
 }
-
 
 fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Store<RatedSearch>) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()

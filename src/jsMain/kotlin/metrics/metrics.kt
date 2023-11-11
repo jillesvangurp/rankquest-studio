@@ -19,6 +19,8 @@ import pageLink
 import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlinx.coroutines.Job
+import testcases.TestCaseSearchFilterStore
+import testcases.tagFilterEditor
 import kotlin.math.pow
 import kotlin.math.roundToLong
 
@@ -26,7 +28,7 @@ val metricsModule = module {
     singleOf(::MetricsOutputStore)
 }
 
-fun Double.round(decimals:Int): Double {
+fun Double.round(decimals: Int): Double {
     if (decimals > 17) {
         throw IllegalArgumentException("this probably doesn't do what you want; makes sense only for <= 17 decimals")
     }
@@ -38,7 +40,7 @@ class MetricsOutputStore() : RootStore<List<MetricsOutput>?>(null, Job()) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
     val pluginFactoryRegistry = koin.get<PluginFactoryRegistry>()
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
-
+    val testCaseSearchFilterStore = koin.get<TestCaseSearchFilterStore>()
     val measure = handle {
         runWithBusy({
             ratedSearchesStore.current?.let { ratedSearches ->
@@ -49,16 +51,23 @@ class MetricsOutputStore() : RootStore<List<MetricsOutput>?>(null, Job()) {
                     } else {
                         console.log("Using ${pluginFactory::class.simpleName}")
                     }
+                    val tags = testCaseSearchFilterStore.current?.tags.orEmpty()
                     pluginFactory?.let { pf ->
                         val plugin = pf.create(config)
                         console.info("measuring")
-                        plugin.runMetrics(config, ratedSearches)
+                        plugin.runMetrics(config, ratedSearches.filter { rs ->
+                            if (tags.isEmpty()) {
+                                true
+                            } else {
+                                tags.containsAll(rs.tags.orEmpty())
+                            }
+                        })
                     }
                 }
             }
         }) { results ->
             update(results?.mapNotNull { r ->
-                if(r.isFailure) {
+                if (r.isFailure) {
                     console.error(r.exceptionOrNull())
                     null
                 } else {
@@ -146,6 +155,7 @@ fun RenderContext.metrics() {
                         """.trimIndent()
                         )
                     }
+                    tagFilterEditor()
                     metricsOutputStore.data.render { metrics ->
                         div("w-full") {
                             metrics?.forEach { (_, metric, metricResult) ->
@@ -181,11 +191,15 @@ private fun RenderContext.metricResult(
 
                 div {
                     +"Metric: "
-                    renderMetricsScore(metricResult.metric, metricConfiguration.expected?:0.75)
+                    renderMetricsScore(metricResult.metric, metricConfiguration.expected ?: 0.75)
                 }
                 div {
-                    metricResult.scores.stats.let {resultStats ->
-                        +"min: ${resultStats.min.round(3)}, max: ${resultStats.max.round(3)}, median: ${resultStats.median.round(3)}, \u03C3: ${resultStats.standardDeviation.round(3)}, variance: ${resultStats.variance.round(3)}"
+                    metricResult.scores.stats.let { resultStats ->
+                        +"min: ${resultStats.min.round(3)}, max: ${resultStats.max.round(3)}, median: ${
+                            resultStats.median.round(
+                                3
+                            )
+                        }, \u03C3: ${resultStats.standardDeviation.round(3)}, variance: ${resultStats.variance.round(3)}"
                     }
                 }
                 para { +"SearchConfiguration: ${metricConfiguration.name}" }
@@ -226,7 +240,7 @@ private fun RenderContext.metricResult(
                                 +rss[metricResult.id]!!.searchContext.toString()
                             }
                             div {
-                                renderMetricsScore(metricResult.metric, metricConfiguration.expected?:0.75)
+                                renderMetricsScore(metricResult.metric, metricConfiguration.expected ?: 0.75)
                             }
                             div("flex flex-row w-full hover:bg-blueBright-200") {
                                 div("w-full flex flax-col") {
@@ -262,7 +276,7 @@ private fun RenderContext.metricResult(
                                                     showTooltip(doc.label ?: "-")
                                                 }
                                                 div("w-1/6 overflow-hidden") {
-                                                    renderMetricsScore(score, metricConfiguration.expected?:0.75)
+                                                    renderMetricsScore(score, metricConfiguration.expected ?: 0.75)
                                                 }
                                             }
                                         }
@@ -368,11 +382,10 @@ val Metric.explanation
     )
 
 
-
-fun RenderContext.renderMetricsScore(actual:Double, threshold: Double) {
-    if(actual < threshold) {
+fun RenderContext.renderMetricsScore(actual: Double, threshold: Double) {
+    if (actual < threshold) {
         span("text-red-600") { +actual.round(3).toString() }
     } else {
-        span("text-green-600") { +actual.round(3).toString()  }
+        span("text-green-600") { +actual.round(3).toString() }
     }
 }

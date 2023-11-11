@@ -11,7 +11,7 @@ fun RenderContext.rowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row flex-wrap gap-2 align-middle place-items-center mx-auto w-fit", content = content)
 }
 fun RenderContext.leftRightRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
-    div("flex flex-row flex-wrap w-full place-items-center justify-between", content = content)
+    div("flex flex-row w-full place-items-center justify-between", content = content)
 }
 
 fun RenderContext.border(content: HtmlTag<HTMLDivElement>.() -> Unit) {
