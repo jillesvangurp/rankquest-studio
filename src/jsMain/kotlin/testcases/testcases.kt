@@ -10,14 +10,15 @@ import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.InputEvent
 import pageLink
 import search.SearchResultsStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
@@ -259,10 +260,20 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                             val newTagStore = storeOf("")
                                             col {
                                                 div("mb-6") {
-
                                                     row {
                                                         textField(placeHolder = "MyKeyword") {
+                                                            val element = this
                                                             value(newTagStore)
+                                                            keypresss.filter { it.key == "Enter" } handledBy {
+                                                                val newTag = newTagStore.current
+                                                                if(newTag.isNotBlank()) {
+                                                                    tagsEditStore.update((tagsEditStore.current + newTag).distinct())
+                                                                    newTagStore.update("")
+                                                                }
+                                                            }
+                                                            keyups handledBy {
+                                                                it.target?.dispatchEvent(Event("change"))
+                                                            }
                                                         }
                                                         newTagStore.data.render { newTag ->
                                                             primaryButton(iconSource = SvgIconSource.Plus) {
