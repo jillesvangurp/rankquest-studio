@@ -12,6 +12,7 @@ import koin
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
@@ -26,7 +27,25 @@ import kotlin.time.Duration.Companion.seconds
 
 val ratedSearchesModule = module {
     singleOf(::RatedSearchesStore)
+    singleOf(::TestCaseSearchFilterStore)
 }
+
+class TestCaseSearchFilterStore : LocalStoringStore<TestCaseSearchFilter>(
+    initialData = TestCaseSearchFilter(),
+    key = "test-case-search-filter",
+    serializer = TestCaseSearchFilter.serializer()
+) {
+    val addTag = handle<String> { original, tag ->
+        (original ?: TestCaseSearchFilter()).copy(tags = (original?.tags.orEmpty() + tag).distinct())
+    }
+
+    val removeTag = handle<String> { original, tag ->
+        (original ?: TestCaseSearchFilter()).copy(tags = original?.tags.orEmpty() - tag)
+    }
+}
+
+@Serializable
+data class TestCaseSearchFilter(val tags: List<String> = listOf())
 
 class RatedSearchesStore() : LocalStoringStore<List<RatedSearch>>(
     listOf(),
@@ -114,7 +133,7 @@ fun RenderContext.testCases() {
                                     confirm(
                                         "Are you sure you want to do this?",
                                         "This remove all your rated searches. Make sure to download your rated searches first!",
-                                        job=job
+                                        job = job
                                     ) {
                                         ratedSearchesStore.update(listOf())
                                         toast("messages", duration = 3.seconds.inWholeMilliseconds) {
@@ -165,10 +184,26 @@ fun RenderContext.testCases() {
                     }
                 }
 
-                ratedSearchesStore.data.filterNotNull().renderEach { rs ->
-                    val rsStore = ratedSearchesStore.mapNull(listOf()).mapByElement(rs) { it.id }
-                    div {
-                        testCase(showStore, rsStore)
+                val testCaseSearchFilterStore = koin.get<TestCaseSearchFilterStore>()
+                testCaseSearchFilterStore.data.filterNotNull().render { filter ->
+                    row {
+                        filter.tags.forEach { tag ->
+                            secondaryButton(iconSource = SvgIconSource.Delete, text = tag) {
+                                clicks.map { tag } handledBy testCaseSearchFilterStore.removeTag
+                            }
+                        }
+                    }
+                    ratedSearchesStore.data.filterNotNull().map {
+                        if(filter.tags.isEmpty()) {
+                            it
+                        } else {
+                            it.filter { it.tags?.containsAll(filter.tags) == true }
+                        }
+                    }.renderEach { rs ->
+                        val rsStore = ratedSearchesStore.mapNull(listOf()).mapByElement(rs) { it.id }
+                        div {
+                            testCase(showStore, rsStore)
+                        }
                     }
                 }
             }
@@ -179,6 +214,7 @@ fun RenderContext.testCases() {
 
 fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Store<RatedSearch>) {
     val ratedSearchesStore = koin.get<RatedSearchesStore>()
+    val testCaseSearchFilterStore = koin.get<TestCaseSearchFilterStore>()
 
     div("flex flex-col mx-10 hover:bg-blueBright-50") {
         showStore.data.render { showMap ->
@@ -214,7 +250,9 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                     div {
                         p { +"RsId: ${ratedSearch.id} Rated documents" }
                         p {
-                            val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s -> ratedSearch.copy(comment = s) })
+                            val rsCommentStore = rsStore.map(RatedSearch::comment.propertyLens { ratedSearch, s ->
+                                ratedSearch.copy(comment = s)
+                            })
                             rsCommentStore.data.render { comment ->
                                 val commentEditingStore = storeOf(false)
                                 commentEditingStore.data.render { editing ->
@@ -234,18 +272,22 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                             }
                         }
                         div {
-                            val tagsStore = rsStore.map(RatedSearch::tags.propertyLens {o,ts ->o.copy(tags = ts)}).mapNull(
-                                listOf()
-                            )
+                            val tagsStore =
+                                rsStore.map(RatedSearch::tags.propertyLens { o, ts -> o.copy(tags = ts) }).mapNull(
+                                    listOf()
+                                )
                             leftRightRow {
                                 val showTagEditorStore = storeOf(false)
                                 row {
 
                                     div { +"Tags:" }
 
-                                    tagsStore.data.renderEach {tag ->
-                                        secondaryButton(text = tag) {
-
+                                    testCaseSearchFilterStore.data.render { currentFilter ->
+                                        tagsStore.data.renderEach { tag ->
+                                            secondaryButton(text = tag) {
+                                                disabled(currentFilter?.tags?.contains(tag) == true)
+                                                clicks.map { tag } handledBy testCaseSearchFilterStore.addTag
+                                            }
                                         }
                                     }
                                 }
@@ -253,8 +295,8 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                     clicks.map { true } handledBy showTagEditorStore.update
                                 }
 
-                                showTagEditorStore.data.render {show ->
-                                    if(show) {
+                                showTagEditorStore.data.render { show ->
+                                    if (show) {
                                         overlay(closeHandler = null) {
                                             val tagsEditStore = storeOf(tagsStore.current)
                                             val newTagStore = storeOf("")
@@ -266,7 +308,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                                             value(newTagStore)
                                                             keypresss.filter { it.key == "Enter" } handledBy {
                                                                 val newTag = newTagStore.current
-                                                                if(newTag.isNotBlank()) {
+                                                                if (newTag.isNotBlank()) {
                                                                     tagsEditStore.update((tagsEditStore.current + newTag).distinct())
                                                                     newTagStore.update("")
                                                                 }
@@ -328,11 +370,13 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                             div("w-7/12 bg-blueMuted-200") { +"Label" }
                             div("w-3/12 bg-blueMuted-200") { +"Comment" }
                         }
-                        val searchRatingsStore = rsStore.map(RatedSearch::ratings.propertyLens { ratedSearch, searchResultRatings ->
-                            ratedSearch.copy(ratings = searchResultRatings)
-                        })
-                        searchRatingsStore.data.renderEach { searchResultRating->
-                            val searchRatingStore = searchRatingsStore.mapByElement(searchResultRating) { it.documentId }
+                        val searchRatingsStore =
+                            rsStore.map(RatedSearch::ratings.propertyLens { ratedSearch, searchResultRatings ->
+                                ratedSearch.copy(ratings = searchResultRatings)
+                            })
+                        searchRatingsStore.data.renderEach { searchResultRating ->
+                            val searchRatingStore =
+                                searchRatingsStore.mapByElement(searchResultRating) { it.documentId }
                             div("flex flex-row w-full gap-2 border-t border-blueMuted-200") {
                                 div("w-1/12 bg-blueBright-50") {
                                     iconButton(SvgIconSource.Delete, title = "Remove this result") {
@@ -354,20 +398,24 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                 div("w-1/12 bg-blueBright-50 hover:bg-blueBright-200") {
                                     val editingStore = storeOf(false)
                                     editingStore.data.render { editing ->
-                                        val ratingStore = searchRatingStore.map(SearchResultRating::rating.propertyLens { o, v->o.copy(rating = v)})
+                                        val ratingStore =
+                                            searchRatingStore.map(SearchResultRating::rating.propertyLens { o, v ->
+                                                o.copy(rating = v)
+                                            })
                                         starRating(ratingStore)
                                     }
                                 }
 
                                 div("w-7/12") { +(searchResultRating.label ?: "-") }
                                 div("w-3/12 bg-blueBright-50 hover:bg-blueBright-200 cursor-pointer") {
-                                    val sRRCommentStore = searchRatingStore.map(SearchResultRating::comment.propertyLens { ratedSearch, comment ->
-                                        ratedSearch.copy(
-                                            comment = comment
-                                        )
-                                    })
+                                    val sRRCommentStore =
+                                        searchRatingStore.map(SearchResultRating::comment.propertyLens { ratedSearch, comment ->
+                                            ratedSearch.copy(
+                                                comment = comment
+                                            )
+                                        })
 
-                                    sRRCommentStore.data.render {comment ->
+                                    sRRCommentStore.data.render { comment ->
                                         val commentEditingStore = storeOf(false)
                                         commentEditingStore.data.render { editing ->
                                             if (editing) {
@@ -471,7 +519,7 @@ private fun RenderContext.modalFieldEditor(
     editingStore: Store<Boolean>,
     store: Store<String?>,
 ) {
-    val fieldStore = storeOf(store.current?:"-")
+    val fieldStore = storeOf(store.current ?: "-")
     overlay(closeHandler = null) {
         h1 {
             +title
