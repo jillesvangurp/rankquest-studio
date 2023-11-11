@@ -271,7 +271,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                                                     newTagStore.update("")
                                                                 }
                                                             }
-                                                            keyups handledBy {
+                                                            inputs handledBy {
                                                                 it.target?.dispatchEvent(Event("change"))
                                                             }
                                                         }
