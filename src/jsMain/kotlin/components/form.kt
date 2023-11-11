@@ -3,9 +3,11 @@ package components
 import dev.fritz2.core.*
 import dev.fritz2.headless.components.*
 import dev.fritz2.headless.foundation.Aria
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.events.Event
 import org.w3c.files.FileReader
 import org.w3c.files.get
 import org.w3c.xhr.ProgressEvent
@@ -36,6 +38,7 @@ fun RenderContext.textField(
                     placeHolder?.let { pl ->
                         placeholder(pl)
                     }
+                    inputs handledBy { it.target?.dispatchEvent(Event("change"))}
                 }
             }
             description?.let {
