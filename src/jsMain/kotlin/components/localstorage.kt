@@ -33,7 +33,6 @@ open class LocalStoringStore<T>(
     }
 
     private fun onStoreUpdated(v: T?) {
-        console.log("store change! $current $v")
         if (latest != v && loaded) {
             if (v == null || v == initialData) {
                 window.localStorage.removeItem(key)
