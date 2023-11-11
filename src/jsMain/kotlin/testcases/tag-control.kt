@@ -14,8 +14,14 @@ fun RenderContext.tagFilterEditor() {
         leftRightRow {
 
             row {
-                p {
-                    +"tags"
+                if(filter.tags.isNotEmpty()) {
+                    p {
+                        +"Tags:"
+                    }
+                } else {
+                    p {
+                        +"Add some tags to your test cases to enable tag filtering"
+                    }
                 }
                 filter.tags.forEach { tag ->
                     secondaryButton(iconSource = SvgIconSource.Delete, text = tag) {
