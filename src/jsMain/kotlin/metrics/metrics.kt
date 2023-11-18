@@ -118,42 +118,7 @@ fun RenderContext.metrics() {
                             }
 
                         }
-                        infoPopup(
-                            "Exploring Metrics", """
-                            The metrics screen is of course the whole point of this application. After you've configured your 
-                            search plugin and created your test cases, you can run and explore metrics in this screen.
-                            
-                            ## Demo content
-                            
-                            If you enable show demo content in the configuration screen and use one of the two demo
-                            plugins, you can load some sample test cases in the test cases screen. And then you 
-                            can get some metrics here. 
-                            
-                            ## Running metrics
-                            
-                            Simply click the button and wait for the results to complete. A spinner 
-                            will show while this is happening. If you have a lot of test cases, this may take a while.
-                             
-                            ## Reviewing your metrics
-                            
-                            After it completes, it will show you the results for each metric. You can expand each metric
-                            with the plus button to dig into the details. 
-                            
-                            It will list for each test case the score for each rated result that appeared in the search
-                            results. 
-                            
-                            ## Adding unrated results to your test cases
-                            
-                            Sometimes, a test case and search plugin configuration will produce results that should be
-                            included in the test case. 
-                            
-                            ## Import and Export
-                            
-                            You can download results in json format and re-import it to explore the metrics later.
-                            
-                            Note, future versions of this tool may add the ability to compare metrics as well.
-                        """.trimIndent()
-                        )
+                        infoPopup("Exploring Metrics", metricsInfo)
                     }
                     tagFilterEditor()
                     metricsOutputStore.data.render { metrics ->
@@ -389,3 +354,38 @@ fun RenderContext.renderMetricsScore(actual: Double, threshold: Double) {
         span("text-green-600") { +actual.round(3).toString() }
     }
 }
+
+val metricsInfo = """
+    The metrics screen is of course the whole point of this application. After you've configured your 
+    search plugin and created your test cases, you can run and explore metrics in this screen.
+    
+    ## Demo content
+    
+    If you enable show demo content in the configuration screen and use one of the two demo
+    plugins, you can load some sample test cases in the test cases screen. And then you 
+    can get some metrics here. 
+    
+    ## Running metrics
+    
+    Simply click the button and wait for the results to complete. A spinner 
+    will show while this is happening. If you have a lot of test cases, this may take a while.
+     
+    ## Reviewing your metrics
+    
+    After it completes, it will show you the results for each metric. You can expand each metric
+    with the plus button to dig into the details. 
+    
+    It will list for each test case the score for each rated result that appeared in the search
+    results. 
+    
+    ## Adding unrated results to your test cases
+    
+    Sometimes, a test case and search plugin configuration will produce results that should be
+    included in the test case. 
+    
+    ## Import and Export
+    
+    You can download results in json format and re-import it to explore the metrics later.
+    
+    Note, future versions of this tool may add the ability to compare metrics as well.
+""".trimIndent()
