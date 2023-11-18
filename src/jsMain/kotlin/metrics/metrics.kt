@@ -52,14 +52,17 @@ class MetricsOutputStore() : RootStore<List<MetricsOutput>?>(null, Job()) {
                         console.log("Using ${pluginFactory::class.simpleName}")
                     }
                     val tags = testCaseSearchFilterStore.current?.tags.orEmpty()
+                    console.log(tags)
                     pluginFactory?.let { pf ->
                         val plugin = pf.create(config)
                         console.info("measuring")
                         plugin.runMetrics(config, ratedSearches.filter { rs ->
                             if (tags.isEmpty()) {
+                                console.log("no tags")
                                 true
                             } else {
-                                tags.containsAll(rs.tags.orEmpty())
+                                console.log(rs.id,rs.tags, rs.tags.orEmpty().containsAll(tags))
+                                rs.tags.orEmpty().containsAll(tags)
                             }
                         })
                     }
