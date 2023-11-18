@@ -6,6 +6,10 @@ calculate **metrics**.
 
 [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases)
 
+## Quick overview
+
+Watch this [quick overview](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) on Youtube.
+
 ## Getting started
 
 - Start by creating a **search plugin configuration**. You can also choose to play with one of the built in demo configurations. A search plugin configuration tells Rankquest studio how to fetch results from your search service. Results must be assigned an id and you can optionally extract a label from your results that is displayed. Additionally, you need to specify what parameters are needed to use your search service. Finally, you can specify a list of metric configurations that you want to measure. 
