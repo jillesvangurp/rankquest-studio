@@ -1,10 +1,16 @@
 # About Rankquest Studio
 
-Rankquest Studio is a tool that helps you assess how good your search service or API is. You do this by
+Rankquest Studio is a tool that helps you assess how good your search service or API is at ranking your results. You do this by
 querying your service and by providing rated search results. These rated search results are then used to 
-calculate **metrics**.
+calculate search relevance **metrics**.
 
-[Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases)
+Doing so is useful because it helps you assess the impact of changes you make to the way your search service works. 
+Do the metrics go up or down? This can be a more objective way to evaluate what changes do to your system than peopple's
+opinions, gut feelings, intuition, etc. Optimizing search engines can be a complicated process. You fix one query and 
+that fix may then have unexpected consequences on other queries. Testing all this manually is a lot of work.
+
+Gathering test cases for the queries you care about and measuring the impact of your changes makes this process easier. 
+Rankquest Studio helps you do that.
 
 ## Quick overview
 
@@ -66,7 +72,8 @@ your search service. The only assumption it makes is that whatever you have can 
 
 ## Links
 
-- [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework.
+- [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework. 
+- [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases) Find out about the latest features and fixes here.
 - [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) A command line tool that you can use to use exported search configurations and test cases to run metrics from the command line or in your CI build.
 - [rankquest-core](https://github.com/jillesvangurp/rankquest-core) A Kotlin multiplatform kotlin library that implements the metrics and search plugins used in Rankquest Studio.
 - [ktsearch](https://github.com/jillesvangurp/kt-search) A kotlin multiplatform library for using Elasticsearch and Opensearch. This library is used to implement the Elasticsearch searchplugin and also used for the movie quotes demo.
@@ -88,8 +95,7 @@ As a **search consultant**, I have advised many clients over the years on how to
 
 ## Showing your appreciation
 
-This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), etc. And consider engaging my services as a search consultant.
-
+This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), show it to others, etc. And consider engaging my services as a search consultant.
 
 ## Jilles van Gurp
 

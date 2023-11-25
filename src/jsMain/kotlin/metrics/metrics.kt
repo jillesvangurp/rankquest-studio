@@ -391,4 +391,13 @@ val metricsInfo = """
     You can download results in json format and re-import it to explore the metrics later.
     
     Note, future versions of this tool may add the ability to compare metrics as well.
+    
+    ## Available Metrics
+    
+    - **Precision At K**: This metric calculates the precision of search results by considering the top 'k' results returned by the search engine. 'Precision' refers to the number of relevant results divided by 'k'. The relevantRatingThreshold is the minimum rating a document must have to be considered relevant.
+    - **Recall At K**: Similar to PrecisionAtK, this metric looks at the top 'k' results but focuses on 'recall', which measures how many of the relevant documents are retrieved. The relevantRatingThreshold again specifies the minimum rating for relevance.
+    - **Mean Reciprocal Rank**: This evaluates the position of the first relevant result in the list of search results. Specifically, it is the reciprocal of the rank at which the first relevant document is found. The relevantRatingThreshold sets the relevance rating threshold.
+    - **Expected Reciprocal Rank**: ERR is an extension of MRR that takes into account the graded relevance of results. It calculates the expected reciprocal rank of the first relevant or highly relevant result. maxRelevance sets the maximum relevance grade.
+    - **Discounted Cumulative Gain**: DCG measures the quality of the search results with higher relevance documents appearing earlier in the search result list. The useLinearGains parameter determines whether to use a linear gain (true) or a logarithmic gain (false) for the discounting factor.
+    - **Normalized Discounted Cumulative Gain**: This is a normalization of the DCG metric to account for the ideal order of documents. It divides the DCG of the results by the DCG of the ideal order to provide a score between 0 and 1. The useLinearGains indicates whether to apply linear gains.    
 """.trimIndent()

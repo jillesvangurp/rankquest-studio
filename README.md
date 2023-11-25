@@ -1,18 +1,22 @@
-Rankquest Studio is a web based tool that you can use to benchmark search query metrics for your search APIs. You can try the [latest version here](https://rankquest.jillesvangurp.com).
+Rankquest Studio is a web based tool that you can use to benchmark search relevance metrics for your search APIs. You can try the [latest version here](https://rankquest.jillesvangurp.com).
 
-## Rankquest Studio is Easy
+Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) with this short Youtube screenrecording.
+
+## Using Rankquest Studio is Easy
 
 **Start optimizing your search ranking today**
 
-- Open [Rankquest Studio](https://rankquest.jillesvangurp.com). There is no installation or signup process, all the data is stored in your browser. Of course, you can also self host rankquest Studio. All you need is a simple web server.
-- Create a search plugin configuration for your search API or play with the demo configurations
-- Use the search tool to create some test cases.
-- Run and explore metrics for your test cases.
+- Open [Rankquest Studio](https://rankquest.jillesvangurp.com). There is no installation or signup process, all the data is stored in your browser. Of course, if you want to, you can also self host rankquest Studio. All you need is a simple web server to host its files.
+- Create a search plugin configuration for your search API or play with the **demo configurations** that come with rankquest studio.
+- Use the search tool to create some test cases. Enter your search and click the "Add Testcase" button to convert the results in a testcase. Tweak, tag, and edit them in the test cases screen.
+- Run and explore metrics for your test cases from the metrics screen. 
 - Export your configuration and testcases and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
 
 ## More about Rankquest Studio
 
-- [What is Rankquest Studio](src/jsMain/resources/about.md) - An introduction to the features of Rankquest Studio
+- [A brief introduction](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) - Youtube screen recording.
+- [What is Rankquest Studio](src/jsMain/resources/about.md) - An introduction to the features of Rankquest Studio that is also accessible from the app.
+- [Rankquest Studio - Removing Barriers to Search Quality Testing](https://www.jillesvangurp.com/blog/2023-11-18-rankquest-studio.html) - A longer article I wrote about Rankquest Studio.
 - [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases) - I push out new versions regularly. This project is currently in Beta. Expect bugs and report them if you find them please. My goal is to stabilize the code base in the next months.
 - [rankquest-core](https://github.com/jillesvangurp/rankquest-core) - The search metrics implementation used by Rankquest Studio.
 - [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) - Command line tool that lets you use your exported search configurations and test cases from the command line to run metrics. You can use this for example to integrate Rankquest Studio in your CI builds.
@@ -29,6 +33,8 @@ The CSS styling is done using [tailwind](https://tailwindcss.com/). This works v
 An important detail is that tailwind uses simple string manipulation and therefore you should not attempt to manipulate these strings at runtime. Tailwind works at build time and any such manipulations may cause it to fail to generate the right css classes.
 
 ## Development and running Rankquest Studio locally
+
+If you want to add your own custom plugins to Ranquest Studio, or want to tinker with it, simply check out the source code and start editing.
 
 To run a local server, you will need a recent JVM (17 should be fine). The ./gradlew script (the gradle wrapper) takes
 care of downloading the correct version of gradle.
@@ -49,6 +55,6 @@ To produce production web assets that you can deploy to any webserver, run
 ./gradlew jsBrowserProductionWebpack
 ```
 
-This compiles everything and then packs everything up with webpack. All the assets in src/jsMain/resources are copied to the root along with the compiled source code.
+This compiles everything and then packs everything up with webpack. All the assets in src/jsMain/resources are copied to the root along with the compiled source code in javascript form and an `index.html` file. All the styling is done using [tailwind CSS](https://tailwindcss.com/).
 
 Then simply copy over the files in `build/dist/js/productionExecutable/` to your web server.
