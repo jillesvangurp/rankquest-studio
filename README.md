@@ -1,6 +1,6 @@
 Rankquest Studio is a web based tool that you can use to benchmark search relevance metrics for your search APIs. You can try the [latest version here](https://rankquest.jillesvangurp.com).
 
-Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) with this short Youtube screenrecording.
+Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) with this short Youtube screen recording.
 
 ## Using Rankquest Studio is Easy
 
@@ -36,7 +36,7 @@ you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesva
 - [A brief introduction](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) - Youtube screen recording.
 - [What is Rankquest Studio](src/jsMain/resources/about.md) - An introduction to the features of Rankquest Studio that is also accessible from the app.
 - [Rankquest Studio - Removing Barriers to Search Quality Testing](https://www.jillesvangurp.com/blog/2023-11-18-rankquest-studio.html) - A longer article I wrote about Rankquest Studio.
-- [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases) - I push out new versions regularly. This project is currently in Beta. Expect bugs and report them if you find them please. My goal is to stabilize the code base in the next months.
+- [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases) - I push out new versions regularly.
 - [rankquest-core](https://github.com/jillesvangurp/rankquest-core) - The search metrics implementation used by Rankquest Studio.
 - [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) - Command line tool that lets you use your exported search configurations and test cases from the command line to run metrics. You can use this for example to integrate Rankquest Studio in your CI builds.
 - [MIT License](LICENSE.md) - This project is open source.
