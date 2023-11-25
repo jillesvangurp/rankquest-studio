@@ -25,6 +25,12 @@ lower if they are ranked lower.
 Finally, **Normalized Discounted Cumulative Gain**, provides a normalized score of DCG between 0 1nd 1 to make it 
 easier to compare measurements.
 
+You can customize these metrics for your search configuration. For example, you might have 
+different configurations for precision@3 and precision@10 to measure the precision for your top three 
+results and the first page of results respectively. Additionally, you can configure thresholds for each of your
+metrics to determine when they go from green to red. This allows you to set targets for your metrics. And of course
+you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesvangurp/rankquest-cli) into your continuous integration builds.
+
 ## More about Rankquest Studio
 
 - [A brief introduction](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) - Youtube screen recording.
