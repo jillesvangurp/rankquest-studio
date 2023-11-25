@@ -397,5 +397,5 @@ Note, future versions of this tool may add the ability to compare metrics as wel
 
 ${Metric.entries.map {
     "${it.explanation}\n\n"
-}}    
+}.joinToString("\n\n")}    
 """.trimIndent()
