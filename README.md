@@ -12,6 +12,19 @@ Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) wi
 - Run and explore metrics for your test cases from the metrics screen. 
 - Export your configuration and testcases and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
 
+## Search Relevance Metrics
+
+Rankquest Studio allows you to fine-tune and assess the performance of your search engine, and helps you ensure 
+that the most relevant results are surfaced to users. It includes several common ways to measure search relevance.
+
+**Precision At K** and **Recall At K**,  measure the accuracy and completeness of the top search results, respectively. 
+**Mean Reciprocal Rank** meausures the rank of the first relevant result and emphasizes the importance of top placements.
+**Expected Reciprocal Rank** accounts for varying degrees of relevance among the results and ranks high rated results 
+lower if they are ranked lower. 
+**Discounted Cumulative Gain** evaluates the overall value of the search results based on their rankings and relevance.
+Finally, **Normalized Discounted Cumulative Gain**, provides a normalized score of DCG between 0 1nd 1 to make it 
+easier to compare measurements.
+
 ## More about Rankquest Studio
 
 - [A brief introduction](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) - Youtube screen recording.

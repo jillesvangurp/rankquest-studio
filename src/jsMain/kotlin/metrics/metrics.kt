@@ -310,41 +310,42 @@ val Metric.explanation
     get() = renderMarkdown(
         when (this) {
             Metric.PrecisionAtK -> """
-                Precision at K is measures the proportion of relevant items or documents 
-                among the top K items that are returned for a given search query. The more relevant 
-                results, the higher the precision.
+                **Precision At K**: This metric calculates the precision of search results by considering the 
+                top 'k' results returned by the search engine. 'Precision' refers to the number of relevant 
+                results divided by 'k'. The relevantRatingThreshold is the minimum rating a document 
+                must have to be considered relevant.
             """.trimIndent()
 
             Metric.RecallAtK -> """
-                Recall@k is a measure of whether the rated results are part of the result list. For a 
-                perfect score of 1, all rated results should be found. 
+                **Recall At K**: Similar to PrecisionAtK, this metric looks at the top 'k' results but 
+                focuses on 'recall', which measures how many of the relevant documents are retrieved. 
+                The relevantRatingThreshold again specifies the minimum rating for relevance.
                 
             """.trimIndent()
 
             Metric.MeanReciprocalRank -> """
-                Reciprocal rank measures the quality of the first relevant result. The further down
-                the list the result is, the lower the score.
+                **Mean Reciprocal Rank**: This evaluates the position of the first relevant result in the list of 
+                search results. Specifically, it is the reciprocal of the rank at which the first relevant document 
+                is found. The relevantRatingThreshold sets the relevance rating threshold.
             """.trimIndent()
 
             Metric.ExpectedReciprocalRank -> """
-                Expected reciprocal rank calculates the probability that each result is the one the 
-                user is looking for. If a documents with lower rating appear before one with a higher
-                rating, the score is lower than if the better rated results appear first.
+                **Expected Reciprocal Rank**: ERR is an extension of MRR that takes into account the graded 
+                relevance of results. It calculates the expected reciprocal rank of the first relevant or 
+                highly relevant result. maxRelevance sets the maximum relevance grade.
             """.trimIndent()
 
             Metric.DiscountedCumulativeGain -> """
-                Discounted Cumulative Gain calculates a score that adds up the gain of each result
-                relative to its position in the results. 
-                
-                Two gain functions are supported; a linear gain function that simply uses the rating 
-                as is and an exponential one that uses an exponential of the rating to exaggerate 
-                the effect of important results appearing near the top.
+                **Discounted Cumulative Gain**: DCG measures the quality of the search results with higher 
+                relevance documents appearing earlier in the search result list. The useLinearGains parameter 
+                determines whether to use a linear gain (true) or a exponential gain (false) for the 
+                discounting factor. Exponential gain exaggerates the effect of results being near the top.
             """.trimIndent()
 
             Metric.NormalizedDiscountedCumulativeGain -> """
-                NDCG is similar to DCG but it divides the score by an ideal DCG that is calculated 
-                from the provided ratings. Consequently, the score is always below 0 and 1 where 
-                higher scores indicate that the results return the best rated results first.
+                **Normalized Discounted Cumulative Gain**: This is a normalization of the DCG metric to account for 
+                the ideal order of documents. It divides the DCG of the results by the DCG of the ideal order to
+                 provide a score between 0 and 1. The useLinearGains indicates whether to apply linear gains.
             """.trimIndent()
         }
     )
@@ -359,45 +360,42 @@ fun RenderContext.renderMetricsScore(actual: Double, threshold: Double) {
 }
 
 val metricsInfo = """
-    The metrics screen is of course the whole point of this application. After you've configured your 
-    search plugin and created your test cases, you can run and explore metrics in this screen.
-    
-    ## Demo content
-    
-    If you enable show demo content in the configuration screen and use one of the two demo
-    plugins, you can load some sample test cases in the test cases screen. And then you 
-    can get some metrics here. 
-    
-    ## Running metrics
-    
-    Simply click the button and wait for the results to complete. A spinner 
-    will show while this is happening. If you have a lot of test cases, this may take a while.
-     
-    ## Reviewing your metrics
-    
-    After it completes, it will show you the results for each metric. You can expand each metric
-    with the plus button to dig into the details. 
-    
-    It will list for each test case the score for each rated result that appeared in the search
-    results. 
-    
-    ## Adding unrated results to your test cases
-    
-    Sometimes, a test case and search plugin configuration will produce results that should be
-    included in the test case. 
-    
-    ## Import and Export
-    
-    You can download results in json format and re-import it to explore the metrics later.
-    
-    Note, future versions of this tool may add the ability to compare metrics as well.
-    
-    ## Available Metrics
-    
-    - **Precision At K**: This metric calculates the precision of search results by considering the top 'k' results returned by the search engine. 'Precision' refers to the number of relevant results divided by 'k'. The relevantRatingThreshold is the minimum rating a document must have to be considered relevant.
-    - **Recall At K**: Similar to PrecisionAtK, this metric looks at the top 'k' results but focuses on 'recall', which measures how many of the relevant documents are retrieved. The relevantRatingThreshold again specifies the minimum rating for relevance.
-    - **Mean Reciprocal Rank**: This evaluates the position of the first relevant result in the list of search results. Specifically, it is the reciprocal of the rank at which the first relevant document is found. The relevantRatingThreshold sets the relevance rating threshold.
-    - **Expected Reciprocal Rank**: ERR is an extension of MRR that takes into account the graded relevance of results. It calculates the expected reciprocal rank of the first relevant or highly relevant result. maxRelevance sets the maximum relevance grade.
-    - **Discounted Cumulative Gain**: DCG measures the quality of the search results with higher relevance documents appearing earlier in the search result list. The useLinearGains parameter determines whether to use a linear gain (true) or a logarithmic gain (false) for the discounting factor.
-    - **Normalized Discounted Cumulative Gain**: This is a normalization of the DCG metric to account for the ideal order of documents. It divides the DCG of the results by the DCG of the ideal order to provide a score between 0 and 1. The useLinearGains indicates whether to apply linear gains.    
+The metrics screen is of course the whole point of this application. After you've configured your 
+search plugin and created your test cases, you can run and explore metrics in this screen.
+
+## Demo content
+
+If you enable show demo content in the configuration screen and use one of the two demo
+plugins, you can load some sample test cases in the test cases screen. And then you 
+can get some metrics here. 
+
+## Running metrics
+
+Simply click the button and wait for the results to complete. A spinner 
+will show while this is happening. If you have a lot of test cases, this may take a while.
+ 
+## Reviewing your metrics
+
+After it completes, it will show you the results for each metric. You can expand each metric
+with the plus button to dig into the details. 
+
+It will list for each test case the score for each rated result that appeared in the search
+results. 
+
+## Adding unrated results to your test cases
+
+Sometimes, a test case and search plugin configuration will produce results that should be
+included in the test case. 
+
+## Import and Export
+
+You can download results in json format and re-import it to explore the metrics later.
+
+Note, future versions of this tool may add the ability to compare metrics as well.
+
+## Available Metrics
+
+${Metric.entries.map {
+    "${it.explanation}\n\n"
+}}    
 """.trimIndent()
