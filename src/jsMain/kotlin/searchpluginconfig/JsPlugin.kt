@@ -21,22 +21,24 @@ import kotlinx.serialization.json.jsonObject
 data class JsPluginConfiguration(val javascript: String)
 
 val defaultJs = """
-// add your function to window so we can call it
-window.rankquestSearch= function(searchContext, numberOfItems) {
-    // log that the function was called
-    console.log("rankquestSearch",searchContext, numberOfItems);    
+// add your function to window 
+// so we can call it
+window.rankquestSearch=
+    function(searchContext, numberOfItems) {
     
-    // use fetch to fetch some results from somewhere or do whatever you need to do
-    // with javascript
+    // use fetch to fetch some results 
+    // from somewhere or do whatever 
+    // you need to do  with javascript
     
-    // construct a response that looks something like this 
+    // construct a response that 
+    // looks something like this 
     var response = {
         "total":1,
         "responseTime":"PT0.001S",
         "searchResultList":[
             {
-                "id":"42",
-                "label":"Meaning of life, the universe, and everything"
+                "id":"1",
+                "label":"Title"
             }
         ]
     }
@@ -116,13 +118,13 @@ fun RenderContext.jsPluginEditor(
             queryTemplateStore = null,
             "Configuring thw Elasticsearch Plugin",
             """
-                Add a function to `window`  called `rankquestSearch` that returns `SearchResults` as a json string.
-                
-                For example:
-                 
-                ```javascript
-                $defaultJs
-                ```
+Add a function to `window`  called `rankquestSearch` that returns `SearchResults` as a json string.
+
+For example:
+ 
+```javascript
+$defaultJs
+```
             """.trimIndent()
         )
     }

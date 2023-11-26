@@ -11,6 +11,7 @@ Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) wi
 - Use the search tool to create some test cases. Enter your search and click the "Add Testcase" button to convert the results in a testcase. Tweak, tag, and edit them in the test cases screen.
 - Run and explore metrics for your test cases from the metrics screen. 
 - Export your configuration and testcases and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
+- Use any of the built in search plugins, or add your own javascript function in the UI.
 
 ## Search Relevance Metrics
 
