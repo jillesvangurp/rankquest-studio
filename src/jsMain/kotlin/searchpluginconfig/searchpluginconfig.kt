@@ -2,6 +2,7 @@ package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
+import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import components.*
@@ -21,6 +22,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlinx.coroutines.Job
+import kotlin.time.Duration.Companion.milliseconds
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
@@ -100,6 +102,13 @@ fun RenderContext.pluginConfiguration() {
                                         "${pluginConfig.name}.json",
                                         SearchPluginConfiguration.serializer()
                                     )
+                                    primaryButton(text = "Boom!") {
+                                        clicks handledBy {
+                                            val p = JsPlugin()
+                                            val results = p.fetch(mapOf("foo" to "bar"), 5)
+                                            console.log(results)
+                                        }
+                                    }
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)
@@ -265,6 +274,10 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                         clicks.map { p.name } handledBy selectedPluginTypeStore.update
                     }
                 }
+                primaryButton {
+                    +"New JS Plugin"
+                    clicks.map { "javascript" } handledBy selectedPluginTypeStore.update
+                }
                 jsonFileImport(SearchPluginConfiguration.serializer()) { decoded ->
                     pluginConfigurationStore.addOrReplace(decoded)
                 }
@@ -272,12 +285,11 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
             help()
         }
 
-
         selectedPluginTypeStore.data.render { selectedPlugin ->
-            BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
+            if (selectedPlugin.isNotBlank()) {
                 overlayLarge {
                     editConfigurationStore.data.render { existing ->
-                        val configNameStore = storeOf(existing?.name ?: plugin.name)
+                        val configNameStore = storeOf(existing?.name ?: selectedPlugin)
 
                         div("flex flex-col items-left gap-y-2 w-5/6 items-center m-auto") {
                             if (existing == null) {
@@ -291,30 +303,41 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
                                 value(configNameStore)
                             }
                             // plugin settings
-                            when (plugin) {
-                                BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
+                            if (selectedPlugin == "javascript") {
+                                jsPluginEditor(
                                     selectedPluginStore = selectedPluginTypeStore,
                                     configNameStore = configNameStore,
                                     editConfigurationStore = editConfigurationStore
                                 )
+                            } else {
+                                BuiltinPlugins.entries.firstOrNull { it.name == selectedPlugin }?.let { plugin ->
+                                    when (plugin) {
+                                        BuiltinPlugins.ElasticSearch -> elasticsearchEditor(
+                                            selectedPluginStore = selectedPluginTypeStore,
+                                            configNameStore = configNameStore,
+                                            editConfigurationStore = editConfigurationStore
+                                        )
 
-                                BuiltinPlugins.JsonGetAPIPlugin -> {
-                                    httpGetPluginEditor(
-                                        selectedPluginStore = selectedPluginTypeStore,
-                                        configNameStore = configNameStore,
-                                        editConfigurationStore = editConfigurationStore
-                                    )
+                                        BuiltinPlugins.JsonGetAPIPlugin -> {
+                                            httpGetPluginEditor(
+                                                selectedPluginStore = selectedPluginTypeStore,
+                                                configNameStore = configNameStore,
+                                                editConfigurationStore = editConfigurationStore
+                                            )
+                                        }
+
+                                        BuiltinPlugins.JsonPostAPIPlugin -> httpPostPluginEditor(
+                                            selectedPluginStore = selectedPluginTypeStore,
+                                            configNameStore = configNameStore,
+                                            editConfigurationStore = editConfigurationStore
+                                        )
+                                    }
                                 }
-
-                                BuiltinPlugins.JsonPostAPIPlugin -> httpPostPluginEditor(
-                                    selectedPluginStore = selectedPluginTypeStore,
-                                    configNameStore = configNameStore,
-                                    editConfigurationStore = editConfigurationStore
-                                )
                             }
                         }
                     }
                 }
+
             }
         }
     }

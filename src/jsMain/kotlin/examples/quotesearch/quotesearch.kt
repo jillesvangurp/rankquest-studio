@@ -30,6 +30,7 @@ import org.koin.dsl.module
 import search.*
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlinx.coroutines.Job
+import searchpluginconfig.JsPluginFactory
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -42,6 +43,7 @@ val quoteSearchModule = module {
 
         PluginFactoryRegistry().also {
             it.register("movies", movieQuotesStoreFactory)
+            it.register("javascript", JsPluginFactory())
         }
     }
 
