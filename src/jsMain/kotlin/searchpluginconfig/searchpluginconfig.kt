@@ -87,7 +87,7 @@ fun RenderContext.pluginConfiguration() {
                                     }
                                     secondaryButton(text = "Edit", iconSource = SvgIconSource.Pencil) {
                                         // can't edit the demo plugins
-                                        disabled(pluginConfig.pluginType !in BuiltinPlugins.entries.map { it.name })
+                                        disabled(pluginConfig.pluginType !in (BuiltinPlugins.entries.map { it.name } + "javascript"))
                                         clicks.map { pluginConfig } handledBy editConfigurationStore.update
                                     }
                                     secondaryButton(text = "Metrics", iconSource = SvgIconSource.Equalizer) {
@@ -102,13 +102,6 @@ fun RenderContext.pluginConfiguration() {
                                         "${pluginConfig.name}.json",
                                         SearchPluginConfiguration.serializer()
                                     )
-                                    primaryButton(text = "Boom!") {
-                                        clicks handledBy {
-                                            val p = JsPlugin()
-                                            val results = p.fetch(mapOf("foo" to "bar"), 5)
-                                            console.log(results)
-                                        }
-                                    }
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore)
