@@ -46,7 +46,6 @@ val quoteSearchModule = module {
             it.register("javascript", JsPluginFactory())
         }
     }
-
 }
 
 val movieQuotesSearchPluginConfig = SearchPluginConfiguration(

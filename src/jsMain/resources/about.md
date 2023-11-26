@@ -36,6 +36,22 @@ docker run -it --network host -v $(pwd):/rankquest jillesvangurp/rankquest-cli -
 
 For more information on this, see the rankquest-cli project.
 
+## Search Plugins
+
+To get results from your search API, you need to use a search plugin. Rankquest Studio comes with four plugins. Three
+of those are provided by rankquest-core and are written in Kotlin:
+
+- JsonGetAPIPlugin - allows you to do an HTTP GET against any API that returns Json
+- JsonPostAPIPlugin - allows you to do an HTTP POST against any API that returns Json
+- ElasticsearchPlugin - lets you query Elasticsearch
+
+A fourth plugin is bundled with Rankquest Studio and allows you to run javascript in your browser. Note. while this works great inside the browser, this plugin does not work outside the browser and cannot be used with rankquest-cli. Using Javascript,
+you can use the browser fetch API to access your server.
+
+Finally, you can of course create your own plugin in Kotlin. However, this is a bit more involved and you will have to modify
+rankquest studio in order to be able to edit your configuration. Additinoally, you may need to modify rankquest-cli as well
+so that it can use your plugin. For this, refer to the source code and the existing plugins.
+
 ## Why another tool?
 
 I wanted to have an easy to use tool that removes all possible excuses for people to 
