@@ -22,7 +22,7 @@ that the most relevant results are surfaced to users. It includes several common
 **Expected Reciprocal Rank** accounts for varying degrees of relevance among the results and ranks high rated results 
 lower if they are ranked lower. 
 **Discounted Cumulative Gain** evaluates the overall value of the search results based on their rankings and relevance.
-Finally, **Normalized Discounted Cumulative Gain**, provides a normalized score of DCG between 0 1nd 1 to make it 
+Finally, **Normalized Discounted Cumulative Gain**, provides a normalized score of DCG between 0 and 1 to make it 
 easier to compare measurements.
 
 You can customize these metrics for your search configuration. For example, you might have 
@@ -45,7 +45,7 @@ you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesva
 
 This is a kotlin-js project that uses the amazing [Fritz2](https://www.fritz2.dev/) framework. Fritz2 is a reactive framework in the style of react and similar frameworks. But it also builds on top of foundations laid by Kotlin with things like co-routines, flows, and internal DSLs. 
 
-This project currently uses the experimental K2 compiler (the new compiler for the upcoming Kotlin 2.0). While not yet recommended for production usage or library creation, the benfits of its faster incremental compilation and the fact that it seems to work outweigh the downsides of dealing with its occasional flakiness and remaining bugs. If this causes you issues, you can turn it off in `gradle.properties`. For the same reason, you should use the latest version of intellij for development.
+This project currently uses the new K2 compiler and Kotlin 2.0. While not yet recommended for production usage or library creation, the benfits of this are faster incremental compilation and the fact that it seems to work outweigh the downsides of dealing with its occasional flakiness and remaining bugs. If this causes you issues, you can turn it off in `gradle.properties`. For the same reason, you should use the latest version of intellij for development.
 
 The CSS styling is done using [tailwind](https://tailwindcss.com/). This works via a hook in `webpack.config.d` that processes javascript assets that are produced by the kotlin-js transpiler to ensure that any of the tailwind classes used are backed by the correct, minimum amount of CSS necessary.
 
@@ -53,7 +53,7 @@ An important detail is that tailwind uses simple string manipulation and therefo
 
 ## Development and running Rankquest Studio locally
 
-If you want to add your own custom plugins to Ranquest Studio, or want to tinker with it, simply check out the source code and start editing.
+If you want to add your own custom plugins to Ranquest Studio, or want to tinker with it, simply check out the source code and start editing. 
 
 To run a local server, you will need a recent JVM (17 should be fine). The ./gradlew script (the gradle wrapper) takes
 care of downloading the correct version of gradle.
