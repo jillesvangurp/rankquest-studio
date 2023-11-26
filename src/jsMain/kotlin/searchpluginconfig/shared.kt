@@ -7,6 +7,7 @@ import components.*
 import dev.fritz2.core.*
 import koin
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.JsonObject
 import utils.md5Hash
@@ -91,7 +92,13 @@ fun RenderContext.templateVarEditor(
         }
     }
 
-    h2 { +"Search Context Variables" }
+    div("text-left w-full") {
+
+        h2 { +"Search Context Parameters" }
+        p {+"""
+            These are the input parameters that go into the search form.
+        """.trimIndent()}
+    }
     searchContextFieldsStore.data.render { fields ->
 
         fields.forEach { field ->
@@ -212,13 +219,24 @@ fun RenderContext.templateVarEditor(
             }
         }
         leftRightRow {
-            para {
-                +"Add more search context fields"
-            }
+
             row {
                 val fieldNameStore = storeOf("")
-                textField("", "field") {
+                textField("", "field", description = "Add more search context fields") {
                     value(fieldNameStore)
+                    keypresss.filter { it.key == "Enter" } handledBy {
+
+                        val fn = fieldNameStore.current
+                        if(fn.isNotBlank()) {
+                            searchContextFieldsStore.update(
+                                fields + SearchContextField.StringField(
+                                    fn,
+                                    "",
+                                    ""
+                                )
+                            )
+                        }
+                    }
                 }
                 fieldNameStore.data.render { fn ->
                     primaryButton(iconSource = SvgIconSource.Plus) {
