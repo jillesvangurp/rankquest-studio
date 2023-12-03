@@ -143,7 +143,10 @@ fun RenderContext.infoPopupFile(markdownFile: String, zPriority: ZPriority = ZPr
     }
     infoPopoverOpenStore.data.render {opened ->
         if(opened) {
-            overlay(priority = zPriority, closeHandler={infoPopoverOpenStore.update(false)}) {
+            overlay(
+                priority = zPriority,
+                closeHandler = { infoPopoverOpenStore.update(false) }
+            ) {
                 markdownFile(markdownFile)
                 primaryButton {
                     +"Close"
@@ -162,14 +165,18 @@ fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPri
     }
     infoPopoverOpenStore.data.render {opened ->
         if(opened) {
-            overlay(priority = zPriority, content = {
-                h1 { +title }
-                markdownDiv(markdown)
-                primaryButton {
-                    +"Close"
-                    clicks.map { false } handledBy infoPopoverOpenStore.update
+            overlay(
+                priority = zPriority,
+                closeHandler={infoPopoverOpenStore.update(false)},
+                content = {
+                    h1 { +title }
+                    markdownDiv(markdown)
+                    primaryButton {
+                        +"Close"
+                        clicks.map { false } handledBy infoPopoverOpenStore.update
+                    }
                 }
-            }, closeHandler = null)
+            )
         }
     }
 }
