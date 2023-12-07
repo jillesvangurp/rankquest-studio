@@ -2,15 +2,24 @@ Rankquest Studio is a web based tool that you can use to benchmark search releva
 
 Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) with this short Youtube screen recording.
 
+## Why search relevance matters
+
+Most websites and apps have search functionality. There are all sorts of ways to implement this. There are managed solutions such as Algolia that are easy to integrate. You can use off the shelf packages like Opensearch, Solr, or Elasticsearch. And there are various databases that integrate search functionality. Additionally, there is a growing amount of products that support vector search and other AI based approaches. But how do you decide which is best for your use case? Where do you start?  
+Whichever solution you use, search relevancy is about delivering the best results possible to your users. And of course, you are competing against others that are trying to do that as well. Your competitiveness depends on how relevant your search results are. And in order to optimize that, you need to be able to test and measure search relevance. Doing so helps you drive your product roadmap, take informed decisions about where to focus your efforts, and drive the quality of your search in a data driven way.
+
+## How does Rank Quest Studio work?
+
+Rankquest Studio helps you build a test suite of rated searches. A rated search is a search query and a list of results with ratings that determine how relevant each result is. To measure search quality, Rankquest Studio runs the queries against your search API and calculates various search relevance metrics using the results that come back and comparing those to your rated results. If a particular result with a high rating is missing or ranked low, that negatively affects the metrics and if they are where they should be the metrics go up.
+
 ## Using Rankquest Studio is Easy
 
 **Start optimizing your search ranking today**
 
-- Open [Rankquest Studio](https://rankquest.jillesvangurp.com). There is no installation or signup process, all the data is stored in your browser. Of course, if you want to, you can also self host rankquest Studio. All you need is a simple web server to host its files.
-- Create a search plugin configuration for your search API or play with the **demo configurations** that come with rankquest studio.
+- Open [Rankquest Studio](https://rankquest.jillesvangurp.com). There is no installation or signup process. Of course, if you want to, you can also self host Rankquest Studio. All you need is a simple web server to host its files. There is no database, no server, etc. Everything happens in your browser. This makes Rankquest both very easy to use and very safe to use.
+- Create a search plugin configuration for your search API or play with the **demo configurations** that come with Rankquest Studio.
 - Use the search tool to create some test cases. Enter your search and click the "Add Testcase" button to convert the results in a testcase. Tweak, tag, and edit them in the test cases screen.
 - Run and explore metrics for your test cases from the metrics screen. 
-- Export your configuration and testcases and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
+- Export your configuration, testcases, and test runs and use them on the command line using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli). All data is stored in simple json format that is easy to work with and process. 
 
 ## Search Relevance Metrics
 
@@ -18,7 +27,7 @@ Rankquest Studio allows you to fine-tune and assess the performance of your sear
 that the most relevant results are surfaced to users. It includes several common ways to measure search relevance.
 
 **Precision At K** and **Recall At K**,  measure the accuracy and completeness of the top search results, respectively. 
-**Mean Reciprocal Rank** meausures the rank of the first relevant result and emphasizes the importance of top placements.
+**Mean Reciprocal Rank** measures the rank of the first relevant result and emphasizes the importance of top placements.
 **Expected Reciprocal Rank** accounts for varying degrees of relevance among the results and ranks high rated results 
 lower if they are ranked lower. 
 **Discounted Cumulative Gain** evaluates the overall value of the search results based on their rankings and relevance.
@@ -27,7 +36,7 @@ easier to compare measurements.
 
 You can customize these metrics for your search configuration. For example, you might have 
 different configurations for precision@3 and precision@10 to measure the precision for your top three 
-results and the first page of results respectively. Additionally, you can configure thresholds for each of your
+results (important on mobile screens) and the first full page of results respectively. Additionally, you can configure thresholds for each of your
 metrics to determine when they go from green to red. This allows you to set targets for your metrics. And of course
 you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesvangurp/rankquest-cli) into your continuous integration builds.
 
@@ -41,15 +50,25 @@ you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesva
 - [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) - Command line tool that lets you use your exported search configurations and test cases from the command line to run metrics. You can use this for example to integrate Rankquest Studio in your CI builds.
 - [MIT License](LICENSE.md) - This project is open source.
 
-## Technical details
+## Data safety
 
-This is a kotlin-js project that uses the amazing [Fritz2](https://www.fritz2.dev/) framework. Fritz2 is a reactive framework in the style of react and similar frameworks. But it also builds on top of foundations laid by Kotlin with things like co-routines, flows, and internal DSLs. 
+Since Rankquest Studio runs in your browser without any server components, you are fully in control of your data. It never shares any of your data, metrics, etc. with any outside servers. All the json is stored in your browser's local storage. You can delete that at your discretion and you can export and import that as files from the application.
 
-This project currently uses the new K2 compiler and Kotlin 2.0. While not yet recommended for production usage or library creation, the benfits of this are faster incremental compilation and the fact that it seems to work outweigh the downsides of dealing with its occasional flakiness and remaining bugs. If this causes you issues, you can turn it off in `gradle.properties`. For the same reason, you should use the latest version of intellij for development.
+## Support and Contributing
 
-The CSS styling is done using [tailwind](https://tailwindcss.com/). This works via a hook in `webpack.config.d` that processes javascript assets that are produced by the kotlin-js transpiler to ensure that any of the tailwind classes used are backed by the correct, minimum amount of CSS necessary.
+If you wish to contribute to Rankquest Studio or have feature suggestions or change requests, that's great. Please use the issue tracker and we'll coordinate any changes there.
 
-An important detail is that tailwind uses simple string manipulation and therefore you should not attempt to manipulate these strings at runtime. Tailwind works at build time and any such manipulations may cause it to fail to generate the right css classes.
+I provide Rankquest Studio for free as open source mainly to promote my services as an independent search consultant. My main job is being the CTO for [FORMATION](https://tryformation.com). But I do occasionally still consult companies with their search challenges as a freelance consultant. If you need my help or support, please reach out via email (jilles AT jillesvangurp.com) and we can discuss how to improve search in your company.
+
+## Implementation details
+
+This section is for people that wish to work on the source code to make modifications. Rankquest Studio is a [kotlin-js](https://kotlinlang.org/docs/js-overview.html) project that uses the amazing [Fritz2](https://www.fritz2.dev/) framework. Fritz2 is a reactive framework in the style of react and similar frameworks. But it also builds on top of foundations laid by Kotlin with things like co-routines, flows, and internal DSLs. 
+
+The project uses various kotlin multiplatform dependencies that can work both on the JVM and in a browser (and elsewhere), including rankquest-core, our kt-search library for talking to Elasticsearch, and various kotlinx libraries.
+
+Additionally, we use the new [K2 compiler and Kotlin 2.0](https://kotlinlang.org/docs/whatsnew-eap.html). While not yet ready for production usage, the benefits of this are faster incremental compilation and the fact that it seems to work outweighs the downsides of dealing with its occasional flakiness and remaining bugs. If this causes you issues, you can turn it off in `gradle.properties`.
+
+The CSS styling is done using the popular [tailwind](https://tailwindcss.com/) framework. Tailwind works via a hook in `webpack.config.d` that processes the javascript assets that are produced by the kotlin-js transpiler to ensure that any of the tailwind classes used are backed by the correct, minimum amount of CSS necessary. An important limitation with this approach is that tailwind uses simple string manipulation and therefore you should not attempt to manipulate these strings at runtime (e.g. concatenating them with some if .. else .. logic). Tailwind works at build time and any such manipulations may cause it to fail to generate and include the right css classes.
 
 ## Development and running Rankquest Studio locally
 

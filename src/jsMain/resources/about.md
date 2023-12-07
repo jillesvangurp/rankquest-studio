@@ -1,20 +1,20 @@
 # About Rankquest Studio
 
-Rankquest Studio is a tool that helps you assess how good your search service or API is at ranking your results. You do this by
-querying your service and by providing rated search results. These rated search results are then used to 
-calculate search relevance **metrics**.
-
-Doing so is useful because it helps you assess the impact of changes you make to the way your search service works. 
-Do the metrics go up or down? This can be a more objective way to evaluate what changes do to your system than peopple's
-opinions, gut feelings, intuition, etc. Optimizing search engines can be a complicated process. You fix one query and 
-that fix may then have unexpected consequences on other queries. Testing all this manually is a lot of work.
-
-Gathering test cases for the queries you care about and measuring the impact of your changes makes this process easier. 
-Rankquest Studio helps you do that.
+Rankquest Studio is a web based tool that you can use to benchmark search relevance metrics for your search APIs.
 
 ## Quick overview
 
 Watch this [quick overview](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) on Youtube.
+
+## Why search relevance matters
+
+Most websites or apps have some kind of search functionality. There are all sorts of ways to implement this. There are managed solutions such as Algolia that are easy to integrate. You can use off the shelf packages like Opensearch, Solr, or Elasticsearch. And there are various databases that integrate search functionality. Additionally, there is a growing amount of products that support vector search and other AI based approaches. But how do you decide which is best for your use case? Where do you start?  
+
+Whichever solution you use, search relevancy is about delivering the best results possible to your users. And of course, you are competing against others that are trying to do their best as well. Your competitiveness depends on how relevant your search results are. And in order to optimize that, you need to be able to test and measure search relevance. Doing so helps you drive your product roadmap, take informed decisions about where to focus your efforts, and drive the quality of your search in a data driven way.
+
+## How does Rank Quest Studio work?
+
+Rankquest Studio helps you build a test suite of rated searches. A rated search is a search query and a list of results with ratings that determine how relevant each result is. To measure search quality, Rankquest Studio runs the queries against your search API and calculates various search relevance metrics using the results that come back and comparing those to your rated results. If a particular result with a high rating is missing or ranked low, that negatively affects the metrics and if they are where they should be the metrics go up.
 
 ## Getting started
 
