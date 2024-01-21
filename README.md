@@ -50,6 +50,19 @@ you can enforce these bu integrating [Rankquest CLI](https://github.com/jillesva
 - [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) - Command line tool that lets you use your exported search configurations and test cases from the command line to run metrics. You can use this for example to integrate Rankquest Studio in your CI builds.
 - [MIT License](LICENSE.md) - This project is open source.
 
+## Related tools
+
+Rankquest Studio is a relatively new tool and I've obviously taken a lot of inspiration from existing tools out there. This is not an exhaustive list and I don't have a lot of hands on experience with most of these tools.
+
+- [Quepid](https://quepid.com/) - Developed by some people I know at Opensource Connections, this is probably the most mainstream option and something a lot of search relevance engineers would be familiar with. It's a bit older but well supported; the people at OSC are awesome.
+- [Rated Ranking Evaluator](https://github.com/SeaseLtd/rated-ranking-evaluator) - A bit older project that is interoperable with Quepid. Mainly focuses on Elasticsearch and Solr.
+- [Querite](https://github.com/tballison/quaerite) - Like RRE a bit older and mainly focuses on Elasticsearch and Solr.
+- [Rank Evaluation API in ES](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-rank-eval.html) - Only works for Elasticsearch and currently lacks a UI. The lack of usability of this is what prompted me to develop Rankquest Studio. 
+
+My main critique of these tools, and the reason that I created Rankquest Studio is that these tools are a bit too low level and mostly focus on testing queries rather than search APIs. Products like Elasticsearch and Solr are fantastic but there are more options in the market. And regardless of what you use - or how you use that - what actually matters is the API you create using those tools and how that benefits your product and use case. 
+
+This is true regardless of whether you use Solr, Opensearch, Elasticsearch, one of the new vector search products, an in house solution, or querying support in e.g. postgres, mongodb, or other products. Additionally, in order to make an informed decision as to which of these is best for you you would have to test them in the same way. With Ranquest Studio you can test pretty much anything that returns a ranked list of stuff. It's implementation neutral by design.
+
 ## Data safety
 
 Since Rankquest Studio runs in your browser without any server components, you are fully in control of your data. It never shares any of your data, metrics, etc. with any outside servers. All the json is stored in your browser's local storage. You can delete that at your discretion and you can export and import that as files from the application.
