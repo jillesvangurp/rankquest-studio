@@ -6,10 +6,7 @@ import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import components.*
-import dev.fritz2.core.RenderContext
-import dev.fritz2.core.Store
-import dev.fritz2.core.disabled
-import dev.fritz2.core.storeOf
+import dev.fritz2.core.*
 import dev.fritz2.remote.http
 import examples.quotesearch.MovieQuotesStore
 import examples.quotesearch.movieQuotesNgramsSearchPluginConfig
@@ -22,6 +19,8 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlinx.coroutines.Job
+import metrics.explanation
+import metrics.title
 import kotlin.time.Duration.Companion.milliseconds
 
 val configurationModule = module {
@@ -378,6 +377,9 @@ fun RenderContext.metricsEditor(
                             if (editMetricConfiguration?.name == mc.name) {
                                 val nameStore = storeOf(mc.name)
                                 val expectedStore = storeOf(mc.expected?.toString() ?: "0.75")
+                                div {
+                                    domNode.innerHTML = mc.metric.explanation
+                                }
                                 textField("", "Name") {
                                     value(nameStore)
                                 }
@@ -443,14 +445,21 @@ fun RenderContext.metricsEditor(
                             newMetricTypeStore.data.render { selectedMetric ->
 
                                 if (selectedMetric == null) {
-                                    para {
-                                        +"What metric type do you want to create?"
+                                    h3("text-xl") {
+                                        +"What metric type do you want to add?"
                                     }
                                     row {
-                                        Metric.entries.forEach { metric ->
-                                            a {
-                                                +metric.name
-                                                clicks.map { metric } handledBy newMetricTypeStore.update
+                                        ul("list-disc") {
+                                            Metric.entries.forEach { metric ->
+                                                li {
+                                                    a {
+                                                        +metric.name
+                                                        clicks.map { metric } handledBy newMetricTypeStore.update
+                                                    }
+                                                    div {
+                                                        domNode.innerHTML = metric.explanation
+                                                    }
+                                                }
                                             }
                                         }
                                     }
