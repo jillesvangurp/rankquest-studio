@@ -199,25 +199,28 @@ private fun RenderContext.help() {
             
             ## Demo plugins
             
-            If you want to play around a little bit, there are two demo plugins that you can add that implement
+            If you want to play around a little bit, there are a few demo plugins that you can add that implement
             a simple movie search using an in memory search library that I wrote called 
-            [querylight](https://github.com/jillesvangurp/querylight). 
+            [querylight](https://github.com/jillesvangurp/querylight). There is also a demo configuration for 
+            Elasticsearch (you need to have that running of course).
             
-            While simple, it can be nice for simple search use cases when you don't want to use a server. 
-            It uses tf/idf for ranking and can perform well
-            on small data sets. Which makes it great for trying out Rankquest Studio.
+            You can also add some demo ratings in the ratings screen. This allows you to compare the search relevance metrics 
+            of the three demo search configurations. 
             
-            There are two plugins with slightly different analyzers. One of them uses ngrams and the other one uses a 
-            traditional analyzer. The ngrams based implementation of course performs a lot worse and this should show 
-            when you run the metrics.
+            ## Supported Plugins
             
-            ## Plugin types
+            Currently there are several built in plugins that you may use to extract results from your search API:
             
-            Currently there are three built in plugins:
+            - JsonGETApiPlugin - use this to configure search services that you cal call with an HTTP GET that returns results in json format.
+            - JsonPOSTApiPlugin - use this to configure search services that you call with an HTTP POST that returns results in json format.
+            - Elasticsearch - you can use this to run metrics for elasticsearch queries. You could also do this with the JsonPOSTApiPlugin, of course. 
+            However, this instead uses my kt-search library.
+            - Js Plugin - With this plugin, you can add a custom javascript function to implement your own logic; 
+            for example using the fetch API. Note. this of course only works in the browser and cannot be used with rankquest-cli currently.
             
-            - Elasticsearch - you can use this to run metrics for elasticsearch plugins.
-            - JsonGETApiPlugin - use this to configure search services that you cal call with an HTTP GET that return json
-            - JsonPOSTApiPlugin - use this to configure search services that you call with an HTTP POST that return json
+            These plugins should cover most common APIs. But if the above is not enough, you can of course implement 
+            your own plugins in rankquest core. You will also need to then modify rankquest studio to support it. This
+            is not that hard and if you do, please consider contributing your plugin.  
                         
             ## Switching between plugins
             
@@ -237,16 +240,7 @@ private fun RenderContext.help() {
             together with your test cases.
             
             You also need to do this if you want to use [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli).
-            
-            ## Writing your own plugins
-            
-            Writing your own plugins is possible of course. However, this will require modifying some source code. 
-            You can either modify this project or add it as a built in plugin in 
-            [rankquest-core](https://github.com/jillesvangurp/rankquest-core). If you do, also modify this project
-            to add a configuration UI for your plugin.
-                        
-            A future version of rank quest may add some features to allow you to more easily add your own plugin 
-            implementations via e.g. javascript.        
+
         """.trimIndent()
     )
 }
