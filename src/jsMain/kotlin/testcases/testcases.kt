@@ -1,9 +1,7 @@
 package testcases
 
 import Page
-import com.jilesvangurp.rankquest.core.DEFAULT_JSON
-import com.jilesvangurp.rankquest.core.RatedSearch
-import com.jilesvangurp.rankquest.core.SearchResultRating
+import com.jilesvangurp.rankquest.core.*
 import components.*
 import dev.fritz2.core.*
 import dev.fritz2.headless.components.toast
@@ -147,8 +145,11 @@ fun RenderContext.testCases() {
                             "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
                             ListSerializer(RatedSearch.serializer())
                         )
-                        jsonFileImport(ListSerializer(RatedSearch.serializer())) { decoded ->
+                        jsonFileImport(serializer = ListSerializer(RatedSearch.serializer())) { decoded ->
                             ratedSearchesStore.update(decoded)
+                        }
+                        jsonFileImport(serializer = RRE.serializer(), buttonText = "RRE Import") { decoded ->
+                            ratedSearchesStore.update(decoded.toRatings())
                         }
                         showDemoContentStore.data.render { showDemo ->
                             if (showDemo) {

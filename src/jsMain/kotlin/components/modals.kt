@@ -54,12 +54,6 @@ fun RenderContext.overlayLarge(
     }
 }
 
-suspend fun RenderContext.modalMountPoint(id: String = "modal-mount-point") {
-    div(id = id) {
-
-    }
-}
-
 suspend fun confirm(
     question: String = "Are you sure?!",
     description: String = "If you click yes, the action will be completed",

@@ -165,12 +165,12 @@ fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serialize
     }
 }
 
-fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, onImport: (T) -> Unit) {
+fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, buttonText:String = "Import", onImport: (T) -> Unit) {
     row {
         val textStore = storeOf("")
         val fileInputId = "file-input-${Random.nextULong()}"
         textStore.data.render { text ->
-            primaryButton(text = "Import", iconSource = SvgIconSource.Upload) {
+            primaryButton(text = buttonText, iconSource = SvgIconSource.Upload) {
                 disabled(text.isBlank())
                 clicks handledBy {
                     try {
