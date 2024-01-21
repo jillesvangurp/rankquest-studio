@@ -145,6 +145,15 @@ fun RenderContext.testCases() {
                             "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
                             ListSerializer(RatedSearch.serializer())
                         )
+                        jsonDownloadButton(
+                            ratedSearchesStore,
+                            "${searchPluginConfiguration.name}-rre-${Clock.System.now()}.json",
+                            ListSerializer(RatedSearch.serializer()),
+                            buttonText = "Download RRE",
+                            converter = { c:List<RatedSearch> ->
+                                DEFAULT_JSON.encodeToString(RRE.serializer(),c.toRRE())
+                            }
+                        )
                         jsonFileImport(serializer = ListSerializer(RatedSearch.serializer())) { decoded ->
                             ratedSearchesStore.update(decoded)
                         }

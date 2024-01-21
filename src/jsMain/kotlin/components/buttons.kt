@@ -97,13 +97,19 @@ fun RenderContext.activeNavButton(
     content = content
 )
 
-fun <T> RenderContext.jsonDownloadButton(contentStore: Store<T?>, fileName: String, serializer: KSerializer<T>) {
+fun <T> RenderContext.jsonDownloadButton(
+    contentStore: Store<T?>,
+    fileName: String,
+    serializer: KSerializer<T>,
+    buttonText: String = "Download",
+    converter: (T) -> String = {content ->
+        DEFAULT_PRETTY_JSON.encodeToString(serializer, content)
+    }
+) {
     contentStore.data.render { content ->
         val downloadLinkId = "link-${Random.nextULong()}"
         if (content != null) {
-            val downloadContent = encodeURIComponent(
-                DEFAULT_PRETTY_JSON.encodeToString(serializer, content)
-            )
+            val downloadContent = converter.invoke(content)
             a("hidden", id = downloadLinkId) {
                 +"invisible"
 
@@ -116,7 +122,7 @@ fun <T> RenderContext.jsonDownloadButton(contentStore: Store<T?>, fileName: Stri
             div("flex flex-row gap-2 align-middle") {
                 iconImage(SvgIconSource.Download, baseClass = "w-6 h-6 fill-white place-items-center")
                 div("text-sm") {
-                    +"Download"
+                    +buttonText
                 }
             }
             disabled(content == null)
