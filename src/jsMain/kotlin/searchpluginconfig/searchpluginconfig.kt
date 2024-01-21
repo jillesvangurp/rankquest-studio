@@ -195,24 +195,30 @@ private fun RenderContext.help() {
     infoPopup(
         title = "Configuration Screen",
         markdown = """
-            The configuration screen is where you can configure your search plugins and metrics. 
+            The configuration screen is where you can configure your search plugins and metrics. A search plugin
+             allows you to extract search results from your search API. The metrics configuration is then used 
+             to configure the metrics for your plugin. Each metric has some parameters and you can add 
+             different configurations for each metric. Additionally, each metric has a threshold that controls
+              what an acceptable value is (green) and what is not acceptable (red).
             
-            ## Demo plugins
+            ## Demo content
             
-            If you want to play around a little bit, there are a few demo plugins that you can add that implement
-            a simple movie search using an in memory search library that I wrote called 
-            [querylight](https://github.com/jillesvangurp/querylight). There is also a demo configuration for 
+            The best way to get familiar with Rankquest Studio is to use the demo content. There are three
+            plugin configurations that you can use that each implement a movie quote search solution. 
+            
+            Two of the plugins use an in memory search library that I wrote called 
+            [querylight](https://github.com/jillesvangurp/querylight). The third configuration uses 
             Elasticsearch (you need to have that running of course).
             
-            You can also add some demo ratings in the ratings screen. This allows you to compare the search relevance metrics 
-            of the three demo search configurations. 
+            Additionally, you can load demo ratings in the ratings screen (only if you have show demo content enabled). 
+            You can use these ratings compare the search relevance metrics of the three demo search configurations. 
             
             ## Supported Plugins
             
             Currently there are several built in plugins that you may use to extract results from your search API:
             
-            - JsonGETApiPlugin - use this to configure search services that you cal call with an HTTP GET that returns results in json format.
-            - JsonPOSTApiPlugin - use this to configure search services that you call with an HTTP POST that returns results in json format.
+            - **Json GET Api Plugin** - use this to configure search services that you cal call with an HTTP GET that returns results in json format.
+            - **Json POST Api Plugin** - use this to configure search services that you call with an HTTP POST that returns results in json format.
             - Elasticsearch - you can use this to run metrics for elasticsearch queries. You could also do this with the JsonPOSTApiPlugin, of course. 
             However, this instead uses my kt-search library.
             - Js Plugin - With this plugin, you can add a custom javascript function to implement your own logic; 
@@ -221,6 +227,8 @@ private fun RenderContext.help() {
             These plugins should cover most common APIs. But if the above is not enough, you can of course implement 
             your own plugins in rankquest core. You will also need to then modify rankquest studio to support it. This
             is not that hard and if you do, please consider contributing your plugin.  
+            
+            Alternatively, you might create a proxy for your service that translates your API to a simple Json API. 
                         
             ## Switching between plugins
             
