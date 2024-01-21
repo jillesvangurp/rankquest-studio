@@ -106,7 +106,7 @@ fun RenderContext.metrics() {
 
                     }
                     leftRightRow {
-                        row {
+                        flexRow {
                             primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
                                 clicks handledBy metricsOutputStore.measure
                             }

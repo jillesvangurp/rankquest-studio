@@ -2,7 +2,6 @@ package searchpluginconfig
 
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
-import com.jilesvangurp.rankquest.core.SearchResults
 import com.jilesvangurp.rankquest.core.pluginconfiguration.*
 import com.jilesvangurp.rankquest.core.plugins.BuiltinPlugins
 import components.*
@@ -20,8 +19,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlinx.coroutines.Job
 import metrics.explanation
-import metrics.title
-import kotlin.time.Duration.Companion.milliseconds
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
@@ -77,7 +74,7 @@ fun RenderContext.pluginConfiguration() {
                                 +pluginConfig.name
                             }
                             div("place-items-end") {
-                                row {
+                                flexRow {
 
                                     val inUse = activePluginConfig?.id == pluginConfig.id
                                     primaryButton(text = if (inUse) "Current" else "Use") {
@@ -114,7 +111,7 @@ fun RenderContext.pluginConfiguration() {
                                     +"Hide Demo Content"
                                     clicks.map { false } handledBy showDemoContentStore.update
                                 }
-                                row {
+                                flexRow {
                                     secondaryButton {
                                         +"Add Movie Quotes Search"
                                         clicks handledBy {
@@ -261,7 +258,7 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
         leftRightRow {
-            row {
+            flexRow {
                 BuiltinPlugins.entries.forEach { p ->
                     primaryButton {
                         +"New ${p.name}"
@@ -359,7 +356,7 @@ fun RenderContext.metricsEditor(
                                     +mc.params.joinToString(", ") { "${it.name} = ${it.value}" }
                                 }
                             }
-                            row {
+                            flexRow {
                                 secondaryButton {
                                     +"Delete"
                                     clicks handledBy {
@@ -395,7 +392,7 @@ fun RenderContext.metricsEditor(
                                         value(paramMap[p.name]!!)
                                     }
                                 }
-                                row {
+                                flexRow {
                                     secondaryButton {
                                         +"Cancel"
                                         clicks handledBy {
@@ -450,7 +447,7 @@ fun RenderContext.metricsEditor(
                                     h3("text-xl") {
                                         +"What metric type do you want to add?"
                                     }
-                                    row {
+                                    flexRow {
                                         ul("list-disc") {
                                             Metric.entries.forEach { metric ->
                                                 li {
@@ -477,7 +474,7 @@ fun RenderContext.metricsEditor(
                                     textField("", "Metric Name", "Pick a unique name") {
                                         value(metricNameStore)
                                     }
-                                    row {
+                                    flexRow {
                                         secondaryButton {
                                             +"Cancel"
                                             clicks handledBy {
@@ -510,7 +507,7 @@ fun RenderContext.metricsEditor(
                         } else {
                             editMetricStore.data.render { currentMetric ->
                                 if (currentMetric == null) {
-                                    row {
+                                    flexRow {
                                         secondaryButton {
                                             +"Close"
                                             clicks handledBy {
@@ -530,7 +527,7 @@ fun RenderContext.metricsEditor(
                     }
                 }
             }
-            row {
+            flexRow {
                 secondaryButton {
                     +"Cancel"
                     clicks.map { false } handledBy showMetricsEditor.update

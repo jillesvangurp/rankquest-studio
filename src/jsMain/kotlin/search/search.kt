@@ -84,7 +84,7 @@ fun RenderContext.searchScreen() {
                             }
                         }
                     }
-                    row {
+                    flexRow {
                         searchResultsStore.data.render { searchResults ->
                             ratedSearchesStore.data.render { ratedSearches ->
                                 // use a content hash to avoid duplicates

@@ -13,7 +13,7 @@ fun RenderContext.tagFilterEditor() {
     testCaseSearchFilterStore.data.filterNotNull().render { filter ->
         leftRightRow {
 
-            row {
+            flexRow {
                 if(filter.tags.isNotEmpty()) {
                     p {
                         +"Tags:"

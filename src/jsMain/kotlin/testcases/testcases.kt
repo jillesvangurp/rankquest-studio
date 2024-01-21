@@ -4,10 +4,13 @@ import Page
 import com.jilesvangurp.rankquest.core.*
 import components.*
 import dev.fritz2.core.*
+import dev.fritz2.headless.components.modal
 import dev.fritz2.headless.components.toast
 import dev.fritz2.remote.http
 import koin
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -105,6 +108,113 @@ class RatedSearchesStore() : LocalStoringStore<List<RatedSearch>>(
     }
 }
 
+fun RenderContext.importExport() {
+
+    val ratedSearchesStore = koin.get<RatedSearchesStore>()
+    val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
+
+    val showPopup = storeOf(false)
+    activeSearchPluginConfigurationStore.data.renderNotNull { searchPluginConfiguration ->
+
+        primaryButton {
+            +"Import/Export"
+            clicks.map { true } handledBy showPopup.update
+        }
+        modal {
+            openState(showPopup)
+            modalPanel("w-full fixed inset-0 overflow-y-auto") {
+                div("flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0") {
+                    clicks handledBy {
+                        showPopup.update(false)
+                    }
+                    modalOverlay("fixed inset-0 bg-blueMuted-300 bg-opacity-75 transition-opacity") {
+                        transition(
+                            "ease-out duration-300",
+                            "opacity-0",
+                            "opacity-100",
+                            "ease-in duration-200",
+                            "opacity-100",
+                            "opacity-0"
+                        )
+                    }
+                    div(
+                        """inline-block align-bottom sm:align-middle w-full sm:max-w-4xl px-6 py-5 sm:p-14 
+                    | bg-white rounded-lg
+                    | shadow-xl transform transition-all 
+                    | text-left overflow-hidden""".trimMargin()
+                    ) {
+                        transition(
+                            "ease-out duration-300",
+                            "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+                            "opacity-100 translate-y-0 sm:scale-100",
+                            "ease-in duration-200",
+                            "opacity-100 translate-y-0 sm:scale-100",
+                            "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        )
+                        div("mt-3 text-center sm:mt-0 sm:text-left") {
+                            modalTitle("text-white bg-blueBright-700 p-2 items-center") {
+                                paraCentered {
+                                    +"Import / Export"
+                                }
+                            }
+
+
+                            div("mt-2") {
+                                flexCol {
+                                    h1 { +"Ranquest Json Format" }
+                                    flexRow {
+                                        jsonDownloadButton(
+                                            ratedSearchesStore,
+                                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+                                            ListSerializer(RatedSearch.serializer()),
+                                            after = {showPopup.update(false)},
+                                        )
+                                        jsonFileImport(
+                                            serializer = ListSerializer(RatedSearch.serializer()),
+                                            after = {showPopup.update(false)}
+                                        ) { decoded ->
+                                            ratedSearchesStore.update(decoded)
+                                        }
+                                    }
+                                    h1 { +"Ranked Rating Evaluator (RRE) format" }
+                                    flexRow {
+                                        jsonDownloadButton(
+                                            ratedSearchesStore,
+                                            "${searchPluginConfiguration.name}-rre-${Clock.System.now()}.json",
+                                            ListSerializer(RatedSearch.serializer()),
+                                            buttonText = "Download RRE",
+                                            converter = { c: List<RatedSearch> ->
+                                                DEFAULT_JSON.encodeToString(RRE.serializer(), c.toRRE())
+                                            },
+                                            after = {showPopup.update(false)}
+                                        )
+                                        jsonFileImport(
+                                            serializer = RRE.serializer(),
+                                            buttonText = "RRE Import",
+                                            after = {showPopup.update(false)},
+                                        ) { decoded ->
+                                            ratedSearchesStore.update(decoded.toRatings())
+                                        }
+                                    }
+                                }
+                            }
+
+                            flexRowCentered {
+                                secondaryButton {
+                                    +"Close"
+                                    clicks handledBy {
+                                        showPopup.update(false)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fun RenderContext.testCases() {
     centeredMainPanel {
         val ratedSearchesStore = koin.get<RatedSearchesStore>()
@@ -122,7 +232,7 @@ fun RenderContext.testCases() {
                 }
             } else {
                 leftRightRow {
-                    row {
+                    flexRow {
                         ratedSearchesStore.data.render { ratedSearches ->
                             primaryButton(text = "Clear", iconSource = SvgIconSource.Cross) {
                                 disabled(ratedSearches.isNullOrEmpty())
@@ -140,26 +250,27 @@ fun RenderContext.testCases() {
                                 }
                             }
                         }
-                        jsonDownloadButton(
-                            ratedSearchesStore,
-                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
-                            ListSerializer(RatedSearch.serializer())
-                        )
-                        jsonDownloadButton(
-                            ratedSearchesStore,
-                            "${searchPluginConfiguration.name}-rre-${Clock.System.now()}.json",
-                            ListSerializer(RatedSearch.serializer()),
-                            buttonText = "Download RRE",
-                            converter = { c:List<RatedSearch> ->
-                                DEFAULT_JSON.encodeToString(RRE.serializer(),c.toRRE())
-                            }
-                        )
-                        jsonFileImport(serializer = ListSerializer(RatedSearch.serializer())) { decoded ->
-                            ratedSearchesStore.update(decoded)
-                        }
-                        jsonFileImport(serializer = RRE.serializer(), buttonText = "RRE Import") { decoded ->
-                            ratedSearchesStore.update(decoded.toRatings())
-                        }
+                        importExport()
+//                        jsonDownloadButton(
+//                            ratedSearchesStore,
+//                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
+//                            ListSerializer(RatedSearch.serializer())
+//                        )
+//                        jsonDownloadButton(
+//                            ratedSearchesStore,
+//                            "${searchPluginConfiguration.name}-rre-${Clock.System.now()}.json",
+//                            ListSerializer(RatedSearch.serializer()),
+//                            buttonText = "Download RRE",
+//                            converter = { c: List<RatedSearch> ->
+//                                DEFAULT_JSON.encodeToString(RRE.serializer(), c.toRRE())
+//                            }
+//                        )
+//                        jsonFileImport(serializer = ListSerializer(RatedSearch.serializer())) { decoded ->
+//                            ratedSearchesStore.update(decoded)
+//                        }
+//                        jsonFileImport(serializer = RRE.serializer(), buttonText = "RRE Import") { decoded ->
+//                            ratedSearchesStore.update(decoded.toRatings())
+//                        }
                         showDemoContentStore.data.render { showDemo ->
                             if (showDemo) {
                                 primaryButton {
@@ -280,7 +391,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                 )
                             leftRightRow {
                                 val showTagEditorStore = storeOf(false)
-                                row {
+                                flexRow {
 
                                     div { +"Tags:" }
 
@@ -304,7 +415,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                             val newTagStore = storeOf("")
                                             col {
                                                 div("mb-6") {
-                                                    row {
+                                                    flexRow {
                                                         textField(placeHolder = "MyKeyword") {
                                                             val element = this
                                                             value(newTagStore)
@@ -333,7 +444,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                                         p {
                                                             +"Current tags:"
                                                         }
-                                                        row {
+                                                        flexRow {
                                                             tagsEditStore.data.renderEach { tag ->
                                                                 primaryButton(
                                                                     iconSource = SvgIconSource.Cross,
@@ -345,7 +456,7 @@ fun RenderContext.testCase(showStore: Store<Map<String, Boolean>>, rsStore: Stor
                                                         }
                                                     }
                                                 }
-                                                rowCentered {
+                                                flexRowCentered {
                                                     secondaryButton(iconSource = SvgIconSource.Cross, text = "Cancel") {
                                                         clicks.map { false } handledBy showTagEditorStore.update
                                                     }

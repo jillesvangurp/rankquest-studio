@@ -3,7 +3,6 @@ package components
 import com.jilesvangurp.rankquest.core.DEFAULT_JSON
 import com.jilesvangurp.rankquest.core.DEFAULT_PRETTY_JSON
 import dev.fritz2.core.*
-import dev.fritz2.headless.foundation.setInitialFocus
 import dev.fritz2.routing.encodeURIComponent
 import kotlinx.browser.document
 import kotlinx.serialization.KSerializer
@@ -104,7 +103,8 @@ fun <T> RenderContext.jsonDownloadButton(
     buttonText: String = "Download",
     converter: (T) -> String = {content ->
         DEFAULT_PRETTY_JSON.encodeToString(serializer, content)
-    }
+    },
+    after: (suspend () -> Unit)?=null
 ) {
     contentStore.data.render { content ->
         val downloadLinkId = "link-${Random.nextULong()}"
@@ -133,6 +133,9 @@ fun <T> RenderContext.jsonDownloadButton(
                 document.getElementById(downloadLinkId)?.dispatchEvent(e)
                     ?: console.log("could not find link to click")
                 infoBubble("Downloaded ")
+                after?.let {
+                    after.invoke()
+                }
             }
         }
     }
@@ -171,8 +174,13 @@ fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serialize
     }
 }
 
-fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, buttonText:String = "Import", onImport: (T) -> Unit) {
-    row {
+fun <T> RenderContext.jsonFileImport(
+    serializer: KSerializer<T>,
+    buttonText: String = "Import",
+    after: (suspend () -> Unit)?=null,
+    onImport: (T) -> Unit,
+) {
+    flexRow {
         val textStore = storeOf("")
         val fileInputId = "file-input-${Random.nextULong()}"
         textStore.data.render { text ->
@@ -190,6 +198,7 @@ fun <T> RenderContext.jsonFileImport(serializer: KSerializer<T>, buttonText:Stri
                         inputElement.value = ""
                         textStore.update("")
                     }
+                    after?.invoke()
                 }
             }
         }

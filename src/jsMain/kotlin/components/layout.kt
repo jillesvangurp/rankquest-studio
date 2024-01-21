@@ -4,10 +4,14 @@ import dev.fritz2.core.*
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
-fun RenderContext.row(content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.flexCol(content: HtmlTag<HTMLDivElement>.() -> Unit) {
+    div("flex flex-col flex-wrap", content = content)
+}
+
+fun RenderContext.flexRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row flex-wrap gap-2 align-middle place-items-center", content = content)
 }
-fun RenderContext.rowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
+fun RenderContext.flexRowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row flex-wrap gap-2 align-middle place-items-center mx-auto w-fit", content = content)
 }
 fun RenderContext.leftRightRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {

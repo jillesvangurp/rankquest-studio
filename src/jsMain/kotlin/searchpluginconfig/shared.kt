@@ -31,7 +31,7 @@ fun RenderContext.pluginEditorButtonsAndSearchContextEditor(
     val searchContextFieldsStore = SearchContextFieldsStore(existing?.fieldConfig.orEmpty(), job)
     templateVarEditor(searchContextFieldsStore, queryTemplateStore)
 
-    row {
+    flexRow {
         secondaryButton {
             +"Cancel"
             clicks.handledBy {
@@ -117,7 +117,7 @@ fun RenderContext.templateVarEditor(
 
 
             border {
-                row {
+                flexRow {
                     textField("", "name") {
                         value(nameStore)
                     }
@@ -189,13 +189,13 @@ fun RenderContext.templateVarEditor(
                 }
 
                 div("w-full") {
-                    row {
+                    flexRow {
                         typeStore.data.render { fieldType ->
                             leftRightRow {
                                 para {
                                     +"Set Field Type:"
                                 }
-                                row {
+                                flexRow {
                                     primaryButton {
                                         +"int"
                                         disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
@@ -220,7 +220,7 @@ fun RenderContext.templateVarEditor(
         }
         leftRightRow {
 
-            row {
+            flexRow {
                 val fieldNameStore = storeOf("")
                 textField("", "field", description = "Add more search context fields") {
                     value(fieldNameStore)
@@ -259,7 +259,7 @@ fun RenderContext.mapEditor(store: Store<Map<String, String>>) {
         val valueStore = storeOf("")
         store.data.render { headers ->
             headers.forEach { (hn, hv) ->
-                row {
+                flexRow {
                     primaryButton(iconSource = SvgIconSource.Minus) {
                         clicks handledBy {
                             clicks handledBy {
@@ -273,7 +273,7 @@ fun RenderContext.mapEditor(store: Store<Map<String, String>>) {
                 }
             }
         }
-        row {
+        flexRow {
             textField("", "Name") {
                 value(keyStore)
             }

@@ -1,12 +1,11 @@
 import components.busyPopupMountPoint
-import components.row
+import components.flexRow
 import dev.fritz2.core.RenderContext
 import dev.fritz2.core.render
 import dev.fritz2.core.src
 import dev.fritz2.headless.components.toastContainer
 import dev.fritz2.headless.foundation.portalRoot
 import dev.fritz2.routing.MapRouter
-import kotlinx.coroutines.delay
 import metrics.metrics
 import testcases.testCases
 import search.searchScreen
@@ -14,8 +13,6 @@ import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import searchpluginconfig.pluginConfiguration
 import utils.JsLogLevel
 import utils.setJsLogLevel
-import kotlin.time.Duration.Companion.milliseconds
-
 
 
 suspend fun main() {
@@ -29,7 +26,7 @@ suspend fun main() {
         cookiePopup()
         div("h-screen flex flex-col overflow-hidden") {
             div("bg-blueBright-50 p-2 flex flex-col md:flex-row w-full align-middle justify-between") {
-                row {
+                flexRow {
                     rankQuestStudioLogo()
                 }
                 div("flex flex-col md:flex-row gap-2 overflow-auto") {
