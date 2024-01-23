@@ -141,7 +141,12 @@ fun <T> RenderContext.jsonDownloadButton(
     }
 }
 
-fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serializer: KSerializer<T>) {
+fun <T> RenderContext.jsonDownloadButton(
+    content: T,
+    fileName: String,
+    serializer: KSerializer<T>,
+    buttonText: String = "Download",
+) {
     val downloadLinkId = "link-${Random.nextULong()}"
     if (content != null) {
         val downloadContent = encodeURIComponent(
@@ -159,7 +164,7 @@ fun <T> RenderContext.jsonDownloadButton(content: T, fileName: String, serialize
         div("flex flex-row gap-2 place-items-center") {
             iconImage(SvgIconSource.Download, baseClass = "h-5 w-5 fill-white place-items-center")
             span {
-                +"Download"
+                +buttonText
             }
         }
         disabled(content == null)

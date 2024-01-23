@@ -18,6 +18,8 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlinx.coroutines.Job
+import kotlinx.datetime.Clock
+import kotlinx.serialization.builtins.ListSerializer
 import metrics.explanation
 
 val configurationModule = module {
@@ -516,6 +518,20 @@ fun RenderContext.metricsEditor(
                                                 showMetricsEditor.update(false)
                                             }
                                         }
+                                        jsonDownloadButton(
+                                            mcs, "metric-configuration-${Clock.System.now()}.json", ListSerializer(MetricConfiguration.serializer()), buttonText = "Export Metrics Configuration")
+
+                                        jsonFileImport(ListSerializer(MetricConfiguration.serializer()),"Import") { imported ->
+                                            metricConfigurationsStore.update(imported)
+                                        }
+                                        secondaryButton {
+                                            +"Reset"
+                                            clicks handledBy {
+                                                confirm("Are you sure","Replaces your current metrics with some sensible defaults",job=job)  {
+                                                    metricConfigurationsStore.update(StandardConfigurations.defaults)
+                                                }
+                                            }
+                                        }
                                         primaryButton {
                                             +"Add new Metric"
                                             clicks.map { true } handledBy showMetricsPickerStore.update
@@ -542,6 +558,74 @@ fun RenderContext.metricsEditor(
             }
         }
     }
+}
+
+object StandardConfigurations {
+    val defaults = listOf(
+        MetricConfiguration(
+            name = "Precision for top 3",
+            metric = Metric.PrecisionAtK,
+            params = listOf(
+                MetricParam("k", 3.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Recall for top 3",
+            metric = Metric.RecallAtK,
+            params = listOf(
+                MetricParam("k", 3.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Precision for top 10",
+            metric = Metric.PrecisionAtK,
+            params = listOf(
+                MetricParam("k", 3.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Precision for top 10",
+            metric = Metric.RecallAtK,
+            params = listOf(
+                MetricParam("k", 10.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Mean Reciprocal Rank",
+            metric = Metric.MeanReciprocalRank,
+            params = listOf(
+                MetricParam("k", 10.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Expected Reciprocal Rank",
+            metric = Metric.ExpectedReciprocalRank,
+            params = listOf(
+                MetricParam("k", 10.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+        MetricConfiguration(
+            name = "Normalized Discounted Cumulative Gain",
+            metric = Metric.NormalizedDiscountedCumulativeGain,
+            params = listOf(
+                MetricParam("k", 10.primitive),
+                MetricParam("relevantRatingThreshold", 1.primitive),
+            ),
+            expected = 0.75
+        ),
+    )
 }
 
 
