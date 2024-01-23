@@ -22,6 +22,7 @@ import org.w3c.dom.events.Event
 import pageLink
 import search.SearchResultsStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
+import searchpluginconfig.noConfigYet
 import kotlin.time.Duration.Companion.seconds
 
 val ratedSearchesModule = module {
@@ -225,11 +226,7 @@ fun RenderContext.testCases() {
         val showStore = storeOf<Map<String, Boolean>>(mapOf())
         activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
             if (searchPluginConfiguration == null) {
-                p {
-                    +"You don't have any search plugins configured yet. Go to the "
-                    pageLink(Page.Conf)
-                    +" to fix it."
-                }
+                noConfigYet()
             } else {
                 leftRightRow {
                     flexRow {
@@ -251,26 +248,6 @@ fun RenderContext.testCases() {
                             }
                         }
                         importExport()
-//                        jsonDownloadButton(
-//                            ratedSearchesStore,
-//                            "${searchPluginConfiguration.name}-rated-searches-${Clock.System.now()}.json",
-//                            ListSerializer(RatedSearch.serializer())
-//                        )
-//                        jsonDownloadButton(
-//                            ratedSearchesStore,
-//                            "${searchPluginConfiguration.name}-rre-${Clock.System.now()}.json",
-//                            ListSerializer(RatedSearch.serializer()),
-//                            buttonText = "Download RRE",
-//                            converter = { c: List<RatedSearch> ->
-//                                DEFAULT_JSON.encodeToString(RRE.serializer(), c.toRRE())
-//                            }
-//                        )
-//                        jsonFileImport(serializer = ListSerializer(RatedSearch.serializer())) { decoded ->
-//                            ratedSearchesStore.update(decoded)
-//                        }
-//                        jsonFileImport(serializer = RRE.serializer(), buttonText = "RRE Import") { decoded ->
-//                            ratedSearchesStore.update(decoded.toRatings())
-//                        }
                         showDemoContentStore.data.render { showDemo ->
                             if (showDemo) {
                                 primaryButton {
@@ -298,25 +275,29 @@ fun RenderContext.testCases() {
                     )
                 }
 
-                ratedSearchesStore.data.renderIf({ it == null }) {
-                    p {
-                        +"Create some test cases from the search screen."
-                    }
-                }
-
-                tagFilterEditor()
-                testCaseSearchFilterStore.data.filterNotNull().render { filter ->
-
-                    ratedSearchesStore.data.filterNotNull().map {
-                        if (filter.tags.isEmpty()) {
-                            it
-                        } else {
-                            it.filter { it.tags?.containsAll(filter.tags) == true }
+                ratedSearchesStore.data.render { ratedSearches ->
+                    if(ratedSearches.isNullOrEmpty()) {
+                        p {
+                            +"Create some test cases from the "
+                            pageLink(Page.Search)
+                            +" screen."
                         }
-                    }.renderEach { rs ->
-                        val rsStore = ratedSearchesStore.mapNull(listOf()).mapByElement(rs) { it.id }
-                        div {
-                            testCase(showStore, rsStore)
+                    } else {
+                        tagFilterEditor()
+                        testCaseSearchFilterStore.data.filterNotNull().render { filter ->
+
+                            ratedSearchesStore.data.filterNotNull().map {
+                                if (filter.tags.isEmpty()) {
+                                    it
+                                } else {
+                                    it.filter { it.tags?.containsAll(filter.tags) == true }
+                                }
+                            }.renderEach { rs ->
+                                val rsStore = ratedSearchesStore.mapNull(listOf()).mapByElement(rs) { it.id }
+                                div {
+                                    testCase(showStore, rsStore)
+                                }
+                            }
                         }
                     }
                 }

@@ -19,6 +19,7 @@ import pageLink
 import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlinx.coroutines.Job
+import searchpluginconfig.noConfigYet
 import testcases.TestCaseSearchFilterStore
 import testcases.tagFilterEditor
 import kotlin.math.pow
@@ -92,19 +93,9 @@ fun RenderContext.metrics() {
         val expandedState = storeOf(mapOf<String, Boolean>())
         activeSearchPluginConfigurationStore.data.render { searchPluginConfiguration ->
             if (searchPluginConfiguration == null) {
-                para {
-                    +"Configure a search plugin first. "
-                    pageLink(Page.Conf)
-                }
+                noConfigYet()
             } else {
                 ratedSearchesStore.data.render { ratedSearches ->
-                    if (ratedSearches == null) {
-                        p {
-                            +"Rate some searches first. "
-                            pageLink(Page.TestCases)
-                        }
-
-                    }
                     leftRightRow {
                         flexRow {
                             primaryButton(text = "Run Metrics", iconSource = SvgIconSource.Equalizer) {
@@ -123,7 +114,16 @@ fun RenderContext.metrics() {
                         }
                         infoPopup("Exploring Metrics", metricsInfo)
                     }
-                    tagFilterEditor()
+                    if (ratedSearches.isNullOrEmpty()) {
+                        p {
+                            +"You need to create some test cases before you can calculate metrics in the "
+                            pageLink(Page.TestCases)
+                            +" screen."
+                        }
+                    }
+                    if(!ratedSearches.isNullOrEmpty()) {
+                        tagFilterEditor()
+                    }
                     metricsOutputStore.data.render { metrics ->
                         div("w-full") {
                             metrics?.forEach { (_, metric, metricResult) ->

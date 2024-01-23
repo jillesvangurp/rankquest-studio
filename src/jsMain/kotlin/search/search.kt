@@ -16,6 +16,7 @@ import pageLink
 import testcases.RatedSearchesStore
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
 import kotlinx.coroutines.Job
+import searchpluginconfig.noConfigYet
 import utils.md5Hash
 
 val searchModule = module {
@@ -34,10 +35,7 @@ fun RenderContext.searchScreen() {
         centeredMainPanel {
 
             if (config == null) {
-                para {
-                    +"Configure a search plugin first. "
-                    pageLink(Page.Conf)
-                }
+                noConfigYet()
             } else {
                 div("flex flex-col items-left space-y-1 w-fit m-auto") {
                     h1(content = fun HtmlTag<HTMLHeadingElement>.() {
@@ -142,6 +140,17 @@ fun RenderContext.searchScreen() {
                         """.trimIndent()
                         )
 
+                    }
+                    ratedSearchesStore.data.render {
+                        if(it.isNullOrEmpty()) {
+                            para {
+                                +"""
+                                    You have no test cases yet. Use Add Testcase button for queries
+                                    that you want to turn into a Test Case. This copies the query and results
+                                    into a new test case.
+                                """.trimIndent()
+                            }
+                        }
                     }
                     searchResults()
                 }

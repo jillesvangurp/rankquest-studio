@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.JsonObject
+import pageLink
 import utils.md5Hash
 import kotlin.random.Random
 
@@ -296,5 +297,13 @@ fun RenderContext.mapEditor(store: Store<Map<String, String>>) {
                 }
             }
         }
+    }
+}
+
+fun RenderContext.noConfigYet() {
+    p {
+        +"You don't have any search plugins configured yet. Go to the "
+        pageLink(Page.Conf)
+        +" to fix it."
     }
 }

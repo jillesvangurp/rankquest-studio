@@ -14,22 +14,29 @@ fun RenderContext.tagFilterEditor() {
         leftRightRow {
 
             flexRow {
-                if(filter.tags.isNotEmpty()) {
-                    p {
-                        +"Tags:"
-                    }
-                } else {
-                    p {
-                        +"Add some tags to your test cases to enable tag filtering"
-                    }
-                }
-                filter.tags.forEach { tag ->
-                    secondaryButton(iconSource = SvgIconSource.Delete, text = tag) {
-                        clicks.map { tag } handledBy testCaseSearchFilterStore.removeTag
-                    }
-                }
+
                 ratedSearchesStore.data.renderNotNull { testCases ->
                     val allTags = testCases.flatMap { it.tags.orEmpty() }.toSet().sorted()
+                    if (filter.tags.isNotEmpty()) {
+                        p {
+                            +"Tags:"
+                        }
+                    } else {
+                        if(allTags.isEmpty()) {
+                            p {
+                                +"Add some tags to your test cases to enable tag filtering."
+                            }
+                        } else {
+                            p {
+                                +"No tags selected."
+                            }
+                        }
+                    }
+                    filter.tags.forEach { tag ->
+                        secondaryButton(iconSource = SvgIconSource.Delete, text = tag) {
+                            clicks.map { tag } handledBy testCaseSearchFilterStore.removeTag
+                        }
+                    }
                     allTags.filter { !filter.tags.contains(it) }.forEach { tag ->
                         primaryButton(iconSource = SvgIconSource.Plus, text = tag) {
                             clicks.map { tag } handledBy testCaseSearchFilterStore.addTag
