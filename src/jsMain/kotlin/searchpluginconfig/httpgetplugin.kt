@@ -62,7 +62,7 @@ fun RenderContext.httpGetPluginEditor(
             value(pathToLabelStore)
         }
 
-        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
+        val metricConfigurationsStore = storeOf(existing?.metrics?: StandardConfigurations.defaults)
         val settingsGenerator = {
             JsonGetAPIPluginConfig(
                 searchUrl = urlStore.current,

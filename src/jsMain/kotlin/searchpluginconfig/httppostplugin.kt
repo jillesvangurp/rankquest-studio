@@ -77,7 +77,7 @@ fun RenderContext.httpPostPluginEditor(
             value(pathToLabelStore)
         }
 
-        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
+        val metricConfigurationsStore = storeOf(existing?.metrics?: StandardConfigurations.defaults)
         val settingsGenerator = {
             JsonPostAPIPluginConfig(
                 searchUrl = urlStore.current,

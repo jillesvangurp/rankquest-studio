@@ -89,7 +89,7 @@ fun RenderContext.jsPluginEditor(
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
 
     editConfigurationStore.data.render { existing ->
-        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
+        val metricConfigurationsStore = storeOf(existing?.metrics?: StandardConfigurations.defaults)
         val settings = existing?.pluginSettings?.let {
             DEFAULT_JSON.decodeFromJsonElement(
                 JsPluginConfiguration.serializer(), it

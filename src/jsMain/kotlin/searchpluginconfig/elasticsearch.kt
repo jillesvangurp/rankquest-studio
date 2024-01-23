@@ -105,7 +105,7 @@ fun RenderContext.elasticsearchEditor(
             value(labelFieldsStore)
         }
 
-        val metricConfigurationsStore = storeOf(existing?.metrics.orEmpty())
+        val metricConfigurationsStore = storeOf(existing?.metrics?: StandardConfigurations.defaults)
         val settingsGenerator = {
             ElasticsearchPluginConfiguration(
                 queryTemplate = queryTemplateStore.current,
