@@ -9,8 +9,8 @@ die () {
 
 [[ -z $(git status -s) ]] || die "git status is not clean"
 
-gradle jsBrowserProductionWebpack
+gradle jsBrowserDistribution
 
 echo "publishing $TAG"
 
-rsync -azpv --exclude maven* --exclude bmath --delete-after  build/kotlin-webpack/js/productionExecutable/* jillesvangurpcom@ftp.jillesvangurp.com:/srv/home/jillesvangurpcom/domains/jillesvangurp.com/htdocs/rankquest
+rsync -azpv --exclude maven* --exclude bmath --delete-after  build/dist/js/productionExecutable/* jillesvangurpcom@ftp.jillesvangurp.com:/srv/home/jillesvangurpcom/domains/jillesvangurp.com/htdocs/rankquest
