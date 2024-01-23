@@ -189,6 +189,11 @@ fun <T> RenderContext.jsonFileImport(
         val textStore = storeOf("")
         val fileInputId = "file-input-${Random.nextULong()}"
         textStore.data.render { text ->
+            textFileInput(
+                fileType = ".json",
+                textStore = textStore,
+                fileInputId = fileInputId
+            )
             primaryButton(text = buttonText, iconSource = SvgIconSource.Upload) {
                 disabled(text.isBlank())
                 clicks handledBy {
@@ -207,11 +212,6 @@ fun <T> RenderContext.jsonFileImport(
                 }
             }
         }
-        textFileInput(
-            fileType = ".json",
-            textStore = textStore,
-            fileInputId = fileInputId
-        )
     }
 }
 

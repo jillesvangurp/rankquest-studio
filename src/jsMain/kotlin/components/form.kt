@@ -152,7 +152,6 @@ fun RenderContext.textFileInput(
     input(baseClass = baseClass, id = fileInputId) {
         type("file")
         accept(fileType)
-        +"Select Json"
         changes handledBy {
             it.currentTarget?.let { t ->
                 val inputElement = t as HTMLInputElement

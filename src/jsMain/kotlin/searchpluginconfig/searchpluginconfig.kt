@@ -349,8 +349,8 @@ fun RenderContext.metricsEditor(
                 metricConfigurationsStore.data.render { mcs ->
                     h2 { +"Metric Configuration" }
                     mcs.forEach { mc ->
-                        div("flex flex-row align-middle justify-between") {
-                            div("flex flex-col") {
+                        flexRow {
+                            flexCol {
                                 div {
                                     +"${mc.name} (${mc.metric})"
                                 }
