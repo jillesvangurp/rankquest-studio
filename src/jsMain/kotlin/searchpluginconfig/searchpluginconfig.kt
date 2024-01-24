@@ -35,6 +35,7 @@ fun RenderContext.pluginConfiguration() {
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
     val movieQuotesStore = koin.get<MovieQuotesStore>()
+    val editMetricStore: Store<MetricConfiguration?> = storeOf<MetricConfiguration?>(null)
     centeredMainPanel {
 
         val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
@@ -115,7 +116,7 @@ fun RenderContext.pluginConfiguration() {
                                     )
                                 }
                             }
-                            metricsEditor(showMetricsEditor, metricConfigurationsStore)
+                            metricsEditor(showMetricsEditor, metricConfigurationsStore, editMetricStore)
 
                         }
                     }
@@ -271,7 +272,6 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
     val pluginConfigurationStore = koin.get<PluginConfigurationsStore>()
 
     editConfigurationStore.data.render { existing ->
-
         val selectedPluginTypeStore = storeOf(existing?.pluginType ?: "")
 
         leftRightRow {
@@ -352,9 +352,8 @@ fun RenderContext.createOrEditPlugin(editConfigurationStore: Store<SearchPluginC
 }
 
 fun RenderContext.metricsEditor(
-    showMetricsEditor: Store<Boolean>, metricConfigurationsStore: Store<List<MetricConfiguration>>
+    showMetricsEditor: Store<Boolean>, metricConfigurationsStore: Store<List<MetricConfiguration>>,editMetricStore: Store<MetricConfiguration?>
 ) {
-    val editMetricStore = storeOf<MetricConfiguration?>(null)
     val showMetricsPickerStore = storeOf(false)
     val newMetricTypeStore = storeOf<Metric?>(null)
     showMetricsEditor.data.render { show ->
@@ -500,22 +499,24 @@ fun RenderContext.metricsEditor(
                                             }
                                         }
 
-                                        primaryButton {
-                                            +"OK"
-                                            disabled(mcs.map { it.name }
-                                                .contains(metricNameStore.current) || metricNameStore.current.isBlank())
-                                            clicks handledBy {
-                                                showMetricsPickerStore.update(false)
-                                                newMetricTypeStore.update(null)
-                                                val newConfig = MetricConfiguration(
-                                                    metric = selectedMetric,
-                                                    name = metricNameStore.current,
-                                                    params = selectedMetric.supportedParams
-                                                )
-                                                editMetricStore.update(newConfig)
-                                                metricConfigurationsStore.update(
-                                                    mcs + newConfig
-                                                )
+                                        metricNameStore.data.render { metricName ->
+
+                                            primaryButton {
+                                                +"OK"
+                                                disabled(mcs.map { it.name }
+                                                    .contains(metricName) || metricName.isBlank())
+                                                clicks handledBy {
+                                                    newMetricTypeStore.update(null)
+                                                    val newConfig = MetricConfiguration(
+                                                        metric = selectedMetric,
+                                                        name = metricName,
+                                                        params = selectedMetric.supportedParams
+                                                    )
+                                                    editMetricStore.update(newConfig)
+                                                    metricConfigurationsStore.update(
+                                                        mcs + newConfig
+                                                    )
+                                                }
                                             }
                                         }
                                     }
