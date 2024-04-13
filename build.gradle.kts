@@ -59,7 +59,8 @@ kotlin {
                 implementation(devNpm("autoprefixer", "_"))
                 implementation(devNpm("css-loader", "_"))
                 implementation(devNpm("style-loader", "_"))
-                implementation(devNpm("cssnano", "_")) }
+                implementation(devNpm("cssnano", "_"))
+            }
         }
     }
 }
