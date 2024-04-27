@@ -24,6 +24,8 @@ To measure search quality, Rankquest Studio runs the test cases against your sea
 
 ## Search Plugin Configurations
 
+<img src="pluginconfiguration.gif" class="w-[50%] float-right ml-5 mb-2.5 drop-shadow-2xl rounded-lg hover:scale-150 transition ease-in-out delay-150" />
+
 To use Rankquest Studio, you need to  configure it to communicate with your search service using one of the plugins. You can do this in the Configuration screen. 
 
 You can add multiple configurations here and easily switch between them. Doing so is useful for comparing different versions of your search with the same test cases.
@@ -54,6 +56,8 @@ An **alternative to writing your own plugin may also be proxying** your search A
 
 ## Creating  and fine tuning Test Cases
 
+<img src="testcases.gif" class="w-[50%] float-right ml-5 mb-2.5 drop-shadow-2xl rounded-lg hover:scale-150 transition ease-in-out delay-150" />
+
 Once you have created and activated a search configuration, you can start creating **test cases**. Simply use the search screen to query your search service using the plugin. In the search screen, you can customize the search parameters and fetch results. 
 
 You can then convert the parameter configuration + results in a test case. The new test case is initialized with a copy of the parameters you used for the search (the search context) and initialized with the results that it found. 
@@ -61,6 +65,8 @@ You can then convert the parameter configuration + results in a test case. The n
 You can **fine tune** your test case in the Test Cases screen. There you can review your test cases, modify the rating of your results, add/remove more results, and document & annotate your test cases with some comments and tags.
 
 ## Running Metrics
+
+<img src="metrics.gif" class="w-[50%] float-right ml-5 mb-2.5 drop-shadow-2xl rounded-lg hover:scale-150 transition ease-in-out delay-150" />
 
 Once you have test cases, you can go to the **metrics** screen to calculate the metrics that you defined in your search plugin configuration. 
 
@@ -121,7 +127,7 @@ traffic that rank quest studio makes is to your own search service.
 It makes no assumptions about how your search API works. It uses an extensible plugin model to talk to 
 your search service. The only assumption it makes is that whatever you have can return a list of results with ids for a given search context (your search parameters).
 
-## Links
+## Learn More
 
 - [rankquest-studio](https://github.com/jillesvangurp/rankquest-studio) The github project for this web application. It's all written in kotlin-js and uses the wonderful [Fritz2](https://www.fritz2.dev/) framework. 
 - [Release Notes](https://github.com/jillesvangurp/rankquest-studio/releases) Find out about the latest features and fixes here.
@@ -133,6 +139,16 @@ your search service. The only assumption it makes is that whatever you have can 
 ## Support & Getting help taking your search to the next level
 
 Please provide feedback via the [Github Issue Tracker](https://github.com/jillesvangurp/rankquest-studio/issues).
+
+## Jilles van Gurp
+
+<img src="jilles.jpg" class="h-64 float-right ml-5 mb-2.5 drop-shadow-2xl rounded-lg">
+
+**email**: jilles AT jillesvangurp.com
+
+**address**: Bergstrasse 16, 10115 Berlin, Germany
+
+[www.jillesvangurp.com](https://www.jillesvangurp.com) [@jillesvangurp](https://twitter.com/jillesvangurp) [@jillesvangurp@mastodon.world](https://mastodon.world/@jillesvangurp)
 
 I created Rankquest to help me evaluate our search quality in a few of my own projects and after years of observing my clients mostly ignoring search quality. With some notable exceptions, most companies don't employ search relevance experts, and have no good way to benchmark their search quality beyond manual testing. After looking at existing tools, I chose the more difficult but satisfying path of building yet another tool to address some of their limitations.
 
@@ -147,14 +163,4 @@ As a **search consultant**, I have advised many clients over the years on how to
 ## Showing your appreciation
 
 This project is free and open source. If you like it, let me know & give me some feedback, tell others, star the project on [Github](https://github.com/jillesvangurp/rankquest-studio), show it to others, etc. And consider engaging my services as a search consultant.
-
-## Jilles van Gurp
-
-<img src="jilles.jpg" style="width: 100px;height: 100px">
-
-**email**: jilles AT jillesvangurp.com
-
-**address**: Bergstrasse 16, 10115 Berlin, Germany
-
-[www.jillesvangurp.com](https://www.jillesvangurp.com) [@jillesvangurp](https://twitter.com/jillesvangurp) [@jillesvangurp@mastodon.world](https://mastodon.world/@jillesvangurp) 
 

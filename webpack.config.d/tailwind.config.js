@@ -70,8 +70,8 @@ const tailwind = {
         },
     },
     content: [
-        '*.{js,html,css}',
-        './kotlin/**/*.{js,html,css}'
+        '*.{js,html,css,md}',
+        './kotlin/**/*.{js,html,css,md}'
     ]
 };
 
