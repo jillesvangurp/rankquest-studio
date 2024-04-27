@@ -10,37 +10,32 @@ Watch this [quick overview](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) on
 
 Most websites or apps have some kind of search functionality. There are all sorts of ways to implement this. There are managed solutions such as Algolia that are easy to integrate. You can use off the shelf packages like Opensearch, Solr, or Elasticsearch. And there are various databases that integrate search functionality. Additionally, there is a growing amount of products that support vector search and other AI based approaches. But how do you decide which is best for your use case? Where do you start?  
 
-Whichever solution you use, search relevancy is about delivering the best results possible to your users. And of course, you are competing against others that are trying to do their best as well. Your competitiveness depends on how relevant your search results are. And in order to optimize that, you need to be able to test and measure search relevance. Doing so helps you drive your product roadmap, take informed decisions about where to focus your efforts, and drive the quality of your search in a data driven way.
+Whichever solution you use, search relevancy is about delivering the best results possible to your users. And of course, **you are competing against others** that are trying to do their best as well. Your competitiveness and profit depends on how relevant your search results are. 
+
+In order to optimize search relevance, you need to be able to **test and measure** search relevance. This allows you to compare different solutions and enables you to evaluate improvements to your seerch in an objective way. Doing so helps you drive your product roadmap, identify points of improvement, and take informed decisions about where to focus your efforts, and drive the quality of your search in a data driven way.
 
 ## How does Rank Quest Studio work?
 
-Rankquest Studio helps you build a test suite of rated searches. A rated search is a search query and a list of results with ratings that determine how relevant each result is. To measure search quality, Rankquest Studio runs the queries against your search API and calculates various search relevance metrics using the results that come back and comparing those to your rated results. If a particular result with a high rating is missing or ranked low, that negatively affects the metrics and if they are where they should be the metrics go up.
+Rankquest Studio helps you build collections of test cases of **rated searches**. A test case is a search query and a list of results with ratings that indicate how relevant each result is for that search. Rankquest Studio uses a simple five star rating. A high rating indicates the result would be highly relevant for that search, a 0 star rating would indicate the result is not relevant for the search at all.
 
-## Getting started
+An effective suite of rated searches may include examples of searches that are representative of what users would be looking for, things that are known to work poorly, or things that are known to work well. The more test cases you add, the easier it gets to measure improvements or regressions in how good your search is. 
 
-- Start by creating a **search plugin configuration**. You can also choose to play with one of the built in demo configurations. A search plugin configuration tells Rankquest studio how to fetch results from your search service. Results must be assigned an id and you can optionally extract a label from your results that is displayed. Additionally, you need to specify what parameters are needed to use your search service. Finally, you can specify a list of metric configurations that you want to measure. 
+To measure search quality, Rankquest Studio runs the test cases against your search API and calculates various search relevance metrics using the results that come back and by comparing those to your rated results. If a particular result with a high rating is missing or ranked low, that negatively affects the metrics and if they are where they should be the metrics go up.
 
-- Then you can start creating **test cases**. Simply use the search tool to run a search. You can convert the results in a test case. Each new test case is initialized with a copy of the parameters you used for the search (the search context) and initialized with the results that it found. 
+## Search Plugin Configurations
 
-- You can **fine tune** your test cases in the Test Cases screen. You can review your test cases, and add/remove more results, modify the rating of your results, and document your test cases with some comments. 
+To use Rankquest Studio, you need to  configure it to communicate with your search service using one of the plugins. You can do this in the Configuration screen. 
 
-- Once you have test cases, you can go to the **metrics** screen to get metrics.
+You can add multiple configurations here and easily switch between them. Doing so is useful for comparing different versions of your search with the same test cases.
 
-You should **export and backup** your configuration, test cases, and metrics. A good suggestion is to store them in a git repository or some other safe place.
+If you are new to Rankquest Studio and just want to play around a bit with the UI, you can enable the demo plugins in this screen. These are intended for quickly exploring how Rankquest works with a simple movie quote search service. Three versions of this search are provided. Two of them use an in memory search engine and the third one enables you to use Elasticsearch or Opensearch. 
 
-You can use the exported configuration and testcases on the **command line** using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli). A build of this is available via docker hub and you can invoke it like this:
+A plugin configuration needs to include the following details:
 
-```bash
-docker run -it --network host -v $(pwd):/rankquest jillesvangurp/rankquest-cli -c my-config.json -t my-testcases.json -v -f
-```
-
-For more information on this, see the rankquest-cli project.
-
-## Search Plugins
-
-To get results from your search API, you need to use a search plugin. A search plugin fetches results and picks 
-the response apart to extract the id and a label for each search result. Note. as this runs in a browser, your search API 
-must set the appropriate CORS headers.
+- an id for the configuration
+- A way to extract lists of results from the search API response. Each result should have a unique id and you may also extract an optional label (e.g. a title or name field)
+- A list of search parameters for your search API. This typically includes a text field, a parameter to restrict the number of results, etc. You can of course specify defaults for your search parameters.
+- A list of search relevance metrics configurations. You can go with the defaults here or tune this.
 
 Rankquest Studio comes with four plugins. Three
 of those are provided by rankquest-core and are written in Kotlin:
@@ -48,16 +43,49 @@ of those are provided by rankquest-core and are written in Kotlin:
 - JsonGetAPIPlugin - allows you to do an HTTP GET against any API that returns Json
 - JsonPostAPIPlugin - allows you to do an HTTP POST against any API that returns Json
 - ElasticsearchPlugin - lets you query Elasticsearch
+- Javascript Plugin -  allows you to **run javascript in your browser**. Note. while this works great inside the browser, this plugin does not work outside the browser and cannot be used with rankquest-cli. Using Javascript, you can use the browser fetch API to access your server.
 
-A fourth plugin is bundled with Rankquest Studio and allows you to **run javascript in your browser**. Note. while this works great inside the browser, this plugin does not work outside the browser and cannot be used with rankquest-cli. Using Javascript,
-you can use the browser fetch API to access your server.
+Note. because the plugins run in a browser, your search API must set the appropriate CORS headers.
 
-Finally, you can of course create your own plugin in Kotlin. However, this is a bit more involved and you will have to modify
-rankquest studio in order to be able to edit your configuration. Additionally, you may need to modify rankquest-cli as well
-so that it can use your plugin. For this, refer to the source code and the existing plugins.
+You can of course create your own plugin in Kotlin. However, this is a bit more involved and you will have to modify
+rankquest studio in order to be able to edit your configuration. Additionally, you may need to modify rankquest-cli as well so that it can use your plugin. For this, refer to the source code and the existing plugins.
 
-An **alternative to writing your own plugin may also be proxying** your search API such that you can use one of the builtin
-plugins. This may be easier than customizing the UI for your plugin and is something you can do with a few lines of code in your preferred programming language. 
+An **alternative to writing your own plugin may also be proxying** your search API such that you can use one of the builtin plugins to talk to the proxy. This may be easier than customizing the UI for your plugin and is something you might be able to do with a few lines of code in your preferred programming language.
+
+## Creating  and fine tuning Test Cases
+
+Once you have created and activated a search configuration, you can start creating **test cases**. Simply use the search screen to query your search service using the plugin. In the search screen, you can customize the search parameters and fetch results. 
+
+You can then convert the parameter configuration + results in a test case. The new test case is initialized with a copy of the parameters you used for the search (the search context) and initialized with the results that it found. 
+
+You can **fine tune** your test case in the Test Cases screen. There you can review your test cases, modify the rating of your results, add/remove more results, and document & annotate your test cases with some comments and tags.
+
+## Running Metrics
+
+Once you have test cases, you can go to the **metrics** screen to calculate the metrics that you defined in your search plugin configuration. 
+
+The metrics are broken down by test case and by result. If there are any unrated results, you can add them to your test case from this screen as well.
+
+## Exporting and Importing
+
+Instead of using a database, Rankquest Studio uses simple files to store test cases, configurations, etc. This makes it easy to share test cases and also enables you to use e.g. a git repository to keep track of your test cases, configurations, etc.
+
+You can import/export:
+
+- plugin configurations
+- metric configurations (so you can reuse them with different plugin configurations)
+- test cases
+- metrics runs
+
+## Commandline
+
+You can use the exported configuration and testcases on the **command line** using [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli). Rankquest-cli is available via [docker hub](https://hub.docker.com/repository/docker/jillesvangurp/rankquest-cli/general) and you can invoke it like this:
+
+```bash
+docker run -it --network host -v $(pwd):/rankquest jillesvangurp/rankquest-cli -c my-config.json -t my-testcases.json -v -f
+```
+
+For more information on this, see the [rankquest-cli](https://github.com/jillesvangurp/rankquest-cli) project.
 
 ## Why another tool?
 
