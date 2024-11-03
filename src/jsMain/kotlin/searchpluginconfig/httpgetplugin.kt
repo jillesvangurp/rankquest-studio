@@ -36,28 +36,38 @@ fun RenderContext.httpGetPluginEditor(
             value(urlStore)
         }
         h2 { +"Request Parameters" }
-        para { +"These will be used for your search context." }
+        para { +"These will be added to the request. Use these for parameters that should not be editable like API keys." }
         mapEditor(searchContextParamsStore)
         h2 { +"Headers" }
         mapEditor(headersStore)
 
+        h2 {
+            +"Response parsing"
+        }
+        para {
+            +"""
+                Rankquest needs a bit of information to help pick apart the json response of your API. 
+                For this we use simple dotted paths. Responses are assumed to have a list of results that are 
+                json objects, a result size, and document ids.
+                """.trimIndent()
+        }
         textField(
-            "hits", "pathToHits", ""
+            placeHolder = "hits", label = "Path to Hits", description = "Property name of the list of results. Use dots for nested properties, e.g. Elasticsearch would have the list of hits under: 'hits.hits'"
         ) {
             value(pathToHitsStore)
         }
         textField(
-            "size", "pathToSize", ""
+            "size", "Path to Size", "Property name for the field that has the result size. E.g. 'total'"
         ) {
             value(pathToSizeStore)
         }
         textField(
-            "documentId", "id", ""
+            "documentId", "Document Id", "Property path for the document id relative to the object."
         ) {
             value(pathToIdStore)
         }
         textField(
-            "title", "label", ""
+            "title", "Document Label", "Path to a field that can be used as a label for your document. This is optional but of course helpful. E.g. title"
         ) {
             value(pathToLabelStore)
         }

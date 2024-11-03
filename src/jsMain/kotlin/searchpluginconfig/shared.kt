@@ -96,9 +96,16 @@ fun RenderContext.templateVarEditor(
     div("text-left w-full") {
 
         h2 { +"Search Context Parameters" }
-        p {+"""
-            These are the input parameters that go into the search form.
+        para {+"""
+            The search context contains all the parameters that your search API supports. 
+            Parameters like 'query', 'from', 'size', and other things that your API supports.                       
         """.trimIndent()}
+        para {
+            +"""
+                The search context parameters will be used to populate the search form and their 
+                values are stored in test cases as well.
+            """.trimIndent()
+        }
     }
     searchContextFieldsStore.data.render { fields ->
 
