@@ -35,7 +35,7 @@ fun RenderContext.pluginConfiguration() {
     val activeSearchPluginConfigurationStore = koin.get<ActiveSearchPluginConfigurationStore>()
     val showDemoContentStore = koin.get<Store<Boolean>>(named("showDemo")) as Store<Boolean>
     val movieQuotesStore = koin.get<MovieQuotesStore>()
-    val editMetricStore: Store<MetricConfiguration?> = storeOf<MetricConfiguration?>(null)
+    val editMetricStore: Store<MetricConfiguration?> = storeOf(null)
     centeredMainPanel {
 
         val editConfigurationStore = storeOf<SearchPluginConfiguration?>(null)
@@ -121,6 +121,7 @@ fun RenderContext.pluginConfiguration() {
                         }
                     }
                     div("w-full place-items-end mt-10") {
+                        settings()
                         leftRightRow {
                             if (showDemoContent) {
                                 a {
@@ -229,21 +230,28 @@ val configurationScreenHelp = """
     
     - **Json GET Api Plugin** - use this to configure search services that you cal call with an HTTP GET that returns results in json format.
     - **Json POST Api Plugin** - use this to configure search services that you call with an HTTP POST that returns results in json format.
-    - Elasticsearch - you can use this to run metrics for elasticsearch queries. You could also do this with the JsonPOSTApiPlugin, of course. 
+    - **Elasticsearch** - you can use this to run metrics for elasticsearch queries. You could also do this with the JsonPOSTApiPlugin, of course. 
     However, this instead uses my kt-search library.
-    - Js Plugin - With this plugin, you can add a custom javascript function to implement your own logic; 
-    for example using the fetch API. Note. this of course only works in the browser and cannot be used with rankquest-cli currently.
+    - **Js Plugin** - With this plugin, you can add a custom javascript function to implement your own logic; 
+    for example using the fetch API. Note. this of course **only works in the browser and cannot be used with rankquest-cli** currently.
     
     These plugins should cover most common APIs. But if the above is not enough, you can of course implement 
     your own plugins in rankquest core. You will also need to then modify rankquest studio to support it. This
     is not that hard and if you do, please consider contributing your plugin.  
     
-    Alternatively, you might create a proxy for your service that translates your API to a simple Json API. 
+    ## Using a proxy
+    
+    An alternative to developing a new plugin is using a proxy. You might create a simple proxy for your service 
+    that maps your API to a simple Json API that can be used with the GET or POST json plugin. This is also a good way
+    to deal with more complicated topics like authentication.
                 
     ## Switching between plugins
     
     You can configure multiple plugins and then switch between them with the use button. 
     The active configuration has a greyed out current button. 
+    
+    The test cases are of course dependent on the search context but otherwise will work with any search configuration.
+    This makes it really easy to evaluate different search implementations with the same test cases.
                
     ## Configuring metrics
     

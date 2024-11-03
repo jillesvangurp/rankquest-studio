@@ -41,6 +41,7 @@ kotlin {
                 implementation("com.github.jillesvangurp:querylight:_")
                 implementation("com.soywiz.korlibs.krypto:krypto:_")
                 implementation("org.jetbrains:markdown:_")
+                implementation("com.aallam.openai:openai-client:_")
                 implementation(KotlinX.serialization.json)
                 implementation(Koin.core)
             }
