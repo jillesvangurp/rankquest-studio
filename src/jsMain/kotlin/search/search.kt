@@ -98,9 +98,8 @@ fun RenderContext.searchScreen() {
                                     clicks.map {
                                         val ratings = searchResultsStore.current?.let {
                                             it.getOrNull()?.let { searchResults ->
-                                                searchResults.searchResultList.map {
-                                                    SearchResultRating(
-                                                        it.id, label = it.label, rating = 5
+                                                searchResults.searchResultList.mapIndexed { index, searchResult ->                                                      SearchResultRating(
+                                                        searchResult.id, label = searchResult.label, rating = (if(index<5) 5 - index else 1)
                                                     )
                                                 }
                                             }
