@@ -1,0 +1,139 @@
+{
+    "id": "IDDNZYphq58FGnY6kTACAg==",
+    "name": "TMDB Search API",
+    "pluginType": "JsonGetAPIPlugin",
+    "fieldConfig": [
+        {
+            "type": "str",
+            "name": "query",
+            "defaultValue": "",
+            "placeHolder": "The Matrix"
+        }
+    ],
+    "metrics": [
+        {
+            "name": "Precision for top 3",
+            "metric": "PrecisionAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Recall for top 3",
+            "metric": "RecallAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Precision for top 10",
+            "metric": "PrecisionAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Precision for top 10",
+            "metric": "RecallAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Mean Reciprocal Rank",
+            "metric": "MeanReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Expected Reciprocal Rank",
+            "metric": "ExpectedReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Normalized Discounted Cumulative Gain",
+            "metric": "NormalizedDiscountedCumulativeGain",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        }
+    ],
+    "pluginSettings": {
+        "searchUrl": "https://api.themoviedb.org/3/search/movie",
+        "requestHeaders": {},
+        "searchContextParams": {
+            "api_key": "XXXXXXXXXXX"
+        },
+        "jsonPathToHits": [
+            "results"
+        ],
+        "jsonPathToId": [
+            "id"
+        ],
+        "jsonPathToLabel": [
+            "original_title"
+        ],
+        "jsonPathToSize": [
+            "total_results"
+        ]
+    }
+}

@@ -1,0 +1,211 @@
+{
+    "id": "6xW+ZaVz06tAY/A7xFZR7Q==",
+    "name": "OpenCage Geocoding",
+    "pluginType": "JsonGetAPIPlugin",
+    "fieldConfig": [
+        {
+            "type": "str",
+            "name": "q",
+            "defaultValue": "",
+            "placeHolder": "wattstrasse 11, 10115, Berlin, DE"
+        },
+        {
+            "type": "int",
+            "name": "abbrv",
+            "placeHolder": "Set to 1 to abbreviate results"
+        },
+        {
+            "type": "int",
+            "name": "address_only",
+            "placeHolder": "Set to 1 for address-only results"
+        },
+        {
+            "type": "int",
+            "name": "add_request",
+            "placeHolder": "Set to 1 to include request parameters in the response"
+        },
+        {
+            "type": "str",
+            "name": "bounds",
+            "placeHolder": "Example: -0.563160,51.280430,0.278970,51.683979"
+        },
+        {
+            "type": "str",
+            "name": "countrycode",
+            "placeHolder": "Example: de or ca,us"
+        },
+        {
+            "type": "str",
+            "name": "jsonp",
+            "placeHolder": "Function name for JSONP wrapping"
+        },
+        {
+            "type": "str",
+            "name": "language",
+            "placeHolder": "Language code, e.g., en or de"
+        },
+        {
+            "type": "int",
+            "name": "limit",
+            "placeHolder": "Maximum number of results, max 100"
+        },
+        {
+            "type": "int",
+            "name": "no_annotations",
+            "placeHolder": "Set to 1 to exclude annotations"
+        },
+        {
+            "type": "int",
+            "name": "no_dedupe",
+            "placeHolder": "Set to 1 to disable deduplication"
+        },
+        {
+            "type": "int",
+            "name": "no_record",
+            "placeHolder": "Set to 1 to avoid logging the query"
+        },
+        {
+            "type": "int",
+            "name": "pretty",
+            "placeHolder": "Set to 1 for pretty-printed results"
+        },
+        {
+            "type": "str",
+            "name": "proximity",
+            "placeHolder": "Latitude,Longitude to bias results"
+        },
+        {
+            "type": "int",
+            "name": "roadinfo",
+            "placeHolder": "Set to 1 to match nearest road"
+        }
+    ],
+    "metrics": [
+        {
+            "name": "Precision for top 3",
+            "metric": "PrecisionAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Recall for top 3",
+            "metric": "RecallAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Precision for top 10",
+            "metric": "PrecisionAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 3
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Precision for top 10",
+            "metric": "RecallAtK",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Mean Reciprocal Rank",
+            "metric": "MeanReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Expected Reciprocal Rank",
+            "metric": "ExpectedReciprocalRank",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        },
+        {
+            "name": "Normalized Discounted Cumulative Gain",
+            "metric": "NormalizedDiscountedCumulativeGain",
+            "params": [
+                {
+                    "name": "k",
+                    "value": 10
+                },
+                {
+                    "name": "relevantRatingThreshold",
+                    "value": 1
+                }
+            ],
+            "expected": 0.75
+        }
+    ],
+    "pluginSettings": {
+        "searchUrl": "https://api.opencagedata.com/geocode/v1/json",
+        "requestHeaders": {},
+        "searchContextParams": {
+            "key": "XXXXXXXXXXXX"
+        },
+        "jsonPathToHits": [
+            "results"
+        ],
+        "jsonPathToId": [
+            "annotations",
+            "what3words",
+            "words"
+        ],
+        "jsonPathToLabel": [
+            "formatted"
+        ],
+        "jsonPathToSize": [
+            "total_results"
+        ]
+    }
+}
