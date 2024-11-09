@@ -18,4 +18,11 @@
   a {
     @apply text-blueBright-600 hover:text-blueBright-400 underline cursor-pointer;
   }
+  ul {
+    @apply list-disc list-inside pl-4 my-2;
+  }
+
+  ol {
+    @apply list-decimal list-inside pl-4 my-2;
+  }
 }

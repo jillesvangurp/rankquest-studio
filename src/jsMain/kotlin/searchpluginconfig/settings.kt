@@ -76,46 +76,79 @@ fun RenderContext.settings() {
     settingsStore.data handledBy {
         settingsStore.configure()
     }
+    val collapseStore = storeOf(true)
     h2 {
-        +"AI Configuration"
-
-        textField(
-            "http://localhost:11434/v1",
-            "Base Url",
-            description = "Leave blank to use OpenAI or provide compatible alternative. When using ollama, this is the correct url: http://localhost:11434/v1"
-        ) {
-            value(settingsStore.openAiBaseUrlStore)
+        a {
+            +"AI Configuration"
+            clicks handledBy {
+                collapseStore.update(!collapseStore.current)
+            }
         }
-        val showApiKeyFieldStore = storeOf(false)
-        div {
-            a {
+    }
+    collapseStore.data.render {collapsed ->
+        if(!collapsed) {
+            textField(
+                "http://localhost:11434/v1",
+                "Base Url",
+                description = "Leave blank to use OpenAI or provide compatible alternative. When using ollama, this is the correct url: http://localhost:11434/v1"
+            ) {
+                value(settingsStore.openAiBaseUrlStore)
+            }
+            val showApiKeyFieldStore = storeOf(false)
+            div {
+                a {
+                    showApiKeyFieldStore.data.render { show ->
+                        if (show) {
+                            +"Hide API Key"
+                        } else {
+                            +"Edit API Key"
+                        }
+                        clicks handledBy {
+                            showApiKeyFieldStore.update(!showApiKeyFieldStore.current)
+                        }
+                    }
+                }
                 showApiKeyFieldStore.data.render { show ->
                     if (show) {
-                        +"Hide API Key"
-                    } else {
-                        +"Edit API Key"
-                    }
-                    clicks handledBy {
-                        showApiKeyFieldStore.update(!showApiKeyFieldStore.current)
-                    }
-                }
-            }
-            showApiKeyFieldStore.data.render { show ->
-                if(show) {
-                    textField("XYZ", "API Key", description = "Your API key if one is needed. Leave blank for ollama.") {
-                        value(settingsStore.openAiApiKeyStore)
+                        textField(
+                            "XYZ",
+                            "API Key",
+                            description = "Your API key if one is needed. Leave blank for ollama."
+                        ) {
+                            value(settingsStore.openAiApiKeyStore)
+                        }
                     }
                 }
             }
-        }
-        settingsStore.data.render { s ->
-            settingsStore.models.data.render { models ->
-                label {
-                    +"Pick a model"
-                    selectBox(settingsStore.modelStore, models, emptyItem = "-")
+            settingsStore.data.render { s ->
+                settingsStore.models.data.render { models ->
+                    label {
+                        +"Pick a model"
+//                    selectBox(settingsStore.modelStore, models, emptyItem = "-")
+                        // buggy select in fritz2
+                        settingsStore.modelStore.data.render { current ->
+                            ul {
+                                models.forEach { modelId ->
+                                    li {
+                                        if (current == modelId) {
+                                            b {
+                                                +modelId
+                                            }
+                                        } else {
+                                            a {
+                                                +modelId
+                                                clicks handledBy {
+                                                    settingsStore.modelStore.update(modelId)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
 }
