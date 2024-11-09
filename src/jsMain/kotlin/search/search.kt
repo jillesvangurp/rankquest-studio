@@ -43,9 +43,9 @@ fun RenderContext.searchScreen() {
                     })
                     val stores = config.fieldConfig.associate {
                         it.name to when (it) {
-                            is SearchContextField.BoolField -> storeOf("${it.defaultValue}")
-                            is SearchContextField.IntField -> storeOf("${it.defaultValue}")
-                            is SearchContextField.StringField -> storeOf(it.defaultValue)
+                            is SearchContextField.BoolField -> storeOf("${it.defaultValue?:""}")
+                            is SearchContextField.IntField -> storeOf("${it.defaultValue?:""}")
+                            is SearchContextField.StringField -> storeOf(it.defaultValue?:"")
                         }
                     }
                     div {
@@ -53,6 +53,7 @@ fun RenderContext.searchScreen() {
                             val fieldStore = stores[field.name]!!
                             when (field) {
                                 is SearchContextField.BoolField -> {
+
                                     textField(
                                         placeHolder = "true", label = field.name
                                     ) {

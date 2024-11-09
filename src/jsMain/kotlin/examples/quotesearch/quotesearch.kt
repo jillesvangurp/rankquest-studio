@@ -54,7 +54,7 @@ val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
     pluginType = "movies",
     fieldConfig = listOf(
         SearchContextField.StringField("q"),
-        SearchContextField.IntField("size", 5)
+        SearchContextField.IntField("size", defaultValue = 5)
     ),
     pluginSettings = null,
     metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }
@@ -66,7 +66,7 @@ val movieQuotesNgramsSearchPluginConfig = SearchPluginConfiguration(
     pluginType = "movies",
     fieldConfig = listOf(
         SearchContextField.StringField("q"),
-        SearchContextField.IntField("size", 5)
+        SearchContextField.IntField("size", defaultValue = 5)
     ),
     pluginSettings = null,
     metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }

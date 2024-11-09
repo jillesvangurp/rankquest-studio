@@ -111,11 +111,12 @@ fun RenderContext.templateVarEditor(
 
         fields.forEach { field ->
             val nameStore = storeOf(field.name)
+            val helpStore = storeOf(field.help)
             val typeStore = storeOf(field::class.simpleName!!)
             val defaultValueStore = when (field) {
-                is SearchContextField.BoolField -> storeOf(field.defaultValue.toString())
-                is SearchContextField.IntField -> storeOf(field.defaultValue.toString())
-                is SearchContextField.StringField -> storeOf(field.defaultValue)
+                is SearchContextField.BoolField -> storeOf(field.defaultValue?.toString()?:"")
+                is SearchContextField.IntField -> storeOf(field.defaultValue?.toString()?:"")
+                is SearchContextField.StringField -> storeOf(field.defaultValue?:"")
             }
             val placeHolderStore = when (field) {
                 is SearchContextField.BoolField -> storeOf("")
@@ -128,6 +129,9 @@ fun RenderContext.templateVarEditor(
                 flexRow {
                     textField("", "name") {
                         value(nameStore)
+                    }
+                    textAreaField {
+                        value(helpStore)
                     }
                     defaultValueStore.data.render { defaultValue ->
                         when (field) {
@@ -158,23 +162,26 @@ fun RenderContext.templateVarEditor(
                             when (typeStore.current) {
                                 SearchContextField.BoolField::class.simpleName!! -> {
                                     SearchContextField.BoolField(
-                                        name = nameStore.current, defaultValue = defaultValueStore.current.toBoolean()
+                                        name = nameStore.current,
+                                        help = helpStore.current,
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toBoolean()
                                     )
                                 }
 
                                 SearchContextField.IntField::class.simpleName!! -> {
                                     SearchContextField.IntField(
                                         name = nameStore.current,
-                                        defaultValue = defaultValueStore.current.toIntOrNull() ?: 0,
+                                        help = helpStore.current,
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toIntOrNull(),
                                         placeHolder = placeHolderStore.current,
                                     )
-
                                 }
 
                                 else -> {
                                     SearchContextField.StringField(
                                         name = nameStore.current,
-                                        defaultValue = defaultValueStore.current,
+                                        help = helpStore.current,
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() },
                                         placeHolder = placeHolderStore.current,
                                     )
                                 }
