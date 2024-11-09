@@ -51,35 +51,42 @@ fun RenderContext.searchScreen() {
                     div {
                         for (field in config.fieldConfig) {
                             val fieldStore = stores[field.name]!!
-                            when (field) {
-                                is SearchContextField.BoolField -> {
+                            flexRow {
+                                when (field) {
+                                    is SearchContextField.BoolField -> {
 
-                                    textField(
-                                        placeHolder = "true", label = field.name
-                                    ) {
-                                        value(fieldStore)
+                                        textField(
+                                            placeHolder = "true", label = field.name
+                                        ) {
+                                            value(fieldStore)
 //                                        changes.map {
 //                                            stores.map { (f, s) -> f to s.current }.toMap()
 //                                        } handledBy activeSearchPluginConfigurationStore.search
+                                        }
+                                    }
+
+                                    is SearchContextField.IntField -> {
+                                        textField(
+                                            placeHolder = field.placeHolder, label = field.name
+                                        ) {
+                                            value(fieldStore)
+
+                                        }
+                                    }
+
+                                    is SearchContextField.StringField -> {
+                                        textField(
+                                            placeHolder = field.placeHolder, label = field.name
+                                        ) {
+                                            value(fieldStore)
+
+                                        }
                                     }
                                 }
 
-                                is SearchContextField.IntField -> {
-                                    textField(
-                                        placeHolder = field.placeHolder, label = field.name
-                                    ) {
-                                        value(fieldStore)
-                                    }
+                                if (field.help.isNotBlank()) {
+                                    infoPopup("Help", markdown = field.help)
                                 }
-
-                                is SearchContextField.StringField -> {
-                                    textField(
-                                        placeHolder = field.placeHolder, label = field.name
-                                    ) {
-                                        value(fieldStore)
-                                    }
-                                }
-
                             }
                         }
                     }

@@ -23,7 +23,7 @@ fun RenderContext.textField(
     initialize: InputField<HTMLDivElement>.() -> Unit
 ) {
     border {
-        inputField("flex flex-col items-center w-full", id = id, scope = scope) {
+        inputField("flex flex-col items-center w-80%", id = id, scope = scope) {
             initialize(this)
             div("flex flex-row items-center w-full") {
                 label?.let { l ->

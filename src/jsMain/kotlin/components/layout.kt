@@ -19,7 +19,7 @@ fun RenderContext.leftRightRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
 }
 
 fun RenderContext.border(content: HtmlTag<HTMLDivElement>.() -> Unit) {
-    div("rounded-lg border-2 border-blueBright-100 my-2 p-2 w-full", content = content)
+    div("rounded-lg border-2 border-blueBright-100 my-2 p-2 w-[80%]", content = content)
 }
 
 fun RenderContext.centeredMainPanel(content: HtmlTag<HTMLDivElement>.() -> Unit) =

@@ -127,10 +127,10 @@ fun RenderContext.templateVarEditor(
 
             border {
                 flexRow {
-                    textField("", "name") {
+                    textField("", "Variable Name") {
                         value(nameStore)
                     }
-                    textAreaField {
+                    textAreaField(label = "Help Text") {
                         value(helpStore)
                     }
                     defaultValueStore.data.render { defaultValue ->
@@ -149,7 +149,7 @@ fun RenderContext.templateVarEditor(
                                 textField("", "Default Value") {
                                     value(defaultValueStore)
                                 }
-                                textField("", "PlaceHolder") {
+                                textField("", "Place Holder") {
                                     value(placeHolderStore)
                                 }
 

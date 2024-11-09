@@ -7,77 +7,92 @@
             "type": "str",
             "name": "q",
             "defaultValue": "",
-            "placeHolder": "wattstrasse 11, 10115, Berlin, DE"
+            "placeholder": "wattstrasse 11, 10115, Berlin, DE",
+            "help": "Enter address, e.g., 'wattstrasse 11, 10115, Berlin, DE'"
         },
         {
             "type": "int",
             "name": "abbrv",
-            "placeHolder": "Set to 1 to abbreviate results"
+            "placeholder": "1",
+            "help": "Set to 1 to abbreviate results"
         },
         {
             "type": "int",
             "name": "address_only",
-            "placeHolder": "Set to 1 for address-only results"
+            "placeholder": "1",
+            "help": "Set to 1 for address-only results"
         },
         {
             "type": "int",
             "name": "add_request",
-            "placeHolder": "Set to 1 to include request parameters in the response"
+            "placeholder": "1",
+            "help": "Set to 1 to include request parameters in the response"
         },
         {
             "type": "str",
             "name": "bounds",
-            "placeHolder": "Example: -0.563160,51.280430,0.278970,51.683979"
+            "placeholder": "-0.563160,51.280430,0.278970,51.683979",
+            "help": "Define bounding box, e.g., '-0.563160,51.280430,0.278970,51.683979'"
         },
         {
             "type": "str",
             "name": "countrycode",
-            "placeHolder": "Example: de or ca,us"
+            "placeholder": "de",
+            "help": "Restrict to country codes, e.g., 'de' or 'ca,us'"
         },
         {
             "type": "str",
             "name": "jsonp",
-            "placeHolder": "Function name for JSONP wrapping"
+            "placeholder": "callbackFunction",
+            "help": "Specify function name for JSONP wrapping"
         },
         {
             "type": "str",
             "name": "language",
-            "placeHolder": "Language code, e.g., en or de"
+            "placeholder": "en",
+            "help": "Language code, e.g., 'en' or 'de'"
         },
         {
             "type": "int",
             "name": "limit",
-            "placeHolder": "Maximum number of results, max 100"
+            "placeholder": "10",
+            "help": "Maximum number of results (max 100)"
         },
         {
             "type": "int",
             "name": "no_annotations",
-            "placeHolder": "Set to 1 to exclude annotations"
+            "placeholder": "1",
+            "help": "Set to 1 to exclude annotations"
         },
         {
             "type": "int",
             "name": "no_dedupe",
-            "placeHolder": "Set to 1 to disable deduplication"
+            "placeholder": "1",
+            "help": "Set to 1 to disable deduplication"
         },
         {
             "type": "int",
             "name": "no_record",
-            "placeHolder": "Set to 1 to avoid logging the query"
+            "placeholder": "1",
+            "help": "Set to 1 to avoid logging the query"
         },
         {
             "type": "int",
             "name": "pretty",
-            "placeHolder": "Set to 1 for pretty-printed results"
+            "placeholder": "1",
+            "help": "Set to 1 for pretty-printed results"
         },
         {
             "type": "str",
             "name": "proximity",
-            "placeHolder": "Latitude,Longitude to bias results"
+            "placeholder": "52.5200,13.4050",
+            "help": "Bias results towards this location, e.g., '52.5200,13.4050'"
         },
         {
             "type": "int",
             "name": "roadinfo",
-            "placeHolder": "Set to 1 to match nearest road"
+            "placeholder": "1",
+            "help": "Set to 1 to include nearest road information"
         }
     ],
     "metrics": [
