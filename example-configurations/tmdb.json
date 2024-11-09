@@ -6,6 +6,7 @@
         {
             "type": "str",
             "name": "query",
+            "help": "Enter your search query here.",
             "defaultValue": "",
             "placeHolder": "The Matrix"
         }
