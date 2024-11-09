@@ -36,8 +36,12 @@ fun RenderContext.overlay(
             }
         }
         div("absolute h-screen w-screen top-0 left-0 bg-gray-300 bg-opacity-90") {
-            div(baseClass, content = content)
-
+            div(baseClass) {
+                domNode.addEventListener("click", { event ->
+                    event.stopImmediatePropagation() // Prevent event from reaching the overlay's click handler
+                })
+                content(this)
+            }
         }
     }
 }
