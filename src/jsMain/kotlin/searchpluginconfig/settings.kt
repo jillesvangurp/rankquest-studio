@@ -45,22 +45,25 @@ class SettingsStore : LocalStoringStore<Settings>(
 }
 
 val SettingsStore.openAiBaseUrlStore
-    get() = map(lensOf<Settings, String>(
-        "openAiBaseUrl",
-        { s -> s.openAiBaseUrl ?: "" },
-        { s, v -> s.copy(openAiBaseUrl = v) })
+    get() = map(
+        lensOf<Settings, String>(
+            "openAiBaseUrl",
+            { s -> s.openAiBaseUrl ?: "" },
+            { s, v -> s.copy(openAiBaseUrl = v) })
     )
 val SettingsStore.openAiApiKeyStore
-    get() = map(lensOf<Settings, String>(
-        "openAiApiKey",
-        { s -> s.openAiApiKey },
-        { s, v -> s.copy(openAiApiKey = v) })
+    get() = map(
+        lensOf<Settings, String>(
+            "openAiApiKey",
+            { s -> s.openAiApiKey },
+            { s, v -> s.copy(openAiApiKey = v) })
     )
 val SettingsStore.modelStore
-    get() = map(lensOf<Settings, String>(
-        "model",
-        { s -> s.model },
-        { s, v -> s.copy(model = v) })
+    get() = map(
+        lensOf<Settings, String>(
+            "model",
+            { s -> s.model },
+            { s, v -> s.copy(model = v) })
     )
 
 val settingsModule = module {
@@ -83,8 +86,27 @@ fun RenderContext.settings() {
         ) {
             value(settingsStore.openAiBaseUrlStore)
         }
-        textField("XYZ", "Base Url", description = "Your API key if one is needed. Leave blank for ollama.") {
-            value(settingsStore.openAiApiKeyStore)
+        val showApiKeyFieldStore = storeOf(false)
+        div {
+            a {
+                showApiKeyFieldStore.data.render { show ->
+                    if (show) {
+                        +"Hide API Key"
+                    } else {
+                        +"Edit API Key"
+                    }
+                    clicks handledBy {
+                        showApiKeyFieldStore.update(!showApiKeyFieldStore.current)
+                    }
+                }
+            }
+            showApiKeyFieldStore.data.render { show ->
+                if(show) {
+                    textField("XYZ", "API Key", description = "Your API key if one is needed. Leave blank for ollama.") {
+                        value(settingsStore.openAiApiKeyStore)
+                    }
+                }
+            }
         }
         settingsStore.data.render { s ->
             settingsStore.models.data.render { models ->
