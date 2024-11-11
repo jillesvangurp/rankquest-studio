@@ -176,6 +176,10 @@ fun RenderContext.templateVarEditor(
                             }
                         }
                     }
+                }
+                flexRow {
+
+
                     primaryButton {
                         +"Change"
                         clicks.map {
@@ -194,16 +198,19 @@ fun RenderContext.templateVarEditor(
                                         name = nameStore.current,
                                         help = helpStore.current,
                                         required = requiredStore.current,
-                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toIntOrNull(),
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }
+                                            ?.toIntOrNull(),
                                         placeHolder = placeHolderStore.current,
                                     )
                                 }
+
                                 SearchContextField.DoubleField::class.simpleName!! -> {
                                     SearchContextField.DoubleField(
                                         name = nameStore.current,
                                         help = helpStore.current,
                                         required = requiredStore.current,
-                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toDoubleOrNull(),
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }
+                                            ?.toDoubleOrNull(),
                                         placeHolder = placeHolderStore.current,
                                     )
                                 }
@@ -228,6 +235,7 @@ fun RenderContext.templateVarEditor(
                             })
                         }
                     }
+
                     secondaryButton(iconSource = SvgIconSource.Cross) {
                         clicks handledBy {
                             searchContextFieldsStore.update(searchContextFieldsStore.current.filter { it.name != field.name })
@@ -246,6 +254,11 @@ fun RenderContext.templateVarEditor(
                                     primaryButton {
                                         +"int"
                                         disabled(fieldType == SearchContextField.IntField::class.simpleName!!)
+                                        clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
+                                    }
+                                    primaryButton {
+                                        +"double"
+                                        disabled(fieldType == SearchContextField.DoubleField::class.simpleName!!)
                                         clicks.map { SearchContextField.IntField::class.simpleName!! } handledBy typeStore.update
                                     }
                                     primaryButton {
@@ -269,7 +282,7 @@ fun RenderContext.templateVarEditor(
 
             flexRow {
                 val fieldNameStore = storeOf("")
-                textField("", "field", description = "Add more search context fields") {
+                textField("", "field", description = "Add new field") {
                     value(fieldNameStore)
                     keypresss.filter { it.key == "Enter" } handledBy {
 
@@ -296,7 +309,6 @@ fun RenderContext.templateVarEditor(
                 }
             }
         }
-
     }
 }
 
