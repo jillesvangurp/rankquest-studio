@@ -43,6 +43,7 @@ fun RenderContext.searchScreen() {
                 it.name to when (it) {
                     is SearchContextField.BoolField -> storeOf("${it.defaultValue ?: ""}")
                     is SearchContextField.IntField -> storeOf("${it.defaultValue ?: ""}")
+                    is SearchContextField.DoubleField -> storeOf("${it.defaultValue ?: ""}")
                     is SearchContextField.StringField -> storeOf(it.defaultValue ?: "")
                 }
             }
@@ -105,6 +106,14 @@ fun RenderContext.searchForm(
                     }
 
                     is SearchContextField.IntField -> {
+                        textField(
+                            placeHolder = field.placeHolder, label = field.name
+                        ) {
+                            value(fieldStore)
+
+                        }
+                    }
+                    is SearchContextField.DoubleField -> {
                         textField(
                             placeHolder = field.placeHolder, label = field.name
                         ) {

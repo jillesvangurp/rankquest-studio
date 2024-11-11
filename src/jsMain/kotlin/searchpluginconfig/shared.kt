@@ -5,6 +5,7 @@ import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchContextField
 import com.jilesvangurp.rankquest.core.pluginconfiguration.SearchPluginConfiguration
 import components.*
 import dev.fritz2.core.*
+import dev.fritz2.headless.components.checkboxGroup
 import koin
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
@@ -77,17 +78,14 @@ fun RenderContext.templateVarEditor(
             val newVars = templateVarsRE.findAll(queryTemplateStore.current).let { matchResult ->
                 matchResult.mapNotNull { m ->
                     m.groups[1]?.value?.let { field ->
-                        console.log(field)
                         SearchContextField.StringField(field)
                     }
                 }
             }.sortedBy { it.name }.distinctBy { it.name }.toList()
 
             newVars.filter { newVar ->
-                console.log(newVar, searchContextFieldsStore.current.toString())
                 searchContextFieldsStore.current.firstOrNull { it.name == newVar.name } == null
             }.takeIf { it.isNotEmpty() }?.let { fields ->
-                console.log(fields.toString())
                 searchContextFieldsStore.update((searchContextFieldsStore.current + fields).distinctBy { it.name })
             }
         }
@@ -112,15 +110,18 @@ fun RenderContext.templateVarEditor(
         fields.forEach { field ->
             val nameStore = storeOf(field.name)
             val helpStore = storeOf(field.help)
+            val requiredStore = storeOf(field.required)
             val typeStore = storeOf(field::class.simpleName!!)
             val defaultValueStore = when (field) {
                 is SearchContextField.BoolField -> storeOf(field.defaultValue?.toString()?:"")
                 is SearchContextField.IntField -> storeOf(field.defaultValue?.toString()?:"")
+                is SearchContextField.DoubleField -> storeOf(field.defaultValue?.toString()?:"")
                 is SearchContextField.StringField -> storeOf(field.defaultValue?:"")
             }
             val placeHolderStore = when (field) {
                 is SearchContextField.BoolField -> storeOf("")
                 is SearchContextField.IntField -> storeOf(field.placeHolder)
+                is SearchContextField.DoubleField -> storeOf(field.placeHolder)
                 is SearchContextField.StringField -> storeOf(field.placeHolder)
             }
 
@@ -133,6 +134,25 @@ fun RenderContext.templateVarEditor(
                     textAreaField(label = "Help Text") {
                         value(helpStore)
                     }
+                    border {
+                        div("w-full flex-row justify-end") {
+                            label {
+
+                                +"Required "
+                                input("form-checkbox h-5 w-5 text-blue-600") {
+                                    type("checkbox")
+
+                                    requiredStore.data.render {on ->
+                                        checked(on)
+                                    }
+                                    clicks handledBy {
+                                        requiredStore.update(!requiredStore.current)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     defaultValueStore.data.render { defaultValue ->
                         when (field) {
                             is SearchContextField.BoolField -> {
@@ -164,6 +184,7 @@ fun RenderContext.templateVarEditor(
                                     SearchContextField.BoolField(
                                         name = nameStore.current,
                                         help = helpStore.current,
+                                        required = requiredStore.current,
                                         defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toBoolean()
                                     )
                                 }
@@ -172,7 +193,17 @@ fun RenderContext.templateVarEditor(
                                     SearchContextField.IntField(
                                         name = nameStore.current,
                                         help = helpStore.current,
+                                        required = requiredStore.current,
                                         defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toIntOrNull(),
+                                        placeHolder = placeHolderStore.current,
+                                    )
+                                }
+                                SearchContextField.DoubleField::class.simpleName!! -> {
+                                    SearchContextField.DoubleField(
+                                        name = nameStore.current,
+                                        help = helpStore.current,
+                                        required = requiredStore.current,
+                                        defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() }?.toDoubleOrNull(),
                                         placeHolder = placeHolderStore.current,
                                     )
                                 }
@@ -181,6 +212,7 @@ fun RenderContext.templateVarEditor(
                                     SearchContextField.StringField(
                                         name = nameStore.current,
                                         help = helpStore.current,
+                                        required = requiredStore.current,
                                         defaultValue = defaultValueStore.current.takeIf { it.isNotBlank() },
                                         placeHolder = placeHolderStore.current,
                                     )
@@ -247,6 +279,7 @@ fun RenderContext.templateVarEditor(
                                 fields + SearchContextField.StringField(
                                     fn,
                                     "",
+                                    false,
                                     ""
                                 )
                             )
@@ -257,8 +290,7 @@ fun RenderContext.templateVarEditor(
                     primaryButton(iconSource = SvgIconSource.Plus) {
                         disabled(fn.isBlank() || fn in fields.map { it.name })
                         clicks handledBy {
-                            console.log("adding $fn")
-                            searchContextFieldsStore.update(fields + SearchContextField.StringField(fn, "", ""))
+                            searchContextFieldsStore.update(fields + SearchContextField.StringField(fn, "", false,""))
                         }
                     }
                 }
