@@ -2,6 +2,18 @@ Rankquest Studio is a web based tool that you can use to benchmark search releva
 
 Learn how to [get started ](https://youtu.be/Nxr2UVs_n74?si=YKslAJbY7-BojcmB) with this short Youtube screen recording.
 
+## What is Rankquest Studio
+
+Rankquest studio allows you to create a set of rated searches for your search API. You can use this to calculate search relevance metrics and benchmark the quality of your search over time. 
+
+Rankquest Studio makes this easy by:
+
+- Providing a simple plugins to connect to your search API. Ranquest tests from the outside. If it returns a list of results, it can be tested.
+- Providing an easy to use UI to edit and rate your test cases. Add tags, descriptions, etc.
+- Using AI to help you generate test cases using simple prompts.
+- Making installation easy (there is none)
+- Using simple git friendly json files that you can import/export from the UI
+
 ## Why search relevance matters
 
 Most websites and apps have search functionality. There are all sorts of ways to implement this. There are managed solutions such as Algolia that are easy to integrate. You can use off the shelf packages like Opensearch, Solr, or Elasticsearch. And there are various databases that integrate search functionality. Additionally, there is a growing amount of products that support vector search and other AI based approaches. But how do you decide which is best for your use case? Where do you start?  
