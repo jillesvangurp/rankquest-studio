@@ -11,9 +11,15 @@ fun RenderContext.flexCol(content: HtmlTag<HTMLDivElement>.() -> Unit) {
 fun RenderContext.flexRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row flex-wrap gap-2 align-middle place-items-center", content = content)
 }
+
+fun RenderContext.flexRowReverse(content: HtmlTag<HTMLDivElement>.() -> Unit) {
+    div("flex flex-row-reverse flex-nowrap gap-2 align-middle place-items-start", content = content)
+}
+
 fun RenderContext.flexRowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row flex-wrap gap-2 align-middle place-items-center mx-auto w-fit", content = content)
 }
+
 fun RenderContext.leftRightRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
     div("flex flex-row w-full place-items-center justify-between", content = content)
 }

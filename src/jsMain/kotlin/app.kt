@@ -10,6 +10,7 @@ import metrics.metrics
 import testcases.testCases
 import search.searchScreen
 import searchpluginconfig.ActiveSearchPluginConfigurationStore
+import searchpluginconfig.SettingsStore
 import searchpluginconfig.pluginConfiguration
 import utils.JsLogLevel
 import utils.setJsLogLevel
@@ -20,6 +21,8 @@ suspend fun main() {
     koinInit()
     val cookiePermissionStore = koin.get<CookiePermissionStore>()
     cookiePermissionStore.awaitLoaded() // prevents flashing the cookie screen before we load the settings from local storage
+    // force initialization on start
+    val settingsStore = koin.get<SettingsStore>()
     render("#target") { // using id selector here, leave blank to use document.body by default
         busyPopupMountPoint()
 

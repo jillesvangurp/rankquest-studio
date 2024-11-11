@@ -40,7 +40,12 @@ class SettingsStore : LocalStoringStore<Settings>(
                 models.update(ai.listModels().map { it.id.id })
             }
         }
+    }
 
+    init {
+        data handledBy {
+            configure()
+        }
     }
 }
 
