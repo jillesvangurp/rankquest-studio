@@ -24,7 +24,7 @@ class ActiveSearchPluginConfigurationStore : LocalStoringStore<SearchPluginConfi
                 if (selectedPlugin != null) {
                     console.log("SEARCH $query")
                     val searchPlugin = pluginFactoryRegistry[config.pluginType]?.create(config)
-                    searchPlugin?.fetch(query, query["size"]?.toInt() ?: 10)
+                    searchPlugin?.fetch(query, query["size"]?.toIntOrNull() ?: 10)
                         ?: Result.failure(IllegalArgumentException("search plugin not found"))
                 } else {
                     Result.failure(IllegalArgumentException("no plugin selected"))
