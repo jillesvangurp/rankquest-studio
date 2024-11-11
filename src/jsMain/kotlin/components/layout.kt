@@ -13,7 +13,7 @@ fun RenderContext.flexRow(content: HtmlTag<HTMLDivElement>.() -> Unit) {
 }
 
 fun RenderContext.flexRowReverse(content: HtmlTag<HTMLDivElement>.() -> Unit) {
-    div("flex flex-row-reverse flex-nowrap gap-2 align-middle place-items-start", content = content)
+    div("flex flex-row-reverse flex-nowrap gap-2 items-start", content = content)
 }
 
 fun RenderContext.flexRowCentered(content: HtmlTag<HTMLDivElement>.() -> Unit) {

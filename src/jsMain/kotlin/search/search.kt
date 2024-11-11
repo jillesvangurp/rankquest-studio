@@ -48,7 +48,7 @@ fun RenderContext.searchScreen() {
             }
             centeredMainPanel {
                 flexRowReverse {
-                    div("flex flex-col items-left space-y-1 w-fit m-auto") {
+                    div("flex flex-col justify-start space-y-1 w-fit mx-auto") {
                         h1(content = fun HtmlTag<HTMLHeadingElement>.() {
                             +config.name
                         })
