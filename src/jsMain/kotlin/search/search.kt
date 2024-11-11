@@ -275,6 +275,8 @@ The response should be json object with a list property items matching this sche
     "additionalProperties": false
   }
 }
+
+It is important to use the same fields as the original parameters.
 """.trimIndent())
                 textAreaField("", "AI System Prompt") {
                     value(systemPromptStore)
