@@ -158,7 +158,7 @@ fun RenderContext.infoPopupFile(markdownFile: String, zPriority: ZPriority = ZPr
 
 fun RenderContext.infoPopup(title: String = "Title TODO", markdown: String, zPriority: ZPriority = ZPriority.TOP) {
     val infoPopoverOpenStore = storeOf(false)
-    secondaryButton(iconSource = SvgIconSource.Question) {
+    secondaryButtonSmall(iconSource = SvgIconSource.Question) {
         clicks.map { true } handledBy infoPopoverOpenStore.update
     }
     infoPopoverOpenStore.data.render {opened ->

@@ -53,8 +53,13 @@ val movieQuotesSearchPluginConfig = SearchPluginConfiguration(
     name = "movie-quotes",
     pluginType = "movies",
     fieldConfig = listOf(
-        SearchContextField.StringField("q"),
-        SearchContextField.IntField("size", defaultValue = 5)
+        SearchContextField.StringField(
+            name = "q",
+            help = "Query for quote or movie",
+            required = true,
+            placeHolder = "Hasta la vista, baby"
+        ),
+        SearchContextField.IntField(name = "size", defaultValue = 5, help = "How many results to fetch")
     ),
     pluginSettings = null,
     metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }
@@ -65,8 +70,13 @@ val movieQuotesNgramsSearchPluginConfig = SearchPluginConfiguration(
     name = "movie-quotes-ngrams",
     pluginType = "movies",
     fieldConfig = listOf(
-        SearchContextField.StringField("q"),
-        SearchContextField.IntField("size", defaultValue = 5)
+        SearchContextField.StringField(
+            name = "q",
+            help = "Query for quote or movie",
+            required = true,
+            placeHolder = "Hasta la vista, baby"
+        ),
+        SearchContextField.IntField(name = "size", defaultValue = 5, help = "How many results to fetch")
     ),
     pluginSettings = null,
     metrics = Metric.entries.map { MetricConfiguration(it.name, it, it.supportedParams) }

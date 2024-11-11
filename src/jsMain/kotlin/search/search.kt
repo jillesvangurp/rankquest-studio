@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import openai.OpenAiService
+import org.w3c.dom.HTMLDivElement
 import searchpluginconfig.noConfigYet
 import utils.md5Hash
 
@@ -91,7 +92,10 @@ fun RenderContext.searchForm(
     div {
         for (field in config.fieldConfig) {
             val fieldStore = stores[field.name]!!
-            flexRow {
+            //                                        changes.map {
+//                                            stores.map { (f, s) -> f to s.current }.toMap()
+//                                        } handledBy activeSearchPluginConfigurationStore.search
+            div("flex flex-row flex-nowrap gap-2 align-middle place-items-center", content = fun HtmlTag<HTMLDivElement>.() {
                 when (field) {
                     is SearchContextField.BoolField -> {
 
@@ -135,7 +139,7 @@ fun RenderContext.searchForm(
                 if (field.help.isNotBlank()) {
                     infoPopup("Help", markdown = field.help)
                 }
-            }
+            })
         }
     }
     flexRow {
