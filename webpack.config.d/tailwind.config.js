@@ -83,15 +83,18 @@ const tailwind = {
         prefix: "", // prefix for daisyUI classnames (components, modifiers and responsive class names. Not colors)
         logs: true, // Shows info about daisyUI version and used config in the console when building your CSS
         themeRoot: ":root", // The element that receives theme color CSS variables
-//        themes: [
-//            {
-//                light: {
-//                  ...require("daisyui/src/theming/themes")["light"],
-//                  primary: "#2356d2",
-//                  secondary: "#6b748a",
-//                },
-//            }
-//        ]
+        themes: [
+            {
+                light: {
+                  ...require("daisyui/src/theming/themes")["light"],
+                  primary: "#2b6ae5",
+                  "primary-content": "white",
+                  "base-content": "black",
+                  secondary: "#546aa1",
+                  "secondary-content": "white",
+                },
+            }
+        ]
     },
 };
 

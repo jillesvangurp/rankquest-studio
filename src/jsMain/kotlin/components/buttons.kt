@@ -27,10 +27,7 @@ fun RenderContext.primaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = """my-2 w-fit text-white bg-blueBright-600 hover:bg-blueBright-700 disabled:bg-gray-300 
-        |focus:ring-button-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-6 py-2 focus:outline-none 
-        |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
+    "btn btn-primary",
     id = id,
     scope = scope,
     content = {
@@ -57,10 +54,7 @@ fun RenderContext.secondaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = """my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 
-        |focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-6 py-2 focus:outline-none
-        |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
+    baseClass = """btn btn-secondary""".trimMargin(),
     id = id,
     scope = scope,
     content = {
@@ -86,10 +80,7 @@ fun RenderContext.secondaryButtonSmall(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = """my-2 w-fit text-white bg-blueMuted-600 hover:bg-blueMuted-700 disabled:bg-gray-300 
-        |focus:ring-buttonSecondary-300 focus:ring-4 font-medium rounded-lg 
-        |text-sm px-2 py-2 focus:outline-none
-        |drop-shadow-md hover:drop-shadow-xl""".trimMargin(),
+    baseClass = """btn btn-secondary btn-sm""".trimMargin(),
     id = id,
     scope = scope,
     content = {
@@ -224,12 +215,10 @@ fun <T> RenderContext.jsonFileImport(
 ) {
     flexRow {
         val textStore = storeOf("")
-        val fileInputId = "file-input-${Random.nextULong()}"
         textStore.data.render { text ->
             textFileInput(
                 fileType = ".json",
                 textStore = textStore,
-                fileInputId = fileInputId
             )
             primaryButton(text = buttonText, iconSource = SvgIconSource.Upload) {
                 disabled(text.isBlank())
@@ -239,11 +228,6 @@ fun <T> RenderContext.jsonFileImport(
                         onImport.invoke(decoded)
                     } catch (e: Exception) {
                         errorBubble("Parse error for file: ${e.message}")
-                    }
-                    document.getElementById(fileInputId)?.let { inputElement ->
-                        inputElement as HTMLInputElement
-                        inputElement.value = ""
-                        textStore.update("")
                     }
                     after?.invoke()
                 }

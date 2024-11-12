@@ -38,7 +38,7 @@ fun RenderContext.textField(
                     placeHolder?.let { pl ->
                         placeholder(pl)
                     }
-                    inputs handledBy { it.target?.dispatchEvent(Event("change"))}
+                    inputs handledBy { it.target?.dispatchEvent(Event("change")) }
                 }
             }
             description?.let {
@@ -143,15 +143,12 @@ fun RenderContext.switchField(
 
 fun RenderContext.textFileInput(
     textStore: Store<String>,
-    fileType: String=".json",
-    fileInputId:String = "file-input-${Random.nextULong()}",
-    baseClass: String? = """file:my-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 
-        |focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 
-        |focus:file:outline-none hover:file:cursor-pointer""".trimMargin()
+    fileType: String = ".json",
 ) {
-    input(baseClass = baseClass, id = fileInputId) {
+    input("file-input file-input-bordered file-input-primary w-full max-w-xs") {
         type("file")
         accept(fileType)
+
         changes handledBy {
             it.currentTarget?.let { t ->
                 val inputElement = t as HTMLInputElement
@@ -167,7 +164,30 @@ fun RenderContext.textFileInput(
                 }
             }
         }
+
     }
+
+//    input(baseClass = baseClass, id = fileInputId) {
+//        type("file")
+//        accept(fileType)
+//
+//        changes handledBy {
+//            it.currentTarget?.let { t ->
+//                val inputElement = t as HTMLInputElement
+//                inputElement.files?.get(0)?.let { file ->
+//                    val reader = FileReader()
+//                    reader.onload = {
+//                        val pe = it as ProgressEvent
+//                        val text = (pe.target as FileReader).result as String
+//                        textStore.update(text)
+//                        it
+//                    }
+//                    reader.readAsText(file)
+//                }
+//            }
+//        }
+//    }
+
 }
 
 fun RenderContext.selectBox(
@@ -177,8 +197,10 @@ fun RenderContext.selectBox(
 ) {
     listbox {
         value(selectedStore)
-        listboxButton("""bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg 
-            |focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5""".trimMargin()) {
+        listboxButton(
+            """bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg 
+            |focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5""".trimMargin()
+        ) {
             span { value.data.renderText() }
         }
         listboxItems("flex flex-col") {
