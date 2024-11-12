@@ -31,18 +31,11 @@ fun RenderContext.primaryButton(
     id = id,
     scope = scope,
     content = {
-        if (iconSource != null || text != null) {
-            div("flex flex-row gap-2 flex-nowrap align-middle") {
-                iconSource?.let {
-                    iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
-                }
-                text?.let {
-                    div {
-                        +text
-                    }
-                }
-            }
+        iconSource?.let {
+            iconImage(iconSource, baseClass = "h-6 w-6 fill-white")
         }
+        if(text != null)
+        +text
         content.invoke(this)
     }
 )
@@ -58,17 +51,11 @@ fun RenderContext.secondaryButton(
     id = id,
     scope = scope,
     content = {
-        if (iconSource != null || text != null) {
-            div("flex flex-row gap-2 place-items-center") {
-                iconSource?.let {
-                    iconImage(iconSource, baseClass = "h-5 w-5 fill-white place-items-center")
-                }
-                text?.let {
-                    span {
-                        +text
-                    }
-                }
-            }
+        iconSource?.let {
+            iconImage(iconSource, baseClass = "h-6 w-6 fill-white")
+        }
+        if(text != null) {
+            +text
         }
         content.invoke(this)
     }
@@ -84,17 +71,11 @@ fun RenderContext.secondaryButtonSmall(
     id = id,
     scope = scope,
     content = {
-        if (iconSource != null || text != null) {
-            div("flex flex-row gap-2 place-items-center") {
-                iconSource?.let {
-                    iconImage(iconSource, baseClass = "h-4 w-4 fill-white place-items-center")
-                }
-                text?.let {
-                    span {
-                        +text
-                    }
-                }
-            }
+        iconSource?.let {
+            iconImage(iconSource, baseClass = "h-4 w-4 fill-white place-items-center")
+        }
+        if(text!=null) {
+            +text
         }
         content.invoke(this)
     }
