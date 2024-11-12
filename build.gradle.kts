@@ -51,6 +51,7 @@ kotlin {
                 // tailwind
                 implementation(npm("tailwindcss", "_"))
                 implementation(npm("@tailwindcss/forms", "_"))
+                implementation(npm("daisyui", "_"))
 
                 // fluent-js
                 implementation("com.tryformation:fluent-kotlin:_")
