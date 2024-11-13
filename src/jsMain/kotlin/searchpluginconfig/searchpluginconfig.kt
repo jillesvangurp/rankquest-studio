@@ -21,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.datetime.Clock
 import kotlinx.serialization.builtins.ListSerializer
 import metrics.explanation
+import org.w3c.dom.HTMLDivElement
 
 val configurationModule = module {
     singleOf(::PluginConfigurationsStore)
@@ -85,7 +86,8 @@ fun RenderContext.pluginConfiguration() {
                                 )
                             }
                         }
-                        leftRightRow {
+                        // can't edit the demo plugins
+                        div("flex flex-row w-full place-items-center justify-between my-1", content = fun HtmlTag<HTMLDivElement>.() {
                             div {
                                 +pluginConfig.name
                             }
@@ -117,8 +119,7 @@ fun RenderContext.pluginConfiguration() {
                                 }
                             }
                             metricsEditor(showMetricsEditor, metricConfigurationsStore, editMetricStore)
-
-                        }
+                        })
                     }
                     div("w-full place-items-end mt-10") {
                         settings()

@@ -1,18 +1,33 @@
 package components
 
-import dev.fritz2.core.*
-import dev.fritz2.headless.components.*
+import dev.fritz2.core.RenderContext
+import dev.fritz2.core.ScopeContext
+import dev.fritz2.core.Store
+import dev.fritz2.core.accept
+import dev.fritz2.core.placeholder
+import dev.fritz2.core.selected
+import dev.fritz2.core.storeOf
+import dev.fritz2.core.transition
+import dev.fritz2.core.type
+import dev.fritz2.core.value
+import dev.fritz2.headless.components.InputField
+import dev.fritz2.headless.components.SwitchWithLabel
+import dev.fritz2.headless.components.TextArea
+import dev.fritz2.headless.components.inputField
+import dev.fritz2.headless.components.listbox
+import dev.fritz2.headless.components.switchWithLabel
+import dev.fritz2.headless.components.textArea
 import dev.fritz2.headless.foundation.Aria
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.Event
+import org.w3c.files.File
 import org.w3c.files.FileReader
 import org.w3c.files.get
 import org.w3c.xhr.ProgressEvent
-import kotlin.random.Random
-import kotlin.random.nextULong
 
 fun RenderContext.textField(
     placeHolder: String? = null,
@@ -38,7 +53,7 @@ fun RenderContext.textField(
                     placeHolder?.let { pl ->
                         placeholder(pl)
                     }
-                    inputs handledBy { it.target?.dispatchEvent(Event("change"))}
+                    inputs handledBy { it.target?.dispatchEvent(Event("change")) }
                 }
             }
             description?.let {
@@ -142,29 +157,47 @@ fun RenderContext.switchField(
 }
 
 fun RenderContext.textFileInput(
-    textStore: Store<String>,
-    fileType: String=".json",
-    fileInputId:String = "file-input-${Random.nextULong()}",
-    baseClass: String? = """file:my-2 file:text-white file:font-medium file:bg-blueBright-600 hover:file:bg-blueBright-700 
-        |focus:file:ring-button-300 focus:file:ring-4 file:font-medium file:rounded-lg file:px-5 file:py-2.5 
-        |focus:file:outline-none hover:file:cursor-pointer""".trimMargin()
+    store: Store<Pair<File,String>?>,
+    fileType: String = ".json",
 ) {
-    input(baseClass = baseClass, id = fileInputId) {
+    // Hidden file input for selecting files
+    val fileInput = input("hidden") {
         type("file")
         accept(fileType)
-        changes handledBy {
-            it.currentTarget?.let { t ->
-                val inputElement = t as HTMLInputElement
-                inputElement.files?.get(0)?.let { file ->
-                    val reader = FileReader()
-                    reader.onload = {
-                        val pe = it as ProgressEvent
-                        val text = (pe.target as FileReader).result as String
-                        textStore.update(text)
-                        it
-                    }
-                    reader.readAsText(file)
+    }.apply {
+        domNode.addEventListener("change", { event ->
+            console.log("change!")
+            val inputElement = event.target as HTMLInputElement
+            val file = inputElement.files?.item(0)
+
+            if (file != null) {
+                console.log("file!", file.name)
+                val reader = FileReader()
+                reader.onload = { loadEvent ->
+                    val text = (loadEvent.target as FileReader).result as String
+                    store.update(file to text)
                 }
+                reader.readAsText(file)
+            } else {
+                console.log("null file")
+            }
+        })
+    }
+
+    // Visible button to trigger the hidden file input
+    button("btn btn-primary btn-sm") {
+        +"Select File"
+        clicks handledBy {
+            fileInput.domNode.click() // Trigger file selection dialog
+        }
+    }
+    store.data.render { p ->
+
+        span("w-24") {
+            if(p==null) {
+                +"Select File"
+            } else {
+                +p.first.name.let { if(it.length>12) "..${it.substring(it.length - 12)}" else it }
             }
         }
     }
@@ -173,31 +206,54 @@ fun RenderContext.textFileInput(
 fun RenderContext.selectBox(
     selectedStore: Store<String>,
     items: List<String>,
-    emptyItem: String? = null,
 ) {
-    listbox {
-        value(selectedStore)
-        listboxButton("""bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg 
-            |focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5""".trimMargin()) {
-            span { value.data.renderText() }
-        }
-        listboxItems("flex flex-col") {
-            transition(
-                on = opened,
-                enter = "transition duration-100 ease-out",
-                enterStart = "opacity-0 scale-95",
-                enterEnd = "opacity-100 scale-100",
-                leave = "transition duration-100 ease-in",
-                leaveStart = "opacity-100 scale-100",
-                leaveEnd = "opacity-0 scale-95"
-            )
-
-            // using a loop is a typical pattern to create the options
-            (listOfNotNull(emptyItem) + items).forEach { entry ->
-                listboxItem(entry) {
-                    span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2") { +entry }
+    selectedStore.data.render { selectedItem ->
+        select("select select-bordered w-full max-w-xs") {
+            value(selectedStore.data)
+            selects handledBy {
+                val element = it.target as HTMLSelectElement
+                selectedStore.update(element.value)
+            }
+            items.forEach { item ->
+                if (item == selectedItem) {
+                    option {
+                        selected(true)
+                        +item
+                    }
+                } else {
+                    option {
+                        +item
+                    }
                 }
             }
         }
     }
+
+//    listbox {
+//        value(selectedStore)
+//        listboxButton(
+//            """bg-blueBright-700 border border-blueBright-500 text-white text-sm rounded-lg
+//            |focus:ring-blueBright-600 focus:border-blueBright-500 block w-40 p-2.5""".trimMargin()
+//        ) {
+//            span { value.data.renderText() }
+//        }
+//        listboxItems("flex flex-col") {
+//            transition(
+//                on = opened,
+//                enter = "transition duration-100 ease-out",
+//                enterStart = "opacity-0 scale-95",
+//                enterEnd = "opacity-100 scale-100",
+//                leave = "transition duration-100 ease-in",
+//                leaveStart = "opacity-100 scale-100",
+//                leaveEnd = "opacity-0 scale-95"
+//            )
+//
+//            // using a loop is a typical pattern to create the options
+//            (listOfNotNull(emptyItem) + items).forEach { entry ->
+//                listboxItem(entry) {
+//                    span("block bg-blueBright-200 hover:bg-blueBright-300 text-blueBright-900 p-2") { +entry }
+//                }
+//            }
+//        }
+//    }
 }
