@@ -17,8 +17,8 @@ import kotlin.random.nextULong
 import kotlinx.browser.document
 import kotlinx.serialization.KSerializer
 import org.w3c.dom.HTMLButtonElement
-import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.MouseEvent
+import org.w3c.files.File
 
 fun RenderContext.primaryButton(
     id: String? = null,
@@ -27,15 +27,15 @@ fun RenderContext.primaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    "btn btn-primary",
+    "btn btn-primary btn-sm",
     id = id,
     scope = scope,
     content = {
         iconSource?.let {
-            iconImage(iconSource, baseClass = "h-6 w-6 fill-white")
+            iconImage(iconSource, baseClass = "h-4 w-4 fill-white")
         }
-        if(text != null)
-        +text
+        if (text != null)
+            +text
         content.invoke(this)
     }
 )
@@ -47,19 +47,20 @@ fun RenderContext.secondaryButton(
     text: String? = null,
     content: HtmlTag<HTMLButtonElement>.() -> Unit
 ) = button(
-    baseClass = """btn btn-secondary""".trimMargin(),
+    baseClass = """btn btn-secondary btn-sm""".trimMargin(),
     id = id,
     scope = scope,
     content = {
         iconSource?.let {
-            iconImage(iconSource, baseClass = "h-6 w-6 fill-white")
+            iconImage(iconSource, baseClass = "h-4 w-4 fill-white")
         }
-        if(text != null) {
+        if (text != null) {
             +text
         }
         content.invoke(this)
     }
 )
+
 fun RenderContext.secondaryButtonSmall(
     id: String? = null,
     scope: (ScopeContext.() -> Unit) = {},
@@ -74,7 +75,7 @@ fun RenderContext.secondaryButtonSmall(
         iconSource?.let {
             iconImage(iconSource, baseClass = "h-4 w-4 fill-white place-items-center")
         }
-        if(text!=null) {
+        if (text != null) {
             +text
         }
         content.invoke(this)
@@ -110,10 +111,10 @@ fun <T> RenderContext.jsonDownloadButton(
     fileName: String,
     serializer: KSerializer<T>,
     buttonText: String = "Download",
-    converter: (T) -> String = {content ->
+    converter: (T) -> String = { content ->
         DEFAULT_PRETTY_JSON.encodeToString(serializer, content)
     },
-    after: (suspend () -> Unit)?=null
+    after: (suspend () -> Unit)? = null
 ) {
     contentStore.data.render { content ->
         val downloadLinkId = "link-${Random.nextULong()}"
@@ -191,27 +192,26 @@ fun <T> RenderContext.jsonDownloadButton(
 fun <T> RenderContext.jsonFileImport(
     serializer: KSerializer<T>,
     buttonText: String = "Import",
-    after: (suspend () -> Unit)?=null,
+    after: (suspend () -> Unit)? = null,
     onImport: (T) -> Unit,
 ) {
-    flexRow {
-        val textStore = storeOf("")
-        textStore.data.render { text ->
-            textFileInput(
-                fileType = ".json",
-                textStore = textStore,
-            )
-            primaryButton(text = buttonText, iconSource = SvgIconSource.Upload) {
-                disabled(text.isBlank())
-                clicks handledBy {
-                    try {
-                        val decoded = DEFAULT_JSON.decodeFromString(serializer, text)
-                        onImport.invoke(decoded)
-                    } catch (e: Exception) {
-                        errorBubble("Parse error for file: ${e.message}")
-                    }
-                    after?.invoke()
+    val store = storeOf<Pair<File,String>?>(null)
+    store.data.render { pair ->
+        textFileInput(
+            fileType = ".json",
+            store = store,
+        )
+        primaryButton(text = buttonText, iconSource = SvgIconSource.Upload) {
+            disabled(pair == null)
+            clicks handledBy {
+                try {
+                    val decoded = DEFAULT_JSON.decodeFromString(serializer, pair!!.second)
+                    onImport.invoke(decoded)
+                    store.update(null)
+                } catch (e: Exception) {
+                    errorBubble("Parse error for file: ${e.message}")
                 }
+                after?.invoke()
             }
         }
     }
@@ -225,7 +225,7 @@ fun RenderContext.iconButton(
 ) {
     button(baseClass) {
         svg {
-            attr("viewBox",svg.viewBox)
+            attr("viewBox", svg.viewBox)
             content(svg.content)
         }
         title(title)

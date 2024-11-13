@@ -127,30 +127,9 @@ fun RenderContext.settings() {
             }
             settingsStore.data.render { s ->
                 settingsStore.models.data.render { models ->
-                    label {
+                    label("form-control") {
                         +"Pick a model"
-//                    selectBox(settingsStore.modelStore, models, emptyItem = "-")
-                        // buggy select in fritz2
-                        settingsStore.modelStore.data.render { current ->
-                            ul {
-                                models.forEach { modelId ->
-                                    li {
-                                        if (current == modelId) {
-                                            b {
-                                                +modelId
-                                            }
-                                        } else {
-                                            a {
-                                                +modelId
-                                                clicks handledBy {
-                                                    settingsStore.modelStore.update(modelId)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        selectBox(settingsStore.modelStore, models)
                     }
                 }
             }
