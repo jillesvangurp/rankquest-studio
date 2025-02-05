@@ -115,7 +115,7 @@ The `-t` option monitors the source code for changes and will trigger incrementa
 To produce production web assets that you can deploy to any webserver, run 
 
 ```bash
-./gradlew jsBrowserProductionWebpack
+./gradlew jsBrowserDistribution
 ```
 
 This compiles everything and then packs everything up with webpack. All the assets in src/jsMain/resources are copied to the root along with the compiled source code in javascript form and an `index.html` file. All the styling is done using [tailwind CSS](https://tailwindcss.com/).
